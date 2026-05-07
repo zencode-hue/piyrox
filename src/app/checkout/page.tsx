@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -185,14 +185,12 @@ function CheckoutPageInner() {
     Promise.all([
       fetch(`/api/v1/products/${productId}`).then((r) => r.json()),
       fetch("/api/v1/balance").then((r) => r.json()).catch(() => null),
-      // Detect country for payment method filtering
       fetch("https://ipapi.co/json/").then((r) => r.json()).catch(() => null),
     ]).then(([productData, balanceData, geoData]) => {
       const p = productData.data?.product ?? null;
       setProduct(p);
       if (balanceData?.data?.balance !== undefined) setBalance(balanceData.data.balance);
       if (geoData?.country_code) setCountry(geoData.country_code);
-      // Auto-select variant from URL param
       if (p?.variants?.length && variantIdParam) {
         const v = p.variants.find((v: { id: string }) => v.id === variantIdParam);
         if (v) setSelectedVariant(v);
@@ -226,7 +224,6 @@ function CheckoutPageInner() {
 
   async function handlePay(provider: "nowpayments" | "discord" | "balance" | "binance_gift_card" | "flutterwave") {
     if (!productId) return;
-    // Require email for guests
     if (balance === null && !guestEmail.trim()) {
       setPayErr("Please enter your email address to continue.");
       return;
@@ -235,14 +232,18 @@ function CheckoutPageInner() {
     const res = await fetch("/api/v1/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, variantId: selectedVariant?.id ?? variantIdParam ?? undefined, paymentProvider: provider, discountCode: discountCode || undefined, guestEmail: guestEmail || undefined }),
+      body: JSON.stringify({
+        productId,
+        variantId: selectedVariant?.id ?? variantIdParam ?? undefined,
+        paymentProvider: provider,
+        discountCode: discountCode || undefined,
+        guestEmail: guestEmail || undefined,
+      }),
     });
     const data = await res.json();
     setPaying(false);
     if (!res.ok) { setPayErr(data.error); return; }
-
     if (provider === "binance_gift_card") {
-      // Show inline instructions modal instead of redirecting
       setGiftCardModal({ orderId: data.data.orderId, amount: data.data.denomination ?? finalPrice });
       return;
     }
@@ -265,6 +266,8 @@ function CheckoutPageInner() {
     </div>
   );
 
+  const balanceAmt = balance ?? 0;
+
   return (
     <>
       {giftCardModal && (
@@ -276,10 +279,11 @@ function CheckoutPageInner() {
       )}
 
       <div className="min-h-screen flex items-center justify-center px-4 py-12">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(124,58,237,0.06) 0%, transparent 60%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(245,158,11,0.04) 0%, transparent 60%)" }} />
         <div className="w-full max-w-lg relative z-10 space-y-5">
           <h1 className="text-2xl font-bold text-white">Checkout</h1>
 
+          {/* Product summary */}
           <div className="glass-card p-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-xs text-gray-500 mb-1">{product.category}</p>
@@ -292,6 +296,7 @@ function CheckoutPageInner() {
             </div>
           </div>
 
+          {/* Discount code */}
           <div className="glass-card p-5">
             <label className="block text-sm text-gray-400 mb-2 flex items-center gap-1.5">
               <Tag size={14} /> Discount Code
@@ -301,24 +306,27 @@ function CheckoutPageInner() {
                 onChange={(e) => { setDiscountCode(e.target.value.toUpperCase()); setDiscountInfo(null); setDiscountErr(null); }}
                 placeholder="SAVE20" className="input-field flex-1 text-sm py-2" />
               <button onClick={applyDiscount} disabled={checkingDiscount || !discountCode.trim()} className="btn-secondary text-sm px-4 py-2">
-                {checkingDiscount ? "…" : "Apply"}
+                {checkingDiscount ? "..." : "Apply"}
               </button>
             </div>
             {discountErr && <p className="text-red-400 text-xs mt-2">{discountErr}</p>}
             {discountInfo && (
               <p className="text-green-400 text-xs mt-2">
-                ✅ {discountInfo.type === "PERCENTAGE" ? `${discountInfo.value}% off` : `$${discountInfo.value} off`} — saving ${discountInfo.discountAmount.toFixed(2)}
+                {discountInfo.type === "PERCENTAGE" ? `${discountInfo.value}% off` : `$${discountInfo.value} off`} - saving ${discountInfo.discountAmount.toFixed(2)}
               </p>
             )}
           </div>
 
+          {/* Payment methods */}
           <div className="glass-card p-5 space-y-3">
             <p className="text-sm text-gray-400 font-medium">Choose payment method</p>
 
-            {/* Guest email — shown only when not logged in */}
+            {/* Guest email - only when not logged in */}
             {balance === null && (
-              <div className="pb-1 border-b border-white/5">
-                <label className="block text-xs text-gray-400 mb-1.5">Your email address <span className="text-red-400">*</span></label>
+              <div className="pb-3 border-b border-white/5">
+                <label className="block text-xs text-gray-400 mb-1.5">
+                  Your email address <span className="text-red-400">*</span>
+                </label>
                 <input
                   type="email"
                   value={guestEmail}
@@ -332,25 +340,41 @@ function CheckoutPageInner() {
               </div>
             )}
 
-              <button onClick={() => handlePay("balance")} disabled={paying || !canPayWithBalance}
-                className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${canPayWithBalance ? "border-amber-500/30 hover:border-amber-500/60 hover:bg-amber-500/5" : "border-white/5 opacity-50 cursor-not-allowed"}`}>
+            {/* Balance - only when logged in */}
+            {balance !== null && (
+              <button
+                onClick={() => handlePay("balance")}
+                disabled={paying || !canPayWithBalance}
+                className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${
+                  canPayWithBalance
+                    ? "border-amber-500/30 hover:border-amber-500/60 hover:bg-amber-500/5"
+                    : "border-white/5 opacity-50 cursor-not-allowed"
+                }`}
+              >
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
                   <Wallet size={20} className="text-amber-400" />
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-white text-sm">Pay with Balance</p>
                   <p className="text-xs text-gray-500">
-                    {canPayWithBalance ? `Available: $${balance.toFixed(2)} — instant delivery` : `Insufficient balance ($${balance.toFixed(2)})`}
+                    {canPayWithBalance
+                      ? `Available: $${balanceAmt.toFixed(2)} - instant delivery`
+                      : `Insufficient balance ($${balanceAmt.toFixed(2)})`}
                   </p>
                 </div>
-                {canPayWithBalance && <ArrowRight size={16} className="text-gray-600 group-hover:text-cyan-400 transition-colors" />}
+                {canPayWithBalance && (
+                  <ArrowRight size={16} className="text-gray-600 group-hover:text-amber-400 transition-colors" />
+                )}
               </button>
             )}
 
-            {/* Binance Gift Card — hidden for North America */}
+            {/* Binance Gift Card - hidden for North America */}
             {!isNorthAmerica && (
-              <button onClick={() => handlePay("binance_gift_card")} disabled={paying}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-yellow-500/40 hover:bg-yellow-500/5 transition-all text-left group">
+              <button
+                onClick={() => handlePay("binance_gift_card")}
+                disabled={paying}
+                className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-yellow-500/40 hover:bg-yellow-500/5 transition-all text-left group"
+              >
                 <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center shrink-0">
                   <CreditCard size={20} className="text-yellow-400" />
                 </div>
@@ -363,8 +387,11 @@ function CheckoutPageInner() {
             )}
 
             {/* Crypto */}
-            <button onClick={() => handlePay("nowpayments")} disabled={paying}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-orange-500/40 hover:bg-orange-500/5 transition-all text-left group">
+            <button
+              onClick={() => handlePay("nowpayments")}
+              disabled={paying}
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-orange-500/40 hover:bg-orange-500/5 transition-all text-left group"
+            >
               <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
                 <Bitcoin size={20} className="text-orange-400" />
               </div>
@@ -376,8 +403,11 @@ function CheckoutPageInner() {
             </button>
 
             {/* Discord */}
-            <button onClick={() => handlePay("discord")} disabled={paying}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all text-left group">
+            <button
+              onClick={() => handlePay("discord")}
+              disabled={paying}
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all text-left group"
+            >
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
                 <MessageCircle size={20} className="text-amber-400" />
               </div>
@@ -385,31 +415,38 @@ function CheckoutPageInner() {
                 <p className="font-medium text-white text-sm">Pay via Discord</p>
                 <p className="text-xs text-gray-500">Join our server and complete payment manually</p>
               </div>
-              <ArrowRight size={16} className="text-gray-600 group-hover:text-indigo-400 transition-colors" />
+              <ArrowRight size={16} className="text-gray-600 group-hover:text-amber-400 transition-colors" />
             </button>
           </div>
 
           {paying && (
-            <div className="flex items-center justify-center gap-2 text-purple-400 text-sm">
-              <Loader2 size={16} className="animate-spin" /> Processing…
+            <div className="flex items-center justify-center gap-2 text-amber-400 text-sm">
+              <Loader2 size={16} className="animate-spin" /> Processing...
             </div>
           )}
           {payErr && <p className="text-red-400 text-sm text-center">{payErr}</p>}
 
           <div className="flex items-center justify-center gap-6 flex-wrap pt-2">
-            {[{ icon: "🔒", text: "Secure Payment" }, { icon: "⚡", text: "Instant Delivery" }, { icon: "🔄", text: "Replacement Guarantee" }].map((b) => (
+            {[
+              { icon: "🔒", text: "Secure Payment" },
+              { icon: "⚡", text: "Instant Delivery" },
+              { icon: "🔄", text: "Replacement Guarantee" },
+            ].map((b) => (
               <div key={b.text} className="flex items-center gap-1.5 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
                 <span>{b.icon}</span><span>{b.text}</span>
               </div>
             ))}
           </div>
 
-          <p className="text-center text-xs text-gray-600">By purchasing you agree to our terms. All sales are final for digital products.</p>
+          <p className="text-center text-xs text-gray-600">
+            By purchasing you agree to our terms. All sales are final for digital products.
+          </p>
         </div>
       </div>
     </>
   );
 }
+
 
 export default function CheckoutPage() {
   return <Suspense><CheckoutPageInner /></Suspense>;
