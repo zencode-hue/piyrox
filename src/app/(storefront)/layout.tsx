@@ -80,6 +80,7 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
         <CartProvider>
           <PageViewTracker />
           <TawkChat />
+          <AnnouncementBar />
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <Footer />

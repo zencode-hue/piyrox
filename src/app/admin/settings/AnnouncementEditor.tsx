@@ -40,7 +40,7 @@ export default function AnnouncementEditor({ initialText, initialEnabled, initia
           <span className="text-xs text-gray-500">{enabled ? "Enabled" : "Disabled"}</span>
           <div
             onClick={() => setEnabled(!enabled)}
-            className={`w-10 h-5 rounded-full transition-colors relative cursor-pointer ${enabled ? "bg-purple-600" : "bg-white/10"}`}
+            className={`w-10 h-5 rounded-full transition-colors relative cursor-pointer ${enabled ? "bg-amber-500" : "bg-white/10"}`}
           >
             <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${enabled ? "left-5" : "left-0.5"}`} />
           </div>
@@ -71,7 +71,7 @@ export default function AnnouncementEditor({ initialText, initialEnabled, initia
         <button onClick={save} disabled={saving}
           className="btn-primary text-sm px-5 py-2 flex items-center gap-2">
           {saving ? <Loader2 size={14} className="animate-spin" /> : null}
-          {saving ? "Saving…" : "Save Changes"}
+          {saving ? "Saving..." : "Save Changes"}
         </button>
         {saved && <span className="text-green-400 text-sm">Saved!</span>}
       </div>

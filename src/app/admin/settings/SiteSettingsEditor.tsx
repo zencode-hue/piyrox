@@ -141,7 +141,7 @@ export default function SiteSettingsEditor({ initialValues }: Props) {
       <button onClick={save} disabled={saving}
         className="btn-primary text-sm px-6 py-2.5 gap-2 flex items-center">
         <Save size={14} />
-        {saving ? "Saving…" : saved ? "✓ Saved!" : "Save All Settings"}
+        {saving ? "Saving..." : saved ? "Saved!" : "Save All Settings"}
       </button>
     </div>
   );

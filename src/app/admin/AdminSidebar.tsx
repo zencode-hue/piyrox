@@ -54,6 +54,7 @@ const navGroups = [
     label: "Intelligence",
     items: [
       { href: "/admin/ai", label: "AI Assistant", icon: Bot },
+      { href: "/admin/tools", label: "Admin Tools", icon: Zap },
       { href: "/admin/ip-lookup", label: "IP Lookup", icon: Search },
     ],
   },
