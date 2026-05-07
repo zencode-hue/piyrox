@@ -28,6 +28,8 @@ const SECTIONS = [
     fields: [
       { key: "store_name", label: "Store Name", placeholder: "MetraMart", hint: "Used in emails and page titles" },
       { key: "store_tagline", label: "Store Tagline", placeholder: "Premium Digital Marketplace", hint: "Shown in footer and meta" },
+      { key: "email_from_name", label: "Email Sender Name", placeholder: "MetraMart", hint: "Name shown in email From field (e.g. MetraMart)" },
+      { key: "email_from_address", label: "Email Sender Address", placeholder: "noreply@metramart.xyz", hint: "Set EMAIL_FROM env var to override. This is display only." },
       { key: "hero_title", label: "Hero Title Override", placeholder: "Leave blank to use default", hint: "Overrides the homepage hero title" },
       { key: "hero_subtitle", label: "Hero Subtitle Override", placeholder: "Leave blank to use default", hint: "Overrides the homepage hero subtitle" },
     ],

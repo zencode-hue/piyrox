@@ -83,7 +83,7 @@ export default async function AdminAnalyticsPage() {
     pv.groupBy({ by: ["referrer"], where: { createdAt: { gte: last30 }, referrer: { not: null } }, _count: { id: true }, orderBy: { _count: { id: "desc" } }, take: 8 }),
     pv.groupBy({ by: ["device"], where: { createdAt: { gte: last30 }, device: { not: null } }, _count: { id: true }, orderBy: { _count: { id: "desc" } } }),
     pv.groupBy({ by: ["browser"], where: { createdAt: { gte: last30 }, browser: { not: null } }, _count: { id: true }, orderBy: { _count: { id: "desc" } }, take: 6 }),
-    pv.findMany({ orderBy: { createdAt: "desc" }, take: 40, select: { path: true, country: true, device: true, browser: true, referrer: true, ip: true, sessionId: true, createdAt: true } }),
+    pv.findMany({ orderBy: { createdAt: "desc" }, take: 100, select: { path: true, country: true, city: true, device: true, browser: true, os: true, referrer: true, ip: true, sessionId: true, userId: true, createdAt: true } }),
     db.order.aggregate({ where: { status: "PAID", createdAt: { gte: todayStart } }, _sum: { amount: true }, _count: true }),
     db.order.aggregate({ where: { status: "PAID", createdAt: { gte: weekStart } }, _sum: { amount: true }, _count: true }),
     db.order.aggregate({ where: { status: "PAID", createdAt: { gte: monthStart } }, _sum: { amount: true }, _count: true }),
@@ -366,45 +366,52 @@ export default async function AdminAnalyticsPage() {
           <h2 className="text-sm font-semibold text-white flex items-center gap-2">
             <MapPin size={14} style={{ color: "#f59e0b" }} /> Recent Visits
           </h2>
-          <span className="text-xs text-gray-600">Last 40 page views</span>
+          <span className="text-xs text-gray-600">Last 100 page views</span>
         </div>
         <table className="w-full text-xs min-w-[700px]">
           <thead>
             <tr className="border-b border-white/5 text-gray-600 uppercase tracking-wider">
               <th className="text-left px-5 py-3">Path</th>
-              <th className="text-left px-5 py-3">Country</th>
-              <th className="text-left px-5 py-3">Device</th>
+              <th className="text-left px-5 py-3">Location</th>
+              <th className="text-left px-5 py-3">Device / OS</th>
+              <th className="text-left px-5 py-3">Browser</th>
               <th className="text-left px-5 py-3">Source</th>
+              <th className="text-left px-5 py-3">User</th>
               <th className="text-left px-5 py-3">IP</th>
               <th className="text-left px-5 py-3">When</th>
             </tr>
           </thead>
           <tbody>
-            {(recentViews as { path: string; country: string | null; device: string | null; browser: string | null; referrer: string | null; ip: string | null; sessionId: string | null; createdAt: Date }[]).map((v, i) => {
+            {(recentViews as { path: string; country: string | null; city: string | null; device: string | null; browser: string | null; os: string | null; referrer: string | null; ip: string | null; sessionId: string | null; userId: string | null; createdAt: Date }[]).map((v, i) => {
               let referrerHost = "direct";
               try { if (v.referrer) referrerHost = new URL(v.referrer).hostname.replace("www.", ""); } catch {}
               const visitDate = new Date(v.createdAt);
               const diffMs = now.getTime() - visitDate.getTime();
               const diffMins = Math.floor(diffMs / 60000);
               const timeAgo = diffMins < 1 ? "just now" : diffMins < 60 ? `${diffMins}m ago` : diffMins < 1440 ? `${Math.floor(diffMins / 60)}h ago` : `${Math.floor(diffMins / 1440)}d ago`;
+              const location = [v.city, v.country].filter(Boolean).join(", ") || "Unknown";
               return (
                 <tr key={i} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                  <td className="px-5 py-2.5 font-mono text-amber-400 max-w-[180px] truncate">{v.path}</td>
-                  <td className="px-5 py-2.5 text-gray-300">{v.country ?? "—"}</td>
-                  <td className="px-5 py-2.5 text-gray-400">
-                    {v.device ?? "—"}{v.browser ? <span className="text-gray-600"> / {v.browser}</span> : null}
+                  <td className="px-5 py-2.5 font-mono text-amber-400 max-w-[160px] truncate">{v.path}</td>
+                  <td className="px-5 py-2.5 text-gray-300 text-xs">{location}</td>
+                  <td className="px-5 py-2.5 text-gray-400 text-xs">
+                    {v.device ?? "?"}{v.os ? <span className="text-gray-600"> / {v.os}</span> : null}
                   </td>
-                  <td className="px-5 py-2.5">
-                    <span className={referrerHost === "direct" ? "text-gray-600" : "text-blue-400"}>{referrerHost}</span>
+                  <td className="px-5 py-2.5 text-gray-400 text-xs">{v.browser ?? "?"}</td>
+                  <td className="px-5 py-2.5 text-xs">
+                    <span className={referrerHost === "direct" ? "text-gray-600" : "text-amber-400"}>{referrerHost}</span>
                   </td>
-                  <td className="px-5 py-2.5 font-mono text-gray-600">
+                  <td className="px-5 py-2.5 text-xs">
+                    {v.userId ? <span className="text-green-400">Logged in</span> : <span className="text-gray-600">Guest</span>}
+                  </td>
+                  <td className="px-5 py-2.5 font-mono text-gray-600 text-xs">
                     {v.ip ? (
                       <Link href={`/admin/ip-lookup?ip=${v.ip}`} className="hover:text-amber-400 transition-colors">
                         {v.ip}
                       </Link>
                     ) : "—"}
                   </td>
-                  <td className="px-5 py-2.5 text-gray-500" title={visitDate.toLocaleString()}>{timeAgo}</td>
+                  <td className="px-5 py-2.5 text-gray-500 text-xs" title={visitDate.toLocaleString()}>{timeAgo}</td>
                 </tr>
               );
             })}
