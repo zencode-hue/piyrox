@@ -32,14 +32,14 @@ export async function POST(req: NextRequest) {
       const path = await import("path");
       const contextPath = path.join(process.cwd(), "VELXO_DISCORD_BOT_CONTEXT.md");
       storeContext = fs.readFileSync(contextPath, "utf-8");
-    } catch (e) {
-      console.error("Could not load store context", e);
+    } catch {
+      storeContext = "MetraMart - Digital marketplace for streaming, AI tools, software and gaming.";
     }
 
     const systemPrompt = {
       role: "system",
       content: `You are VelxoBot, the AI assistant for MetraMart (velxo.shop).
-      
+
 DATABASE STATS:
 - Total Users: ${userCount}
 - Total Orders: ${orderCount}
@@ -54,32 +54,47 @@ Your job is to help the admin manage the store, write copy, and answer questions
 
     const finalMessages = [systemPrompt, ...messages];
 
-    const fallbackModels = [
-      "google/gemini-2.0-flash-exp:free",
-      "google/gemini-1.5-flash",
-      "meta-llama/llama-3.3-70b-instruct:free",
-      "mistralai/mistral-nemo-free"
-    ];
+    // Use "route" for fallback, NOT both "model" and "models" together
+    const primaryModel = model || "google/gemini-2.0-flash-exp:free";
 
-    const targetModel = model || "google/gemini-2.0-flash-exp:free";
+    const body: Record<string, unknown> = {
+      messages: finalMessages,
+    };
+
+    // OpenRouter: use "route" param for fallbacks with a single model field
+    if (primaryModel.endsWith(":free")) {
+      // Free models: use route array fallback syntax
+      body.models = [
+        primaryModel,
+        "google/gemini-2.0-flash-exp:free",
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "qwen/qwen3-8b:free",
+        "mistralai/mistral-7b-instruct:free",
+      ].filter((v, i, a) => a.indexOf(v) === i); // deduplicate
+      body.route = "fallback";
+    } else {
+      body.model = primaryModel;
+    }
 
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://metramart.xyz",
+        "X-Title": "MetraMart Admin AI",
       },
-      body: JSON.stringify({
-        model: targetModel,
-        models: fallbackModels, // OpenRouter fallback routing
-        messages: finalMessages,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
       const errorText = await res.text();
       console.error("[AI API] OpenRouter error:", errorText);
-      return NextResponse.json({ error: "AI provider error" }, { status: 502 });
+      // Return the actual error so admin can debug
+      let parsed: { error?: { message?: string } } = {};
+      try { parsed = JSON.parse(errorText); } catch { /* */ }
+      const msg = parsed?.error?.message ?? errorText;
+      return NextResponse.json({ error: msg }, { status: 502 });
     }
 
     const data = await res.json();
@@ -88,6 +103,6 @@ Your job is to help the admin manage the store, write copy, and answer questions
     return NextResponse.json({ reply });
   } catch (error) {
     console.error("[AI API] Internal error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
