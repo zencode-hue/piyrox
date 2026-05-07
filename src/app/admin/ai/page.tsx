@@ -26,7 +26,7 @@ export default function AdminAIPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("openai/gpt-4o-mini");
+  const [model, setModel] = useState("google/gemini-2.0-flash-exp:free");
   const [showConfig, setShowConfig] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -135,13 +135,12 @@ export default function AdminAIPage() {
               <label className="block text-xs text-gray-500 mb-1">Model</label>
               <select value={model} onChange={(e) => setModel(e.target.value)}
                 className="input-field text-sm py-2">
-                <option value="openai/gpt-4o-mini">GPT-4o Mini (fast, cheap)</option>
-                <option value="openai/gpt-4o">GPT-4o (best quality)</option>
-                <option value="anthropic/claude-3-haiku">Claude 3 Haiku (fast)</option>
-                <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-                <option value="google/gemini-flash-1.5">Gemini Flash 1.5</option>
-                <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (FREE)</option>
-                <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (FREE)</option>
+                <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (FREE - Best)</option>
+                <option value="google/gemini-1.5-flash">Gemini 1.5 Flash (FREE)</option>
+                <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (FREE)</option>
+                <option value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B (FREE)</option>
+                <option value="mistralai/mistral-nemo-free">Mistral Nemo (FREE)</option>
+                <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
               </select>
             </div>
           </div>
