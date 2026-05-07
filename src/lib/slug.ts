@@ -32,10 +32,10 @@ export function extractProductId(segment: string): string {
 }
 
 /**
- * Formats a raw order ID (cuid) into the display format VLX-XXXXXX.
+ * Formats a raw order ID (cuid) into the display format MMT-XXXXXX.
  * This is the single source of truth for order ID display across the app.
- * e.g. "cm1abc123xyz" → "VLX-3XYZ12"
+ * e.g. "cm1abc123xyz" → "MMT-3XYZ12"
  */
 export function formatOrderId(id: string): string {
-  return `VLX-${id.slice(-6).toUpperCase()}`;
+  return `MMT-${id.slice(-6).toUpperCase()}`;
 }

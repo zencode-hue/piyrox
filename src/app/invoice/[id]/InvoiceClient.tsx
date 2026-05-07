@@ -262,7 +262,7 @@ function DiscordSection({ orderId, amount }: { orderId: string; amount: number }
   const msg = `Hi! I want to complete my order. Reference: ${displayId} — Amount: $${amount.toFixed(2)}`;
 
   function copy() {
-    // Copy the display ID (VLX-XXXXXX) — easier for customers to share
+    // Copy the display ID (MMT-XXXXXX) — easier for customers to share
     navigator.clipboard.writeText(displayId);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

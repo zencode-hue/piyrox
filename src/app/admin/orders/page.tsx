@@ -74,8 +74,8 @@ export default async function AdminOrdersPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
                       <a href={`${appUrl}/invoice/${o.id}`} target="_blank" rel="noopener noreferrer"
-                        className="font-mono text-xs text-purple-400 hover:text-purple-300 transition-colors">
-                        VLX-{o.id.slice(-6).toUpperCase()}
+                        className="font-mono text-xs text-amber-400 hover:text-amber-300 transition-colors">
+                        MMT-{o.id.slice(-6).toUpperCase()}
                       </a>
                       <a href={`${appUrl}/invoice/${o.id}`} target="_blank" rel="noopener noreferrer">
                         <ExternalLink size={10} className="text-gray-600 hover:text-gray-400" />

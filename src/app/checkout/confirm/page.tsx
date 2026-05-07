@@ -395,7 +395,7 @@ function ConfirmPageInner() {
               <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.2)" }}>
                 <div className="flex-1">
                   <p className="text-xs text-gray-500 mb-0.5">Reference</p>
-                  <code className="font-mono text-sm text-purple-300">VLX-{invoiceId.slice(-6).toUpperCase()}</code>
+                  <code className="font-mono text-sm text-amber-300">MMT-{invoiceId.slice(-6).toUpperCase()}</code>
                 </div>
                 <button onClick={copyInvoice} className="shrink-0 p-1.5 rounded-lg transition-all hover:bg-white/10">
                   {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} className="text-gray-400" />}

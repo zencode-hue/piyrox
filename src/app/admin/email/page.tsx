@@ -183,7 +183,7 @@ export default function AdminEmailPage() {
 
         {audience === "order" && (
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Order ID (full ID or VLX-XXXXXX)</label>
+            <label className="block text-xs text-gray-500 mb-1">Order ID (full ID or MMT-XXXXXX)</label>
             <input value={orderId} onChange={(e) => setOrderId(e.target.value)}
               placeholder="Paste the full order ID..." className="input-field text-sm py-2.5 w-full font-mono" />
             <p className="text-xs text-gray-600 mt-1">Email will be sent to the customer who placed this order.</p>

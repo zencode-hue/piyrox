@@ -149,7 +149,7 @@ export default async function DashboardPage() {
                       <span className={`${STATUS_BADGE[order.status] ?? "badge-purple"} text-xs`}>{order.status}</span>
                     </div>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      <Link href={`/invoice/${order.id}`} className="text-amber-400 hover:text-amber-300">MTM-{order.id.slice(-6).toUpperCase()}</Link>
+                      <Link href={`/invoice/${order.id}`} className="text-amber-400 hover:text-amber-300">MMT-{order.id.slice(-6).toUpperCase()}</Link>
                       {" · "}{new Date(order.createdAt).toLocaleDateString()}
                     </p>
                   </div>

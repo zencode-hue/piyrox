@@ -32,7 +32,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   return {
-    title: `Invoice MTM-${params.id.slice(-6).toUpperCase()} - MetraMart`,
+    title: `Invoice MMT-${params.id.slice(-6).toUpperCase()} - MetraMart`,
     robots: { index: false, follow: false },
   };
 }
@@ -60,7 +60,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
 
   const status = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.PENDING;
   const StatusIcon = status.icon;
-  const invoiceNum = `MTM-${order.id.slice(-6).toUpperCase()}`;
+  const invoiceNum = `MMT-${order.id.slice(-6).toUpperCase()}`;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
 
   const steps = [

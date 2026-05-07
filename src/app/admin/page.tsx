@@ -182,7 +182,7 @@ export default async function AdminDashboard() {
               <div key={o.id} className="flex items-center gap-3 px-5 py-3 hover:bg-white/2 transition-colors">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-gray-500">VLX-{o.id.slice(-6).toUpperCase()}</span>
+                    <span className="text-xs font-mono text-gray-500">MMT-{o.id.slice(-6).toUpperCase()}</span>
                     <span className="text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ background: `${badge.color}18`, color: badge.color, border: `1px solid ${badge.color}30` }}>
                       {badge.label}
                     </span>

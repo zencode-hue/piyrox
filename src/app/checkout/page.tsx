@@ -172,6 +172,7 @@ function CheckoutPageInner() {
   const [country, setCountry] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<{ id: string; name: string; price: number } | null>(null);
   const [discountCode, setDiscountCode] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
   const [discountInfo, setDiscountInfo] = useState<{ value: number; type: string; discountAmount: number } | null>(null);
   const [discountErr, setDiscountErr] = useState<string | null>(null);
   const [checkingDiscount, setCheckingDiscount] = useState(false);
@@ -225,11 +226,16 @@ function CheckoutPageInner() {
 
   async function handlePay(provider: "nowpayments" | "discord" | "balance" | "binance_gift_card" | "flutterwave") {
     if (!productId) return;
+    // Require email for guests
+    if (balance === null && !guestEmail.trim()) {
+      setPayErr("Please enter your email address to continue.");
+      return;
+    }
     setPaying(true); setPayErr(null);
     const res = await fetch("/api/v1/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, variantId: selectedVariant?.id ?? variantIdParam ?? undefined, paymentProvider: provider, discountCode: discountCode || undefined }),
+      body: JSON.stringify({ productId, variantId: selectedVariant?.id ?? variantIdParam ?? undefined, paymentProvider: provider, discountCode: discountCode || undefined, guestEmail: guestEmail || undefined }),
     });
     const data = await res.json();
     setPaying(false);
@@ -309,12 +315,27 @@ function CheckoutPageInner() {
           <div className="glass-card p-5 space-y-3">
             <p className="text-sm text-gray-400 font-medium">Choose payment method</p>
 
-            {/* Balance */}
-            {balance !== null && (
+            {/* Guest email — shown only when not logged in */}
+            {balance === null && (
+              <div className="pb-1 border-b border-white/5">
+                <label className="block text-xs text-gray-400 mb-1.5">Your email address <span className="text-red-400">*</span></label>
+                <input
+                  type="email"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="input-field text-sm py-2.5 w-full"
+                />
+                <p className="text-xs mt-1.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  Your product credentials will be delivered to this email.
+                </p>
+              </div>
+            )}
+
               <button onClick={() => handlePay("balance")} disabled={paying || !canPayWithBalance}
-                className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${canPayWithBalance ? "border-cyan-500/30 hover:border-cyan-500/60 hover:bg-cyan-500/5" : "border-white/5 opacity-50 cursor-not-allowed"}`}>
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0">
-                  <Wallet size={20} className="text-cyan-400" />
+                className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${canPayWithBalance ? "border-amber-500/30 hover:border-amber-500/60 hover:bg-amber-500/5" : "border-white/5 opacity-50 cursor-not-allowed"}`}>
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                  <Wallet size={20} className="text-amber-400" />
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-white text-sm">Pay with Balance</p>
@@ -356,9 +377,9 @@ function CheckoutPageInner() {
 
             {/* Discord */}
             <button onClick={() => handlePay("discord")} disabled={paying}
-              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-indigo-500/40 hover:bg-indigo-500/5 transition-all text-left group">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0">
-                <MessageCircle size={20} className="text-indigo-400" />
+              className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all text-left group">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                <MessageCircle size={20} className="text-amber-400" />
               </div>
               <div className="flex-1">
                 <p className="font-medium text-white text-sm">Pay via Discord</p>
