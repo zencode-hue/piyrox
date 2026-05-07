@@ -26,7 +26,7 @@ export default function AdminAIPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("google/gemini-2.0-flash-exp:free");
+  const [model, setModel] = useState("meta-llama/llama-3.3-70b-instruct:free");
   const [showConfig, setShowConfig] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
