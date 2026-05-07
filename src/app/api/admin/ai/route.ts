@@ -66,11 +66,9 @@ Your job is to help the admin manage the store, write copy, and answer questions
       // Free models: use route array fallback syntax
       body.models = [
         primaryModel,
-        "google/gemini-2.0-flash-exp:free",
         "meta-llama/llama-3.3-70b-instruct:free",
-        "qwen/qwen3-8b:free",
         "mistralai/mistral-7b-instruct:free",
-      ].filter((v, i, a) => a.indexOf(v) === i); // deduplicate
+      ].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3); // max 3 per OpenRouter limit
       body.route = "fallback";
     } else {
       body.model = primaryModel;
