@@ -17,7 +17,7 @@ export default async function AdminSettingsPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">
-        <Settings size={22} className="text-purple-400" /> Settings
+        <Settings size={22} style={{ color: "#f59e0b" }} /> Settings
       </h1>
 
       <div className="space-y-6 max-w-2xl">
@@ -32,6 +32,9 @@ export default async function AdminSettingsPage() {
             discord_url: map["discord_url"] ?? "",
             telegram_url: map["telegram_url"] ?? "",
             support_discord_url: map["support_discord_url"] ?? "",
+            discord_members: map["discord_members"] ?? "",
+            telegram_members: map["telegram_members"] ?? "",
+            discord_deals_webhook_url: map["discord_deals_webhook_url"] ?? "",
             affiliate_commission_pct: map["affiliate_commission_pct"] ?? "10",
             partner_commission_pct: map["partner_commission_pct"] ?? "15",
             store_name: map["store_name"] ?? "MetraMart",

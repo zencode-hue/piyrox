@@ -9,7 +9,7 @@ const PAYMENT_LABELS: Record<string, string> = {
   nowpayments: "Crypto", balance: "Wallet", binance_gift_card: "Gift Card", discord: "Discord",
 };
 const PAYMENT_COLORS: Record<string, string> = {
-  nowpayments: "#fb923c", balance: "#22d3ee", binance_gift_card: "#fbbf24", discord: "#818cf8",
+  nowpayments: "#fb923c", balance: "#fbbf24", binance_gift_card: "#f59e0b", discord: "#d97706",
 };
 
 function StatCard({ label, value, sub, color, icon: Icon, trend }: {
@@ -134,7 +134,7 @@ export default async function AdminAnalyticsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <BarChart2 size={22} className="text-purple-400" /> Analytics
+          <BarChart2 size={22} style={{ color: "#f59e0b" }} /> Analytics
         </h1>
         <span className="text-xs text-gray-600">Last updated: {now.toLocaleTimeString()}</span>
       </div>
@@ -144,20 +144,20 @@ export default async function AdminAnalyticsPage() {
         <StatCard label="Today's Revenue" value={`$${Number(revenueToday._sum.amount ?? 0).toFixed(2)}`}
           sub={`${ordersToday} orders`} color="#4ade80" icon={DollarSign} />
         <StatCard label="This Week" value={`$${Number(revenueWeek._sum.amount ?? 0).toFixed(2)}`}
-          sub={`${ordersWeek} orders`} color="#60a5fa" icon={TrendingUp} />
+          sub={`${ordersWeek} orders`} color="#f59e0b" icon={TrendingUp} />
         <StatCard label="This Month" value={`$${thisMonthRevenue.toFixed(2)}`}
-          sub={`${ordersMonth} orders`} color="#c4b5fd" icon={ShoppingCart} trend={momChange} />
+          sub={`${ordersMonth} orders`} color="#f59e0b" icon={ShoppingCart} trend={momChange} />
         <StatCard label="All Time" value={`$${Number(revenueTotal._sum.amount ?? 0).toFixed(2)}`}
           sub={`${ordersTotal} paid orders`} color="#fbbf24" icon={DollarSign} />
       </div>
 
       {/* Traffic KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Views (24h)" value={views24h.toLocaleString()} color="#a78bfa" icon={Eye} />
-        <StatCard label="Views (7d)" value={views7d.toLocaleString()} color="#818cf8" icon={BarChart2} />
-        <StatCard label="Views (30d)" value={views30d.toLocaleString()} color="#6366f1" icon={TrendingUp} />
+        <StatCard label="Views (24h)" value={views24h.toLocaleString()} color="#f59e0b" icon={Eye} />
+        <StatCard label="Views (7d)" value={views7d.toLocaleString()} color="#fbbf24" icon={BarChart2} />
+        <StatCard label="Views (30d)" value={views30d.toLocaleString()} color="#d97706" icon={TrendingUp} />
         <StatCard label="Unique Visitors (30d)" value={uniqueIPs30d.toLocaleString()}
-          sub={`${conversionRate}% conversion`} color="#34d399" icon={Users} />
+          sub={`${conversionRate}% conversion`} color="#4ade80" icon={Users} />
       </div>
 
       {/* User stats */}
@@ -189,7 +189,7 @@ export default async function AdminAnalyticsPage() {
                   style={{
                     height: `${height}%`,
                     background: revenue > 0
-                      ? "linear-gradient(180deg, #a78bfa, #6366f1)"
+                      ? "linear-gradient(180deg, #f59e0b, #d97706)"
                       : "rgba(255,255,255,0.05)",
                     minHeight: "4px",
                   }} />
@@ -236,7 +236,7 @@ export default async function AdminAnalyticsPage() {
         {/* Top products */}
         <div className="glass-card p-5">
           <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Package size={14} className="text-purple-400" /> Top Products
+            <Package size={14} style={{ color: "#f59e0b" }} /> Top Products
           </h2>
           <div className="space-y-2.5">
             {(topProducts as { productId: string; _count: { id: number }; _sum: { amount: unknown } }[]).map((p, i) => {
@@ -256,7 +256,7 @@ export default async function AdminAnalyticsPage() {
                       <span className="text-gray-600 ml-1">({p._count.id})</span>
                     </span>
                   </div>
-                  <MiniBar value={p._count.id} max={maxOrders} color="#a78bfa" />
+                  <MiniBar value={p._count.id} max={maxOrders} color="#f59e0b" />
                 </div>
               );
             })}
@@ -267,7 +267,7 @@ export default async function AdminAnalyticsPage() {
         {/* Top pages */}
         <div className="glass-card p-5">
           <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Eye size={14} className="text-purple-400" /> Top Pages (30d)
+            <Eye size={14} style={{ color: "#f59e0b" }} /> Top Pages (30d)
           </h2>
           <div className="space-y-2">
             {(topPages as ({ path: string } & GroupRow)[]).map((p) => {
@@ -276,9 +276,9 @@ export default async function AdminAnalyticsPage() {
                 <div key={p.path}>
                   <div className="flex items-center justify-between text-xs mb-1">
                     <span className="text-gray-300 font-mono truncate max-w-[200px]">{p.path}</span>
-                    <span className="text-purple-400 font-medium ml-2">{p._count.id.toLocaleString()}</span>
+                    <span className="text-amber-400 font-medium ml-2">{p._count.id.toLocaleString()}</span>
                   </div>
-                  <MiniBar value={p._count.id} max={maxViews} color="#a78bfa" />
+                  <MiniBar value={p._count.id} max={maxViews} color="#f59e0b" />
                 </div>
               );
             })}
@@ -364,7 +364,7 @@ export default async function AdminAnalyticsPage() {
       <div className="glass-card overflow-x-auto">
         <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-            <MapPin size={14} className="text-purple-400" /> Recent Visits
+            <MapPin size={14} style={{ color: "#f59e0b" }} /> Recent Visits
           </h2>
           <span className="text-xs text-gray-600">Last 40 page views</span>
         </div>
@@ -389,7 +389,7 @@ export default async function AdminAnalyticsPage() {
               const timeAgo = diffMins < 1 ? "just now" : diffMins < 60 ? `${diffMins}m ago` : diffMins < 1440 ? `${Math.floor(diffMins / 60)}h ago` : `${Math.floor(diffMins / 1440)}d ago`;
               return (
                 <tr key={i} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                  <td className="px-5 py-2.5 font-mono text-purple-400 max-w-[180px] truncate">{v.path}</td>
+                  <td className="px-5 py-2.5 font-mono text-amber-400 max-w-[180px] truncate">{v.path}</td>
                   <td className="px-5 py-2.5 text-gray-300">{v.country ?? "—"}</td>
                   <td className="px-5 py-2.5 text-gray-400">
                     {v.device ?? "—"}{v.browser ? <span className="text-gray-600"> / {v.browser}</span> : null}
@@ -399,7 +399,7 @@ export default async function AdminAnalyticsPage() {
                   </td>
                   <td className="px-5 py-2.5 font-mono text-gray-600">
                     {v.ip ? (
-                      <Link href={`/admin/ip-lookup?ip=${v.ip}`} className="hover:text-purple-400 transition-colors">
+                      <Link href={`/admin/ip-lookup?ip=${v.ip}`} className="hover:text-amber-400 transition-colors">
                         {v.ip}
                       </Link>
                     ) : "—"}

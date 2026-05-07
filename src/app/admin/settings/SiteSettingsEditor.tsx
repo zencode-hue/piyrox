@@ -11,10 +11,11 @@ const SECTIONS = [
   {
     title: "Community Links",
     icon: MessageCircle,
-    color: "text-indigo-400",
+    color: "text-amber-400",
     fields: [
       { key: "discord_url", label: "Discord Server URL", placeholder: "https://discord.gg/...", hint: "Shown on homepage community section" },
       { key: "discord_members", label: "Discord Member Count", placeholder: "1,000+", hint: "Displayed on the community section (e.g. 1,000+)" },
+      { key: "discord_deals_webhook_url", label: "Discord Deals Webhook URL", placeholder: "https://discord.com/api/webhooks/...", hint: "Used to push daily deals to Discord" },
       { key: "telegram_url", label: "Telegram Channel URL", placeholder: "https://t.me/...", hint: "Shown on homepage community section" },
       { key: "telegram_members", label: "Telegram Member Count", placeholder: "500+", hint: "Displayed on the community section" },
       { key: "support_discord_url", label: "Support Discord URL", placeholder: "https://discord.gg/...", hint: "Used for support buttons (defaults to Discord URL)" },
@@ -23,7 +24,7 @@ const SECTIONS = [
   {
     title: "Store Identity",
     icon: Store,
-    color: "text-blue-400",
+    color: "text-amber-400",
     fields: [
       { key: "store_name", label: "Store Name", placeholder: "MetraMart", hint: "Used in emails and page titles" },
       { key: "store_tagline", label: "Store Tagline", placeholder: "Premium Digital Marketplace", hint: "Shown in footer and meta" },
@@ -44,7 +45,7 @@ const SECTIONS = [
   {
     title: "Feature Toggles",
     icon: Globe,
-    color: "text-purple-400",
+    color: "text-amber-400",
     toggles: [
       { key: "deals_enabled", label: "Hot Deals Section", hint: "Show/hide the Deal Vault on homepage" },
       { key: "newsletter_enabled", label: "Newsletter Section", hint: "Show/hide newsletter signup on homepage" },

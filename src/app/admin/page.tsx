@@ -83,46 +83,6 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      {/* Quick stats row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass-card p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(34,211,238,0.1)" }}>
-            <Users size={16} className="text-cyan-400" />
-          </div>
-          <div>
-            <div className="text-lg font-bold text-white">{totalUsers.toLocaleString()}</div>
-            <div className="text-xs text-gray-500">Users <span className="text-green-400">+{newUsersToday} today</span></div>
-          </div>
-        </div>
-        <div className="glass-card p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(251,191,36,0.1)" }}>
-            <Clock size={16} className="text-yellow-400" />
-          </div>
-          <div>
-            <div className="text-lg font-bold text-white">{pendingOrders}</div>
-            <div className="text-xs text-gray-500">Pending payments</div>
-          </div>
-        </div>
-        <Link href="/admin/pending-stock" className="glass-card p-4 flex items-center gap-3 hover:border-orange-500/30 transition-colors">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(251,146,60,0.1)" }}>
-            <Package size={16} className="text-orange-400" />
-          </div>
-          <div>
-            <div className="text-lg font-bold text-white">{pendingStockOrders}</div>
-            <div className="text-xs text-gray-500">Pending stock</div>
-          </div>
-        </Link>
-        <div className="glass-card p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(248,113,113,0.1)" }}>
-            <XCircle size={16} className="text-red-400" />
-          </div>
-          <div>
-            <div className="text-lg font-bold text-white">{failedOrders}</div>
-            <div className="text-xs text-gray-500">Failed orders</div>
-          </div>
-        </div>
-      </div>
-
       {/* Alerts */}
       {(pendingPartnerPayouts > 0 || (lowStockProducts as { id: string }[]).length > 0) && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -169,9 +129,9 @@ export default async function AdminDashboard() {
       <div className="glass-card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-            <ShoppingCart size={14} className="text-purple-400" /> Recent Orders
+            <ShoppingCart size={14} style={{ color: "#f59e0b" }} /> Recent Orders
           </h2>
-          <Link href="/admin/orders" className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1">
+          <Link href="/admin/orders" className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1">
             View all <ArrowRight size={11} />
           </Link>
         </div>
@@ -203,10 +163,10 @@ export default async function AdminDashboard() {
       {/* Quick actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { href: "/admin/products/new", label: "Add Product", icon: Package, color: "#a78bfa" },
+          { href: "/admin/products/new", label: "Add Product", icon: Package, color: "#f59e0b" },
           { href: "/admin/discounts", label: "Discounts", icon: Tag, color: "#fbbf24" },
-          { href: "/admin/analytics", label: "Analytics", icon: TrendingUp, color: "#34d399" },
-          { href: "/admin/settings", label: "Settings", icon: CheckCircle, color: "#60a5fa" },
+          { href: "/admin/analytics", label: "Analytics", icon: TrendingUp, color: "#4ade80" },
+          { href: "/admin/ai", label: "AI Assistant", icon: CheckCircle, color: "#a78bfa" },
         ].map(({ href, label, icon: Icon, color }) => (
           <Link key={href} href={href}
             className="glass-card p-4 flex flex-col items-center gap-2 text-center hover:border-white/20 transition-all hover:-translate-y-0.5">
