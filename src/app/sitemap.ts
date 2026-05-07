@@ -4,7 +4,7 @@ import { productPath } from "@/lib/slug";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Always use the canonical non-www URL
-  const appUrl = "https://metramart.xyz";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
 
   const [products, blogPosts] = await Promise.all([
     db.product.findMany({
