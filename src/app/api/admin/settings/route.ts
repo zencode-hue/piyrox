@@ -1,7 +1,8 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getServerSession } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
 
 async function checkAdmin() {
   const session = await getServerSession();
@@ -29,8 +30,8 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (db as any).siteSetting.upsert({
       where: { key },
-      update: { value },
-      create: { key, value },
+      update: { value: String(value) },
+      create: { key, value: String(value) },
     });
   }
   return NextResponse.json({ data: { saved: true }, error: null });
