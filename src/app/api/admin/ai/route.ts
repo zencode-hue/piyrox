@@ -16,6 +16,53 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "API key is required" }, { status: 400 });
     }
 
+    // Fetch database stats to inject context
+    const { db } = await import("@/lib/db");
+    const [userCount, orderCount, pendingStock, activeProducts] = await Promise.all([
+      db.user.count(),
+      db.order.count(),
+      db.order.count({ where: { status: "PENDING_STOCK" } }),
+      db.product.count({ where: { isActive: true } }),
+    ]);
+
+    // Load full store context
+    let storeContext = "";
+    try {
+      const fs = await import("fs");
+      const path = await import("path");
+      const contextPath = path.join(process.cwd(), "VELXO_DISCORD_BOT_CONTEXT.md");
+      storeContext = fs.readFileSync(contextPath, "utf-8");
+    } catch (e) {
+      console.error("Could not load store context", e);
+    }
+
+    const systemPrompt = {
+      role: "system",
+      content: `You are VelxoBot, the AI assistant for MetraMart (velxo.shop).
+      
+DATABASE STATS:
+- Total Users: ${userCount}
+- Total Orders: ${orderCount}
+- Pending Stock Orders: ${pendingStock} (need manual fulfillment)
+- Active Products: ${activeProducts}
+
+STORE CONTEXT & POLICIES:
+${storeContext}
+
+Your job is to help the admin manage the store, write copy, and answer questions. Use the stats and context above to perform tasks perfectly.`
+    };
+
+    const finalMessages = [systemPrompt, ...messages];
+
+    const fallbackModels = [
+      "google/gemini-2.0-flash-exp:free",
+      "google/gemini-1.5-flash",
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "mistralai/mistral-nemo-free"
+    ];
+
+    const targetModel = model || "google/gemini-2.0-flash-exp:free";
+
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -23,8 +70,9 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: model || "openai/gpt-4o-mini",
-        messages,
+        model: targetModel,
+        models: fallbackModels, // OpenRouter fallback routing
+        messages: finalMessages,
       }),
     });
 

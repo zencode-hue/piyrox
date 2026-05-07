@@ -39,9 +39,9 @@ export async function POST(req: NextRequest) {
 
     // Push today's deals
     if (type === "deals") {
-      const res = await fetch(`${appUrl}/api/v1/deals`, { cache: "no-store" });
-      const data = await res.json();
-      const deals = (data.data?.deals ?? []).slice(0, DEALS_COUNT);
+      const { getDealsData } = await import("@/lib/server-data");
+      const data = await getDealsData();
+      const deals = data.deals.slice(0, DEALS_COUNT);
 
       if (!deals.length) return NextResponse.json({ ok: false, message: "No deals to notify" });
 
