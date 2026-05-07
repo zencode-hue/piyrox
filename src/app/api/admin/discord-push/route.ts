@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
 import { getServerSession } from "@/lib/auth";
 import { sendDiscordNotification } from "@/lib/discord";
+import { db } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 
 const DISCOUNT_PCT = 20;
 const DEALS_COUNT = 7;
@@ -32,8 +33,19 @@ export async function POST(req: NextRequest) {
     }
 
     const { type, message } = await req.json();
-    const webhookUrl = process.env.DISCORD_DEALS_WEBHOOK_URL ?? process.env.DISCORD_WEBHOOK_URL;
-    if (!webhookUrl) return NextResponse.json({ error: "Discord webhook not configured" }, { status: 503 });
+
+    // Read webhook from DB first, fall back to env vars
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const settings = await (db as any).siteSetting.findMany() as { key: string; value: string }[];
+    const settingsMap: Record<string, string> = {};
+    for (const s of settings) settingsMap[s.key] = s.value;
+
+    const webhookUrl =
+      settingsMap["discord_deals_webhook_url"] ||
+      process.env.DISCORD_DEALS_WEBHOOK_URL ||
+      process.env.DISCORD_WEBHOOK_URL;
+
+    if (!webhookUrl) return NextResponse.json({ error: "Discord webhook not configured. Save it in Admin → Settings first." }, { status: 503 });
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
 

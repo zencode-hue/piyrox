@@ -34,7 +34,7 @@ export default function DealsDiscordPush({ initialWebhook }: { initialWebhook: s
       });
       const data = await res.json();
       if (res.ok) {
-        setResult(`Pushed ${data.data?.dealsNotified ?? 0} deals to Discord!`);
+        setResult(`✅ Pushed ${data.dealsNotified ?? 0} deals to Discord!`);
       } else {
         setResult(`Error: ${data.error ?? "Failed to push"}`);
       }
