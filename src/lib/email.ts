@@ -1,14 +1,11 @@
 /**
- * Email service — Resend (primary) with Nodemailer SMTP fallback.
- * Each email type has its own branded design.
+ * Email service - Resend (primary) with Nodemailer SMTP fallback.
  */
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
 const APP_NAME = "MetraMart";
 const FROM = process.env.EMAIL_FROM ?? "MetraMart <noreply@metramart.xyz>";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "noreply@metramart.xyz";
-
-// --- Send helper -------------------------------------------------------------
 
 async function send(to: string, subject: string, htmlBody: string): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY;
@@ -35,30 +32,22 @@ async function send(to: string, subject: string, htmlBody: string): Promise<void
   console.log(`[email] to=${to} subject="${subject}"`);
 }
 
-// --- Shared layout pieces -----------------------------------------------------
-
 const BASE_STYLES = `
   body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
   table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}
   img{-ms-interpolation-mode:bicubic;border:0;outline:none;text-decoration:none}
 `;
 
-function header(accentColor = "#7c3aed", emoji = "?"): string {
+function header(accentColor = "#f59e0b", label = "MetraMart"): string {
   return `
     <tr>
       <td style="background:linear-gradient(135deg,${accentColor} 0%,${accentColor}cc 100%);padding:0;">
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="padding:28px 36px 24px;">
-              <table cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;display:inline-block;">
-                    <span style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.5px;font-family:system-ui,sans-serif;">
-                      ${emoji} ${APP_NAME}
-                    </span>
-                  </td>
-                </tr>
-              </table>
+              <span style="font-size:20px;font-weight:900;color:#000;letter-spacing:-0.5px;font-family:system-ui,sans-serif;">
+                ${label}
+              </span>
             </td>
           </tr>
         </table>
@@ -71,7 +60,7 @@ function footer(): string {
     <tr>
       <td style="padding:24px 36px;border-top:1px solid rgba(255,255,255,0.06);">
         <p style="margin:0 0 8px;font-size:12px;color:#4b5563;text-align:center;font-family:system-ui,sans-serif;">
-          © ${new Date().getFullYear()} ${APP_NAME} · <a href="${APP_URL}" style="color:#7c3aed;text-decoration:none;">metramart.xyz</a>
+          &copy; ${new Date().getFullYear()} ${APP_NAME} &middot; <a href="${APP_URL}" style="color:#f59e0b;text-decoration:none;">metramart.xyz</a>
         </p>
         <p style="margin:0;font-size:11px;color:#374151;text-align:center;font-family:system-ui,sans-serif;">
           You received this email because you have an account or placed an order at MetraMart.
@@ -102,15 +91,15 @@ function wrap(headerHtml: string, bodyHtml: string): string {
 </html>`;
 }
 
-function btn(href: string, label: string, color = "#7c3aed"): string {
-  return `<a href="${href}" style="display:inline-block;padding:13px 28px;background:${color};color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;font-family:system-ui,sans-serif;letter-spacing:0.2px;">${label}</a>`;
+function btn(href: string, label: string, color = "#f59e0b"): string {
+  return `<a href="${href}" style="display:inline-block;padding:13px 28px;background:${color};color:#000;text-decoration:none;border-radius:10px;font-weight:700;font-size:14px;font-family:system-ui,sans-serif;letter-spacing:0.2px;">${label}</a>`;
 }
 
 function divider(): string {
   return `<div style="height:1px;background:rgba(255,255,255,0.06);margin:24px 0;"></div>`;
 }
 
-function badge(text: string, color = "#7c3aed"): string {
+function badge(text: string, color = "#f59e0b"): string {
   return `<span style="display:inline-block;padding:4px 12px;background:${color}22;border:1px solid ${color}44;border-radius:100px;font-size:12px;font-weight:600;color:${color};font-family:system-ui,sans-serif;">${text}</span>`;
 }
 
@@ -122,7 +111,7 @@ function infoRow(label: string, value: string): string {
     </tr>`;
 }
 
-// --- 1. Verification Email ----------------------------------------------------
+// --- 1. Verification Email ---------------------------------------------------
 
 export async function sendVerificationEmail(email: string, token: string): Promise<void> {
   const link = `${APP_URL}/api/auth/verify-email?token=${token}`;
@@ -130,24 +119,24 @@ export async function sendVerificationEmail(email: string, token: string): Promi
     email,
     `Verify your MetraMart account`,
     wrap(
-      header("#7c3aed", "?"),
-      `<p style="margin:0 0 6px;font-size:13px;color:#7c3aed;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">ACCOUNT SETUP</p>
+      header("#f59e0b", APP_NAME),
+      `<p style="margin:0 0 6px;font-size:13px;color:#f59e0b;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">ACCOUNT SETUP</p>
        <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Confirm your email address</h1>
        <p style="margin:0 0 24px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
-         You're one step away from accessing premium digital products at the best prices. Click below to verify your email and activate your account.
+         You are one step away from accessing premium digital products at the best prices. Click below to verify your email and activate your account.
        </p>
        <div style="margin:28px 0;text-align:center;">
-         ${btn(link, "Verify My Email ?", "#7c3aed")}
+         ${btn(link, "Verify My Email")}
        </div>
        ${divider()}
        <p style="margin:0;font-size:12px;color:#4b5563;font-family:system-ui,sans-serif;">
-         This link expires in 24 hours. If you didn't create an account, you can safely ignore this email.
+         This link expires in 24 hours. If you did not create an account, you can safely ignore this email.
        </p>`
     )
   );
 }
 
-// --- 2. Password Reset --------------------------------------------------------
+// --- 2. Password Reset -------------------------------------------------------
 
 export async function sendPasswordResetEmail(email: string, token: string): Promise<void> {
   const link = `${APP_URL}/auth/reset-password?token=${token}`;
@@ -155,7 +144,7 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
     email,
     `Reset your MetraMart password`,
     wrap(
-      header("#dc2626", "??"),
+      header("#dc2626", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#ef4444;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">SECURITY</p>
        <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Reset your password</h1>
        <p style="margin:0 0 24px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
@@ -166,48 +155,48 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
        </div>
        ${divider()}
        <p style="margin:0;font-size:12px;color:#4b5563;font-family:system-ui,sans-serif;">
-         This link expires in 60 minutes. If you didn't request a password reset, your account is safe — no action needed.
+         This link expires in 60 minutes. If you did not request a password reset, your account is safe - no action needed.
        </p>`
     )
   );
 }
 
-// --- 3. Welcome Email ---------------------------------------------------------
+// --- 3. Welcome Email --------------------------------------------------------
 
 export async function sendWelcomeEmail(email: string): Promise<void> {
   await send(
     email,
-    `Welcome to MetraMart ??`,
+    `Welcome to MetraMart`,
     wrap(
-      header("#059669", "??"),
+      header("#059669", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#10b981;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">YOU'RE IN</p>
        <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Welcome to MetraMart!</h1>
        <p style="margin:0 0 20px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
-         Your account is ready. You now have access to 500+ premium digital products — streaming subscriptions, AI tools, software licenses, and gaming products — all at the best prices with instant delivery.
+         Your account is ready. You now have access to 50+ premium digital products - streaming subscriptions, AI tools, software licenses, and gaming products - all at the best prices with instant delivery.
        </p>
        <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;">
          <tr>
            <td style="padding:14px 16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:10px;margin-bottom:8px;">
-             <p style="margin:0;font-size:14px;color:#f9fafb;font-weight:600;font-family:system-ui,sans-serif;">? Instant Delivery</p>
+             <p style="margin:0;font-size:14px;color:#f9fafb;font-weight:600;font-family:system-ui,sans-serif;">Instant Delivery</p>
              <p style="margin:4px 0 0;font-size:13px;color:#6b7280;font-family:system-ui,sans-serif;">Credentials sent to your inbox seconds after payment</p>
            </td>
          </tr>
          <tr><td style="height:8px;"></td></tr>
          <tr>
-           <td style="padding:14px 16px;background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.15);border-radius:10px;">
-             <p style="margin:0;font-size:14px;color:#f9fafb;font-weight:600;font-family:system-ui,sans-serif;">?? Earn While You Share</p>
+           <td style="padding:14px 16px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:10px;">
+             <p style="margin:0;font-size:14px;color:#f9fafb;font-weight:600;font-family:system-ui,sans-serif;">Earn While You Share</p>
              <p style="margin:4px 0 0;font-size:13px;color:#6b7280;font-family:system-ui,sans-serif;">Join our affiliate program and earn 10% on every referral</p>
            </td>
          </tr>
        </table>
        <div style="margin:28px 0;text-align:center;">
-         ${btn(`${APP_URL}/products`, "Browse Products ?", "#059669")}
+         ${btn(`${APP_URL}/products`, "Browse Products", "#059669")}
        </div>`
     )
   );
 }
 
-// --- 4. Delivery Email --------------------------------------------------------
+// --- 4. Delivery Email -------------------------------------------------------
 
 export async function sendDeliveryEmail(email: string, orderDetails: object): Promise<void> {
   const d = orderDetails as Record<string, unknown>;
@@ -217,14 +206,14 @@ export async function sendDeliveryEmail(email: string, orderDetails: object): Pr
   const invoiceUrl = d.orderId ? `${APP_URL}/invoice/${d.orderId}` : `${APP_URL}/dashboard`;
 
   const credBlock = credentials
-    ? `<div style="margin:20px 0;padding:18px 20px;background:#0d1117;border:1px solid rgba(124,58,237,0.3);border-radius:12px;font-family:'Courier New',monospace;font-size:15px;color:#c4b5fd;word-break:break-all;letter-spacing:0.5px;">${credentials}</div>`
+    ? `<div style="margin:20px 0;padding:18px 20px;background:#0d1117;border:1px solid rgba(245,158,11,0.3);border-radius:12px;font-family:'Courier New',monospace;font-size:15px;color:#fbbf24;word-break:break-all;letter-spacing:0.5px;">${credentials}</div>`
     : "";
 
   await send(
     email,
-    `? Your order is ready — ${productTitle}`,
+    `Your order is ready - ${productTitle}`,
     wrap(
-      header("#059669", "?"),
+      header("#059669", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#10b981;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">ORDER DELIVERED</p>
        <h1 style="margin:0 0 8px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Your product is ready!</h1>
        <p style="margin:0 0 24px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
@@ -233,13 +222,13 @@ export async function sendDeliveryEmail(email: string, orderDetails: object): Pr
        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d1117;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin:0 0 20px;">
          ${infoRow("Order Reference", orderId)}
          ${infoRow("Product", productTitle)}
-         ${infoRow("Status", "? Delivered")}
+         ${infoRow("Status", "Delivered")}
        </table>
        ${credentials ? `
-         <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#c4b5fd;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:0.5px;">YOUR CREDENTIALS</p>
+         <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#fbbf24;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:0.5px;">YOUR CREDENTIALS</p>
          ${credBlock}
          <p style="margin:0 0 20px;font-size:12px;color:#4b5563;font-family:system-ui,sans-serif;">
-           ?? Keep these credentials private. Do not share them with anyone.
+           Keep these credentials private. Do not share them with anyone.
          </p>
        ` : `<p style="margin:0 0 20px;font-size:14px;color:#9ca3af;font-family:system-ui,sans-serif;">Your order is being processed and will be delivered shortly.</p>`}
        <div style="text-align:center;margin:24px 0;">
@@ -249,14 +238,14 @@ export async function sendDeliveryEmail(email: string, orderDetails: object): Pr
   );
 }
 
-// --- 5. Account Lockout -------------------------------------------------------
+// --- 5. Account Lockout ------------------------------------------------------
 
 export async function sendLockoutEmail(email: string): Promise<void> {
   await send(
     email,
-    `?? Your MetraMart account has been temporarily locked`,
+    `Your MetraMart account has been temporarily locked`,
     wrap(
-      header("#d97706", "??"),
+      header("#d97706", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#f59e0b;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">SECURITY ALERT</p>
        <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Account temporarily locked</h1>
        <p style="margin:0 0 20px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
@@ -272,7 +261,7 @@ export async function sendLockoutEmail(email: string): Promise<void> {
   );
 }
 
-// --- 6. Invoice Created -------------------------------------------------------
+// --- 6. Invoice Created ------------------------------------------------------
 
 export async function sendInvoiceCreatedEmail(
   email: string,
@@ -302,10 +291,10 @@ export async function sendInvoiceCreatedEmail(
 
   await send(
     email,
-    `Invoice ${invoiceNum} — Complete your payment`,
+    `Invoice ${invoiceNum} - Complete your payment`,
     wrap(
-      header("#7c3aed", "??"),
-      `<p style="margin:0 0 6px;font-size:13px;color:#a78bfa;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">NEW ORDER</p>
+      header("#f59e0b", APP_NAME),
+      `<p style="margin:0 0 6px;font-size:13px;color:#fbbf24;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">NEW ORDER</p>
        <h1 style="margin:0 0 8px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Your invoice is ready</h1>
        <p style="margin:0 0 24px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">${instruction}</p>
        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d1117;border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin:0 0 24px;">
@@ -315,16 +304,16 @@ export async function sendInvoiceCreatedEmail(
          ${infoRow("Payment Method", paymentLabels[paymentProvider] ?? paymentProvider)}
        </table>
        <div style="text-align:center;margin:24px 0;">
-         ${btn(invoiceUrl, "View Invoice & Pay ?", "#7c3aed")}
+         ${btn(invoiceUrl, "View Invoice & Pay")}
        </div>
        <p style="margin:0;font-size:12px;color:#4b5563;text-align:center;font-family:system-ui,sans-serif;">
-         Invoice link: <a href="${invoiceUrl}" style="color:#7c3aed;text-decoration:none;">${invoiceUrl}</a>
+         Invoice link: <a href="${invoiceUrl}" style="color:#f59e0b;text-decoration:none;">${invoiceUrl}</a>
        </p>`
     )
   );
 }
 
-// --- 7. Invoice Reminder ------------------------------------------------------
+// --- 7. Invoice Reminder -----------------------------------------------------
 
 export async function sendInvoiceReminderEmail(
   email: string,
@@ -337,30 +326,30 @@ export async function sendInvoiceReminderEmail(
 
   await send(
     email,
-    `? Don't miss out — your order is waiting`,
+    `Your order is waiting - complete payment now`,
     wrap(
-      header("#d97706", "?"),
+      header("#d97706", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#f59e0b;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">PAYMENT REMINDER</p>
        <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">You left something behind</h1>
        <p style="margin:0 0 20px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
          Your order for <strong style="color:#f9fafb;">${productTitle}</strong> is still waiting for payment. Complete it now to get instant access.
        </p>
-       <div style="padding:20px 24px;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(124,58,237,0.08));border:1px solid rgba(245,158,11,0.2);border-radius:12px;text-align:center;margin:0 0 24px;">
+       <div style="padding:20px 24px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;text-align:center;margin:0 0 24px;">
          <p style="margin:0 0 4px;font-size:32px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;">$${amount.toFixed(2)}</p>
          <p style="margin:0 0 4px;font-size:14px;color:#9ca3af;font-family:system-ui,sans-serif;">${productTitle}</p>
          <p style="margin:0;font-size:12px;color:#6b7280;font-family:monospace;">${invoiceNum}</p>
        </div>
        <div style="text-align:center;margin:24px 0;">
-         ${btn(invoiceUrl, "Complete Payment Now ?", "#d97706")}
+         ${btn(invoiceUrl, "Complete Payment Now", "#d97706")}
        </div>
        <p style="margin:0;font-size:12px;color:#4b5563;text-align:center;font-family:system-ui,sans-serif;">
-         Questions? <a href="${APP_URL}/support" style="color:#a78bfa;text-decoration:none;">Contact support</a>
+         Questions? <a href="${APP_URL}/support" style="color:#f59e0b;text-decoration:none;">Contact support</a>
        </p>`
     )
   );
 }
 
-// --- 8. Partner Payout --------------------------------------------------------
+// --- 8. Partner Payout -------------------------------------------------------
 
 export async function sendPayoutNotificationEmail(
   email: string,
@@ -370,20 +359,19 @@ export async function sendPayoutNotificationEmail(
 ): Promise<void> {
   const isApproved = action === "approved";
   const accentColor = isApproved ? "#059669" : "#dc2626";
-  const emoji = isApproved ? "??" : "?";
 
   await send(
     email,
-    isApproved ? `?? Payout of $${amount.toFixed(2)} sent to your wallet` : `Payout request update — MetraMart`,
+    isApproved ? `Payout of $${amount.toFixed(2)} sent to your wallet` : `Payout request update - MetraMart`,
     wrap(
-      header(accentColor, emoji),
+      header(accentColor, APP_NAME),
       isApproved
         ? `<p style="margin:0 0 6px;font-size:13px;color:#10b981;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">PAYOUT APPROVED</p>
            <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Your payout is on its way!</h1>
            <p style="margin:0 0 20px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
              Your payout of <strong style="color:#f9fafb;">$${amount.toFixed(2)}</strong> has been approved and sent to your crypto wallet.
            </p>
-           ${txHash ? `<div style="padding:14px 18px;background:#0d1117;border:1px solid rgba(16,185,129,0.2);border-radius:10px;margin:0 0 20px;"><p style="margin:0 0 4px;font-size:12px;color:#6b7280;font-family:system-ui,sans-serif;">Transaction Hash</p><p style="margin:0;font-size:13px;color:#a78bfa;font-family:monospace;word-break:break-all;">${txHash}</p></div>` : ""}
+           ${txHash ? `<div style="padding:14px 18px;background:#0d1117;border:1px solid rgba(16,185,129,0.2);border-radius:10px;margin:0 0 20px;"><p style="margin:0 0 4px;font-size:12px;color:#6b7280;font-family:system-ui,sans-serif;">Transaction Hash</p><p style="margin:0;font-size:13px;color:#fbbf24;font-family:monospace;word-break:break-all;">${txHash}</p></div>` : ""}
            <div style="text-align:center;margin:24px 0;">
              ${btn(`${APP_URL}/dashboard/partner`, "View Partner Dashboard", "#059669")}
            </div>`
@@ -399,65 +387,65 @@ export async function sendPayoutNotificationEmail(
   );
 }
 
-// --- 9. Restock Notification --------------------------------------------------
+// --- 9. Restock Notification -------------------------------------------------
 
 export async function sendRestockEmail(email: string, productTitle: string, productId: string): Promise<void> {
   const productUrl = `${APP_URL}/products/${productId}`;
   await send(
     email,
-    `?? ${productTitle} is back in stock!`,
+    `${productTitle} is back in stock!`,
     wrap(
-      header("#7c3aed", "??"),
-      `<p style="margin:0 0 6px;font-size:13px;color:#a78bfa;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">BACK IN STOCK</p>
-       <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">It's back — grab it now!</h1>
+      header("#f59e0b", APP_NAME),
+      `<p style="margin:0 0 6px;font-size:13px;color:#fbbf24;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">BACK IN STOCK</p>
+       <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">It's back - grab it now!</h1>
        <p style="margin:0 0 20px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
-         <strong style="color:#f9fafb;">${productTitle}</strong> is back in stock and ready to order. You asked to be notified — don't miss out, stock is limited.
+         <strong style="color:#f9fafb;">${productTitle}</strong> is back in stock and ready to order. You asked to be notified - do not miss out, stock is limited.
        </p>
-       <div style="padding:16px 20px;background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:10px;margin:0 0 24px;">
-         <p style="margin:0;font-size:14px;color:#c4b5fd;font-family:system-ui,sans-serif;">? Instant delivery after payment · ?? Secure checkout · ?? Replacement guarantee</p>
+       <div style="padding:16px 20px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;margin:0 0 24px;">
+         <p style="margin:0;font-size:14px;color:#fbbf24;font-family:system-ui,sans-serif;">Instant delivery after payment &middot; Secure checkout &middot; Replacement guarantee</p>
        </div>
        <div style="text-align:center;margin:24px 0;">
-         ${btn(productUrl, "Buy Now ?", "#7c3aed")}
+         ${btn(productUrl, "Buy Now")}
        </div>`
     )
   );
 }
 
-// --- 10. Admin Alerts ---------------------------------------------------------
+// --- 10. Admin Alerts --------------------------------------------------------
 
 export async function sendAdminLowStockAlert(productTitle: string, stockCount: number): Promise<void> {
   const isDuplicate = stockCount === -1;
   const subject = isDuplicate
-    ? `?? Duplicate delivery detected — ${APP_NAME}`
-    : `?? Low stock: ${productTitle} (${stockCount} left)`;
+    ? `Duplicate delivery detected - ${APP_NAME}`
+    : `Low stock: ${productTitle} (${stockCount} left)`;
 
   const body = isDuplicate
-    ? `<h2 style="margin:0 0 12px;color:#ef4444;font-size:20px;font-family:system-ui,sans-serif;">?? Duplicate Delivery Detected</h2>
+    ? `<h2 style="margin:0 0 12px;color:#ef4444;font-size:20px;font-family:system-ui,sans-serif;">Duplicate Delivery Detected</h2>
        <p style="margin:0 0 16px;color:#9ca3af;font-size:14px;font-family:system-ui,sans-serif;">A duplicate delivery was detected for: <strong style="color:#f9fafb;">${productTitle}</strong>. Investigate immediately.</p>`
-    : `<h2 style="margin:0 0 12px;color:#f59e0b;font-size:20px;font-family:system-ui,sans-serif;">?? Low Stock Alert</h2>
+    : `<h2 style="margin:0 0 12px;color:#f59e0b;font-size:20px;font-family:system-ui,sans-serif;">Low Stock Alert</h2>
        <p style="margin:0 0 16px;color:#9ca3af;font-size:14px;font-family:system-ui,sans-serif;"><strong style="color:#f9fafb;">${productTitle}</strong> has only <strong style="color:#ef4444;">${stockCount}</strong> item(s) left.</p>
        <div style="text-align:center;">${btn(`${APP_URL}/admin/products`, "Add Inventory", "#d97706")}</div>`;
 
-  await send(ADMIN_EMAIL, subject, wrap(header(isDuplicate ? "#dc2626" : "#d97706", isDuplicate ? "??" : "??"), body));
+  await send(ADMIN_EMAIL, subject, wrap(header(isDuplicate ? "#dc2626" : "#d97706", APP_NAME), body));
 }
 
 export async function sendAdminPendingStockAlert(orderId: string, productTitle: string): Promise<void> {
   const invoiceNum = `MMT-${orderId.slice(-6).toUpperCase()}`;
   await send(
     ADMIN_EMAIL,
-    `?? Order ${invoiceNum} needs manual fulfillment`,
+    `Order ${invoiceNum} needs manual fulfillment`,
     wrap(
-      header("#d97706", "??"),
+      header("#d97706", APP_NAME),
       `<h2 style="margin:0 0 12px;color:#f59e0b;font-size:20px;font-family:system-ui,sans-serif;">Order Awaiting Stock</h2>
        <p style="margin:0 0 16px;color:#9ca3af;font-size:14px;font-family:system-ui,sans-serif;">
-         Order <strong style="color:#f9fafb;">${invoiceNum}</strong> for <strong style="color:#f9fafb;">${productTitle}</strong> could not be auto-delivered — no inventory available.
+         Order <strong style="color:#f9fafb;">${invoiceNum}</strong> for <strong style="color:#f9fafb;">${productTitle}</strong> could not be auto-delivered - no inventory available.
        </p>
        <div style="text-align:center;">${btn(`${APP_URL}/admin/orders`, "View Orders", "#d97706")}</div>`
     )
   );
 }
 
-// --- 11. Bulk/Marketing Email -------------------------------------------------
+// --- 11. Bulk/Marketing Email ------------------------------------------------
 
 export async function sendMarketingEmail(
   email: string,
@@ -473,22 +461,22 @@ export async function sendMarketingEmail(
     email,
     subject,
     wrap(
-      header("#7c3aed", "?"),
+      header("#f59e0b", APP_NAME),
       `<h1 style="margin:0 0 20px;font-size:24px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.3;">${subject}</h1>
        ${bodyHtml}
        ${divider()}
        <div style="text-align:center;margin:24px 0;">
-         ${btn(`${APP_URL}/products`, "Browse Products ?", "#7c3aed")}
+         ${btn(`${APP_URL}/products`, "Browse Products")}
        </div>
        <p style="margin:0;font-size:12px;color:#374151;text-align:center;font-family:system-ui,sans-serif;">
-         <a href="${APP_URL}/deals" style="color:#a78bfa;text-decoration:none;">Today's Deals</a> &nbsp;·&nbsp;
-         <a href="${APP_URL}/support" style="color:#a78bfa;text-decoration:none;">Support</a>
+         <a href="${APP_URL}/deals" style="color:#f59e0b;text-decoration:none;">Today's Deals</a> &nbsp;&middot;&nbsp;
+         <a href="${APP_URL}/support" style="color:#f59e0b;text-decoration:none;">Support</a>
        </p>`
     )
   );
 }
 
-// --- Resend Contact Events ----------------------------------------------------
+// --- Resend Contact Events ---------------------------------------------------
 
 export async function trackEvent(email: string, event: string, data?: Record<string, unknown>): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
@@ -503,3 +491,5 @@ export async function trackEvent(email: string, event: string, data?: Record<str
   }
 }
 
+// Keep badge export to avoid unused warning
+export { badge };
