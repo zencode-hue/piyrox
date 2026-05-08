@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
       db.order.findMany({
         take: 10,
         orderBy: { createdAt: "desc" },
-        select: { id: true, status: true, total: true, createdAt: true },
+        select: { id: true, status: true, amount: true, createdAt: true },
       }),
       db.product.findMany({
         take: 8,
@@ -121,26 +121,26 @@ export async function POST(req: NextRequest) {
         select: { id: true, title: true, price: true, category: true },
       }),
       db.order.aggregate({
-        _sum: { total: true },
-        where: { status: { in: ["COMPLETED", "DELIVERED"] } },
+        _sum: { amount: true },
+        where: { status: "PAID" },
       }),
     ]);
 
     const recentOrdersSummary = recentOrders
       .map(
-        (o: { id: string; status: string; total: number; createdAt: Date }) =>
-          `  • ${o.id.slice(0, 8)}… — $${o.total.toFixed(2)} — ${o.status} — ${new Date(o.createdAt).toLocaleDateString()}`
+        (o: { id: string; status: string; amount: { toNumber?: () => number }; createdAt: Date }) =>
+          `  • ${o.id.slice(0, 8)}… — $${(typeof o.amount?.toNumber === "function" ? o.amount.toNumber() : Number(o.amount)).toFixed(2)} — ${o.status} — ${new Date(o.createdAt).toLocaleDateString()}`
       )
       .join("\n");
 
     const topProductsList = topProducts
       .map(
-        (p: { id: string; title: string; price: number; category: string }) =>
-          `  • ${p.title} — $${p.price.toFixed(2)} (${p.category})`
+        (p: { id: string; title: string; price: { toNumber?: () => number }; category: string }) =>
+          `  • ${p.title} — $${(typeof p.price?.toNumber === "function" ? p.price.toNumber() : Number(p.price)).toFixed(2)} (${p.category})`
       )
       .join("\n");
 
-    const totalRevenue = revenue._sum?.total ?? 0;
+    const totalRevenue = revenue._sum?.amount ?? 0;
 
     // ── Build system prompt ─────────────────────────────────────────────────
     const systemPrompt = {
