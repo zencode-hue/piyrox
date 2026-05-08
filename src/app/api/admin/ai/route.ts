@@ -257,7 +257,8 @@ Params: url (string, e.g. "/api/admin/discord-push"), method (string, default "G
 4. Be action-oriented. If the admin says "post a blog update", create it AND publish it.
 5. If unsure about an action, ask for confirmation first.
 6. You have DIRECT ACCESS to the CMS, Discord, and email system. USE THEM.
-7. Never repeat disclaimers about not having access — you DO have access through your tools.`,
+7. Never repeat disclaimers about not having access — you DO have access through your tools.
+8. CRITICAL: You MUST use the \`\`\`tool ... \`\`\` JSON format for actions. NEVER output XML tags like <longcat_tool_call>.`,
     };
 
     const finalMessages = [systemPrompt, ...messages];
@@ -326,11 +327,41 @@ Params: url (string, e.g. "/api/admin/discord-push"), method (string, default "G
     let reply = data.choices?.[0]?.message?.content || "No response";
 
     // ── Execute tool calls if the AI responded with one ─────────────────
-    const toolMatch = reply.match(/```tool\s*\n([\s\S]*?)\n```/);
-    let toolResult: string | null = null;
-    if (toolMatch) {
+    let toolCall: ToolCall | null = null;
+    let toolMatchStr = "";
+
+    const jsonMatch = reply.match(/```tool\s*\n([\s\S]*?)\n```/);
+    if (jsonMatch) {
       try {
-        const toolCall: ToolCall = JSON.parse(toolMatch[1]);
+        toolCall = JSON.parse(jsonMatch[1]);
+        toolMatchStr = jsonMatch[0];
+      } catch (err) {
+        console.error("JSON parse error:", err);
+      }
+    } else {
+      // Fallback for models that leak XML tool calls
+      const xmlMatch = reply.match(/<longcat_tool_call>([\s\S]*?)<\/longcat_tool_call>/);
+      if (xmlMatch) {
+        toolMatchStr = xmlMatch[0];
+        const content = xmlMatch[1].trim();
+        const firstLineBreak = content.indexOf('\n');
+        const action = firstLineBreak > -1 ? content.substring(0, firstLineBreak).trim() : content.trim();
+        
+        const params: Record<string, any> = {};
+        const keyMatches = [...content.matchAll(/<longcat_arg_key>([\s\S]*?)<\/longcat_arg_key>\s*<longcat_arg_value>([\s\S]*?)<\/longcat_arg_value>/g)];
+        for (const m of keyMatches) {
+          let val = m[2].trim();
+          if (val === "true") val = true as any;
+          else if (val === "false") val = false as any;
+          params[m[1].trim()] = val;
+        }
+        toolCall = { action, params };
+      }
+    }
+
+    let toolResult: string | null = null;
+    if (toolCall) {
+      try {
         const origin =
           process.env.NEXT_PUBLIC_APP_URL ||
           req.nextUrl.origin ||
@@ -338,7 +369,7 @@ Params: url (string, e.g. "/api/admin/discord-push"), method (string, default "G
         toolResult = await executeTool(toolCall, origin);
 
         // Replace the tool block with the result
-        reply = reply.replace(toolMatch[0], "").trim();
+        reply = reply.replace(toolMatchStr, "").trim();
         reply += `\n\n---\n**🔧 Action Result:**\n${toolResult}`;
       } catch (err) {
         reply += `\n\n---\n**🔧 Action Error:** Could not parse tool call — ${String(err)}`;
