@@ -84,31 +84,61 @@ export default function AdminAIPage() {
 
   useEffect(() => {
     const VALID = new Set(AI_MODELS.map((m) => m.id));
-    const saved = localStorage.getItem("mm_ai_key");
-    const savedModel = localStorage.getItem("mm_ai_model");
-    if (saved) setApiKey(saved);
-    if (savedModel && VALID.has(savedModel)) {
-      setModel(savedModel);
-    } else if (savedModel) {
-      localStorage.setItem("mm_ai_model", "openrouter/owl-alpha");
-      setModel("openrouter/owl-alpha");
+    
+    async function loadSettings() {
+      try {
+        const res = await fetch("/api/admin/settings");
+        const json = await res.json();
+        if (json.data) {
+          if (json.data.ai_api_key) setApiKey(json.data.ai_api_key);
+          const savedModel = json.data.ai_model;
+          if (savedModel && VALID.has(savedModel)) {
+            setModel(savedModel);
+          } else if (savedModel) {
+            setModel("openrouter/owl-alpha");
+            await fetch("/api/admin/settings", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ai_model: "openrouter/owl-alpha" })
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load settings", err);
+      }
     }
+    loadSettings();
   }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  function saveConfig() {
-    localStorage.setItem("mm_ai_key", apiKey);
-    localStorage.setItem("mm_ai_model", model);
-    setShowConfig(false);
+  async function saveConfig() {
+    try {
+      await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ai_api_key: apiKey, ai_model: model }),
+      });
+      setShowConfig(false);
+    } catch (err) {
+      setError("Failed to save configuration.");
+    }
   }
 
-  function selectModel(id: string) {
+  async function selectModel(id: string) {
     setModel(id);
-    localStorage.setItem("mm_ai_model", id);
     setShowModelPicker(false);
+    try {
+      await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ai_model: id }),
+      });
+    } catch (err) {
+      console.error("Failed to save model", err);
+    }
   }
 
   async function send(overrideInput?: string) {
@@ -128,9 +158,7 @@ export default function AdminAIPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
-          model,
-          apiKey,
+          messages: newMessages.map((m) => ({ role: m.role, content: m.content }))
         }),
       });
 
@@ -261,7 +289,7 @@ export default function AdminAIPage() {
               Save Key
             </button>
           </div>
-          <p className="text-xs text-gray-600">Stored in your browser only.</p>
+          <p className="text-xs text-green-500/80">Stored securely in the database.</p>
         </div>
       )}
 

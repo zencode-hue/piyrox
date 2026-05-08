@@ -96,7 +96,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
   if (!product) return { title: "Product Not Found - MetraMart" };
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+  const appUrl = "https://metramart.xyz";
   const slugUrl = `${appUrl}${productPath(realId, product.title)}`;
   const catLabel = CATEGORY_LABELS[product.category] ?? "Digital";
   const price = Number(product.price).toFixed(2);
@@ -139,7 +139,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const catColor = CATEGORY_COLORS[product.category] ?? "text-gray-400 bg-gray-500/10 border-gray-500/20";
   const reviewCount = product.reviews.length;
   const avgRating = product.avgRating;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+  const appUrl = "https://metramart.xyz";
 
   const productJsonLd = {
     "@context": "https://schema.org",

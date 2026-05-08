@@ -73,6 +73,42 @@ async function executeTool(tool: ToolCall, origin: string): Promise<string> {
         return `✅ Email sent to ${data.sent} recipients! (${data.failed || 0} failed)`;
       }
 
+      case "run_db_query": {
+        try {
+          const { model, action, args } = tool.params;
+          const { db } = await import("@/lib/db");
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const dbModel = (db as any)[model];
+          if (!dbModel || typeof dbModel[action] !== "function") {
+            return `❌ Invalid model or action: ${model}.${action}`;
+          }
+          const result = await dbModel[action](args);
+          return `✅ Query successful:\n\`\`\`json\n${JSON.stringify(result, null, 2).substring(0, 2000)}\n\`\`\``;
+        } catch (err) {
+          return `❌ Database query failed: ${String(err)}`;
+        }
+      }
+
+      case "call_api": {
+        try {
+          const { url, method = "GET", headers = {}, body } = tool.params;
+          const finalUrl = url.startsWith("/") ? `${origin}${url}` : url;
+          const fetchOpts: RequestInit = {
+            method,
+            headers: { ...headers, cookie: "__internal_ai_bypass=1" },
+          };
+          if (body) {
+            fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body);
+            fetchOpts.headers = { "Content-Type": "application/json", ...fetchOpts.headers };
+          }
+          const res = await fetch(finalUrl, fetchOpts);
+          const text = await res.text();
+          return `✅ API Response (${res.status}):\n\`\`\`json\n${text.substring(0, 2000)}\n\`\`\``;
+        } catch (err) {
+          return `❌ API call failed: ${String(err)}`;
+        }
+      }
+
       default:
         return `❌ Unknown action: ${tool.action}`;
     }
@@ -88,14 +124,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { messages, model, apiKey } = await req.json();
+    const { messages } = await req.json();
+
+    // ── Fetch configuration from database ──────────────────────────────────
+    const { db } = await import("@/lib/db");
+    const [keySetting, modelSetting] = await Promise.all([
+      db.siteSetting.findUnique({ where: { key: "ai_api_key" } }),
+      db.siteSetting.findUnique({ where: { key: "ai_model" } })
+    ]);
+
+    const apiKey = keySetting?.value;
+    const model = modelSetting?.value;
 
     if (!apiKey) {
-      return NextResponse.json({ error: "API key is required" }, { status: 400 });
+      return NextResponse.json({ error: "API key is required. Please set it in the AI config." }, { status: 400 });
     }
 
     // ── Fetch rich database stats ───────────────────────────────────────────
-    const { db } = await import("@/lib/db");
     const [
       userCount,
       orderCount,
@@ -198,6 +243,12 @@ Params: message (string)
 
 **send_email** — Send emails to customers
 Params: audience ("all" | "customers" | "guests" | "custom"), subject (string), message (string), customEmail (string, only if audience is "custom"), preview (boolean, set true to just get recipient count)
+
+**run_db_query** — Execute a query or mutation directly on the Prisma database (TOTAL CONTROL)
+Params: model (string, e.g. "user", "order", "product"), action (string, e.g. "findMany", "create", "update", "delete", "count"), args (object, Prisma query arguments like { where: {...}, data: {...} })
+
+**call_api** — Make an HTTP request to any internal or external API (e.g., trigger cron jobs)
+Params: url (string, e.g. "/api/admin/discord-push"), method (string, default "GET"), headers (object), body (object or string)
 
 ## INSTRUCTIONS
 1. When asked to create content (blog posts, emails, announcements), write it AND execute the tool to publish it. Don't just provide text to copy-paste.
