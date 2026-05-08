@@ -12,11 +12,11 @@ interface Message {
 
 const AI_MODELS = [
   { id: "openrouter/owl-alpha", name: "OWL Alpha", tag: "Smart" },
-  { id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B", tag: "FREE" },
-  { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 120B", tag: "FREE" },
-  { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen 3 80B", tag: "FREE" },
-  { id: "tencent/hy3-preview:free", name: "Tencent HY3", tag: "FREE" },
-  { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", tag: "FREE" },
+  { id: "google/gemini-2.5-flash:free", name: "Gemini 2.5 Flash", tag: "FREE" },
+  { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B", tag: "FREE" },
+  { id: "qwen/qwen-2.5-72b-instruct:free", name: "Qwen 2.5 72B", tag: "FREE" },
+  { id: "deepseek/deepseek-r1-distill-llama-70b:free", name: "DeepSeek R1", tag: "FREE" },
+  { id: "mistralai/mistral-nemo:free", name: "Mistral Nemo", tag: "FREE" },
 ];
 
 const QUICK_PROMPTS = [

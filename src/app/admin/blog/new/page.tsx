@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 
 const CATEGORIES = ["Streaming", "AI Tools", "Software", "Gaming", "Tips", "News", "General"];
 const EMOJIS = ["📺", "🤖", "💻", "🎮", "💡", "📰", "📝", "🔒", "💰", "⚡"];
@@ -11,6 +11,7 @@ const EMOJIS = ["📺", "🤖", "💻", "🎮", "💡", "📰", "📝", "🔒", 
 export default function NewBlogPostPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "", slug: "", excerpt: "", content: "",
@@ -25,6 +26,38 @@ export default function NewBlogPostPage() {
       }
       return updated;
     });
+  }
+
+  async function generatePost() {
+    if (!form.title) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ 
+            role: "user", 
+            content: `Write a high-quality, SEO-optimized blog post for "${form.title}" in the ${form.category} category.
+            Include a short excerpt (first paragraph) and then the full markdown content.
+            Use a friendly and professional tone. Keep it informative.` 
+          }]
+        }),
+      });
+      const data = await res.json();
+      if (data.reply) {
+        const text = data.reply;
+        // Simple heuristic to split excerpt and content
+        const paragraphs = text.split("\n\n");
+        if (paragraphs.length > 1) {
+          set("excerpt", paragraphs[0]);
+          set("content", paragraphs.slice(1).join("\n\n"));
+        } else {
+          set("content", text);
+        }
+      }
+    } catch (e) { console.error(e); }
+    setAiLoading(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -85,7 +118,18 @@ export default function NewBlogPostPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Content (supports **bold** markdown)</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-sm text-gray-400">Content (supports **bold** markdown)</label>
+              <button
+                type="button"
+                onClick={generatePost}
+                disabled={aiLoading || !form.title}
+                className="flex items-center gap-1.5 text-[10px] px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-500 hover:bg-amber-500/20 transition-all disabled:opacity-50"
+              >
+                {aiLoading ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                AI Generate
+              </button>
+            </div>
             <textarea value={form.content} onChange={(e) => set("content", e.target.value)} required rows={16} className="input-field resize-y font-mono text-sm" placeholder="Write your blog post content here...&#10;&#10;Use **bold** for emphasis.&#10;&#10;Separate paragraphs with blank lines." />
           </div>
 

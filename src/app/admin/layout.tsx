@@ -1,4 +1,4 @@
-﻿import { requireAdmin } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/admin-auth";
 import AdminSidebar from "./AdminSidebar";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -8,7 +8,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex min-h-screen" style={{ background: "#000" }}>
       <AdminSidebar />
       <div className="flex-1 lg:ml-60 flex flex-col min-h-screen">
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto pb-20 lg:pb-0">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 lg:py-8">
             {children}
           </div>

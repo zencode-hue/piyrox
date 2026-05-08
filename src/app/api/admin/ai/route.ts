@@ -297,31 +297,13 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
 
     const finalMessages = [systemPrompt, ...messages];
 
-    // ── Model selection & fallback (max 3 models for OpenRouter) ─────────
-    const FREE_FALLBACKS = [
-      "google/gemma-4-31b-it:free",
-      "nvidia/nemotron-3-super-120b-a12b:free",
-      "qwen/qwen3-next-80b-a3b-instruct:free",
-      "tencent/hy3-preview:free",
-      "z-ai/glm-4.5-air:free",
-    ];
-
+    // ── Model selection ─────────────────────────────────────────────────────
     const selectedModel = model || "openrouter/owl-alpha";
-    const isFreeTier = selectedModel.endsWith(":free");
 
-    const payload: Record<string, unknown> = { messages: finalMessages };
-
-    if (isFreeTier) {
-      // OpenRouter limits fallback array to 3 models max
-      const fallbackList = [
-        selectedModel,
-        ...FREE_FALLBACKS.filter((m) => m !== selectedModel),
-      ].slice(0, 3);
-      payload.models = fallbackList;
-      payload.route = "fallback";
-    } else {
-      payload.model = selectedModel;
-    }
+    const payload: Record<string, unknown> = {
+      model: selectedModel,
+      messages: finalMessages,
+    };
 
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -360,19 +342,39 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
 
     let reply = data.choices?.[0]?.message?.content || "No response";
 
-    // ── Execute tool calls if the AI responded with one ─────────────────
     let toolCall: ToolCall | null = null;
     let toolMatchStr = "";
 
-    const jsonMatch = reply.match(/```tool\s*\n([\s\S]*?)\n```/);
+    const jsonMatch = reply.match(/```(?:tool|json)?\s*\n([\s\S]*?)\n```/);
     if (jsonMatch) {
       try {
-        toolCall = JSON.parse(jsonMatch[1]);
-        toolMatchStr = jsonMatch[0];
+        const parsed = JSON.parse(jsonMatch[1]);
+        if (parsed && typeof parsed === "object" && "action" in parsed && "params" in parsed) {
+          toolCall = parsed;
+          toolMatchStr = jsonMatch[0];
+        }
       } catch (err) {
         console.error("JSON parse error:", err);
       }
-    } else {
+    }
+
+    // If standard markdown block fails, look for raw JSON containing action and params
+    if (!toolCall) {
+      const bruteMatch = reply.match(/\{[\s\S]*"action"\s*:\s*"[^"]+"[\s\S]*"params"\s*:[\s\S]*\}/);
+      if (bruteMatch) {
+        try {
+          const parsed = JSON.parse(bruteMatch[0]);
+          if (parsed && typeof parsed === "object" && "action" in parsed && "params" in parsed) {
+            toolCall = parsed;
+            toolMatchStr = bruteMatch[0];
+          }
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
+
+    if (!toolCall) {
       // Fallback for models that leak XML tool calls
       const xmlMatch = reply.match(/<longcat_tool_call>([\s\S]*?)<\/longcat_tool_call>/);
       if (xmlMatch) {
@@ -398,8 +400,8 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
     if (toolCall) {
       try {
         const origin =
-          process.env.NEXT_PUBLIC_APP_URL ||
           req.nextUrl.origin ||
+          process.env.NEXT_PUBLIC_APP_URL ||
           "https://metramart.xyz";
         toolResult = await executeTool(toolCall, origin);
 

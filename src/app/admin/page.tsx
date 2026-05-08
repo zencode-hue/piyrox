@@ -66,19 +66,19 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Revenue cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: "All Time Revenue", value: `$${Number(revenue._sum.amount ?? 0).toFixed(2)}`, icon: DollarSign, color: "#fbbf24", sub: `${totalOrders} total orders` },
           { label: "Today", value: `$${Number(revenueToday._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#4ade80", sub: `${revenueToday._count} orders, ${ordersToday} placed` },
           { label: "This Week", value: `$${Number(revenueWeek._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#60a5fa", sub: `${revenueWeek._count} orders` },
           { label: "This Month", value: `$${Number(revenueMonth._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#c4b5fd", sub: `${revenueMonth._count} orders` },
         ].map(({ label, value, icon: Icon, color, sub }) => (
-          <div key={label} className="glass-card p-5">
-            <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
-              <Icon size={13} style={{ color }} /> {label}
+          <div key={label} className="glass-card p-4 sm:p-5 flex flex-col justify-center">
+            <div className="flex items-center gap-2 text-[11px] sm:text-xs text-gray-400 mb-2 sm:mb-3">
+              <Icon size={14} style={{ color }} /> <span className="truncate">{label}</span>
             </div>
-            <div className="text-xl font-bold" style={{ color }}>{value}</div>
-            <div className="text-xs text-gray-600 mt-1">{sub}</div>
+            <div className="text-lg sm:text-xl font-bold" style={{ color }}>{value}</div>
+            <div className="text-[10px] sm:text-xs text-gray-500 mt-1 truncate">{sub}</div>
           </div>
         ))}
       </div>

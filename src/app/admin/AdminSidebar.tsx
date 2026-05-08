@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,7 +10,7 @@ import {
   TrendingUp, ExternalLink, FileText, BarChart2,
   AlertTriangle, Webhook, ClipboardList, Mail, Search,
   Bot, Shield, Globe, Zap, Star, MessageSquare,
-  ChevronDown, ChevronRight,
+  ChevronDown, ChevronRight, Megaphone,
 } from "lucide-react";
 
 const navGroups = [
@@ -46,6 +46,7 @@ const navGroups = [
     label: "Content",
     items: [
       { href: "/admin/blog", label: "Blog", icon: FileText },
+      { href: "/admin/marketing", label: "Marketing", icon: Megaphone },
       { href: "/admin/email", label: "Email Center", icon: Mail },
       { href: "/admin/reviews", label: "Reviews", icon: Star },
     ],
@@ -163,6 +164,29 @@ export default function AdminSidebar() {
       </div>
 
       <div className="lg:hidden h-14" />
+
+      {/* Mobile Bottom Nav */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around h-16 px-1 pb-safe"
+        style={{ background: "rgba(6,6,6,0.98)", borderTop: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(24px)" }}>
+        {[
+          { href: "/admin", icon: LayoutDashboard, label: "Home", active: pathname === "/admin" },
+          { href: "/admin/orders", icon: ShoppingCart, label: "Orders", active: pathname.startsWith("/admin/orders") },
+          { href: "/admin/products", icon: Package, label: "Products", active: pathname.startsWith("/admin/products") },
+          { href: "/admin/ai", icon: Bot, label: "OWL", active: pathname.startsWith("/admin/ai") },
+        ].map((item) => (
+          <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center w-full h-full gap-1 transition-colors relative"
+            style={{ color: item.active ? "#f59e0b" : "rgba(255,255,255,0.4)" }}>
+            <item.icon size={22} style={{ color: item.active ? "#f59e0b" : "rgba(255,255,255,0.4)" }} />
+            <span className="text-[10px] font-medium">{item.label}</span>
+            {item.active && <div className="absolute top-0 w-8 h-0.5 bg-amber-500 rounded-b-full" />}
+          </Link>
+        ))}
+        <button onClick={() => setOpen(true)} className="flex flex-col items-center justify-center w-full h-full gap-1 transition-colors"
+          style={{ color: "rgba(255,255,255,0.4)" }}>
+          <Menu size={22} />
+          <span className="text-[10px] font-medium">Menu</span>
+        </button>
+      </div>
 
       {open && (
         <div className="lg:hidden fixed inset-0 z-50 flex">

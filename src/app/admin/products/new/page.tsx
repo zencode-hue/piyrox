@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 import VariantEditor, { type VariantDraft } from "@/components/admin/VariantEditor";
 
@@ -17,6 +17,7 @@ const CATEGORIES = [
 export default function NewProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "", description: "", price: "",
@@ -27,6 +28,26 @@ export default function NewProductPage() {
 
   function set(field: string, value: string | boolean) {
     setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  async function generateDescription() {
+    if (!form.title) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ 
+            role: "user", 
+            content: `Write a premium, high-converting product description for "${form.title}" in the ${form.category} category for an e-commerce store. Focus on benefits and features. Keep it concise.` 
+          }]
+        }),
+      });
+      const data = await res.json();
+      if (data.reply) set("description", data.reply);
+    } catch (e) { console.error(e); }
+    setAiLoading(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -83,9 +104,20 @@ export default function NewProductPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Description</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-sm text-gray-400">Description</label>
+              <button
+                type="button"
+                onClick={generateDescription}
+                disabled={aiLoading || !form.title}
+                className="flex items-center gap-1.5 text-[10px] px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-500 hover:bg-amber-500/20 transition-all disabled:opacity-50"
+              >
+                {aiLoading ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                AI Generate
+              </button>
+            </div>
             <textarea value={form.description} onChange={(e) => set("description", e.target.value)}
-              rows={3} className="input-field resize-none" placeholder="Product description..." />
+              rows={4} className="input-field resize-none" placeholder="Product description..." />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

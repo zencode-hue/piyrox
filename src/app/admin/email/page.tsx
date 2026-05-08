@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mail, Send, Loader2, Users, User, ShoppingCart, Eye, AlertTriangle } from "lucide-react";
+import { Mail, Send, Loader2, Users, User, ShoppingCart, Eye, AlertTriangle, Sparkles } from "lucide-react";
 
 type Audience = "all" | "customers" | "guests" | "custom" | "order";
 
@@ -54,6 +54,7 @@ export default function AdminEmailPage() {
   const [previewCount, setPreviewCount] = useState<number | null>(null);
   const [result, setResult] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   // Reset preview count when audience changes
   useEffect(() => {
@@ -140,6 +141,32 @@ export default function AdminEmailPage() {
     }
   }
 
+  async function generateEmail() {
+    if (!subject.trim()) {
+      setResult({ type: "error", text: "Please enter a subject first to guide the AI" });
+      return;
+    }
+    setAiLoading(true);
+    setResult(null);
+    try {
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ 
+            role: "user", 
+            content: `Write a compelling marketing email with the subject "${subject}". 
+            Target audience: ${AUDIENCE_OPTIONS.find(o => o.key === audience)?.label}. 
+            The store is MetraMart, a premium digital marketplace. Keep it professional and persuasive.` 
+          }]
+        }),
+      });
+      const data = await res.json();
+      if (data.reply) setMessage(data.reply);
+    } catch (e) { console.error(e); }
+    setAiLoading(false);
+  }
+
   const isBulk = audience === "all" || audience === "customers" || audience === "guests";
   const canSend = isBulk ? confirmed : true;
 
@@ -199,10 +226,21 @@ export default function AdminEmailPage() {
 
         {/* Message */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Message</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-xs text-gray-500">Message</label>
+            <button
+              type="button"
+              onClick={generateEmail}
+              disabled={aiLoading || !subject.trim()}
+              className="flex items-center gap-1.5 text-[10px] px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-400 hover:bg-purple-500/20 transition-all disabled:opacity-50"
+            >
+              {aiLoading ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+              AI Write Content
+            </button>
+          </div>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)}
             placeholder="Write your message here. Supports plain text with line breaks."
-            rows={8} className="input-field text-sm resize-none w-full" />
+            rows={10} className="input-field text-sm resize-none w-full" />
           <p className="text-xs text-gray-600 mt-1">{message.length}/5000 characters</p>
         </div>
 

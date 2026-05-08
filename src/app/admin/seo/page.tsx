@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Globe, Search, TrendingUp, FileText, CheckCircle, AlertTriangle, Send, RefreshCw, Loader2, Copy, Check, Code } from "lucide-react";
+import { Globe, Search, TrendingUp, FileText, CheckCircle, AlertTriangle, Send, RefreshCw, Loader2, Copy, Check, Code, Bot, BarChart, ExternalLink, Link2 } from "lucide-react";
 
 export default function AdminSEOPage() {
   const [metaTitle, setMetaTitle] = useState("");
@@ -15,6 +15,100 @@ export default function AdminSEOPage() {
   const [robotsContent, setRobotsContent] = useState("");
   const [savingRobots, setSavingRobots] = useState(false);
   const [appUrl, setAppUrl] = useState("https://metramart.xyz");
+  const [kwSearch, setKwSearch] = useState("");
+  const [kwLoading, setKwLoading] = useState(false);
+  const [kwResults, setKwResults] = useState<any>(null);
+  const [compUrl, setCompUrl] = useState("");
+  const [compLoading, setCompLoading] = useState(false);
+  const [compResult, setCompResult] = useState<any>(null);
+
+  async function generateWithAI() {
+    setIsGenerating(true);
+    try {
+      const prompt = `You are an expert SEO specialist. Generate an optimized Meta Title (max 60 chars), Meta Description (max 150 chars), and 5-8 comma-separated Keywords for MetraMart, a premium digital marketplace selling Netflix, Spotify, ChatGPT Plus, gaming keys, and software licenses. RESPOND WITH ONLY THIS JSON FORMAT, NO OTHER TEXT: { "title": "...", "description": "...", "keywords": "..." }`;
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+      });
+      const data = await res.json();
+      if (data.reply) {
+        const match = data.reply.match(/\{[\s\S]*\}/);
+        if (match) {
+          const parsed = JSON.parse(match[0]);
+          if (parsed.title) setMetaTitle(parsed.title);
+          if (parsed.description) setMetaDesc(parsed.description);
+          if (parsed.keywords) setKeywords(parsed.keywords);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setIsGenerating(false);
+  }
+
+  async function runAIAudit() {
+    setAuditing(true);
+    try {
+      const prompt = `Act as an elite SEO auditor. Review my current site configuration:
+Title: ${metaTitle || "[None]"}
+Description: ${metaDesc || "[None]"}
+Keywords: ${keywords || "[None]"}
+Provide 3 highly actionable, bullet-point recommendations to improve organic ranking. Be very concise and do not include boilerplate.`;
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+      });
+      const data = await res.json();
+      if (data.reply) setAuditResult(data.reply);
+    } catch {
+      setAuditResult("Audit failed. Please check AI settings.");
+    }
+    setAuditing(false);
+  }
+
+  async function exploreKeyword() {
+    if (!kwSearch.trim()) return;
+    setKwLoading(true);
+    try {
+      const prompt = `Analyze the keyword "${kwSearch}" for an SEO tool.
+      Provide realistic metrics (Volume, Difficulty 0-100, CPC in USD) and 5 related high-traffic keywords.
+      RESPOND ONLY WITH JSON: { "volume": "number", "difficulty": "number", "cpc": "string", "related": ["kw1", "kw2", ...] }`;
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+      });
+      const data = await res.json();
+      if (data.reply) {
+        const match = data.reply.match(/\{[\s\S]*\}/);
+        if (match) setKwResults(JSON.parse(match[0]));
+      }
+    } catch (e) { console.error(e); }
+    setKwLoading(false);
+  }
+
+  async function analyzeCompetitor() {
+    if (!compUrl.trim()) return;
+    setCompLoading(true);
+    try {
+      const prompt = `Act as an SEO spy. Analyze the competitor URL "${compUrl}".
+      Deduce their ranking keywords, estimated traffic, and 3 weak points we can exploit.
+      RESPOND ONLY WITH JSON: { "traffic": "string", "topKeywords": ["k1", "k2"], "weaknesses": ["w1", "w2", "w3"] }`;
+      const res = await fetch("/api/admin/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+      });
+      const data = await res.json();
+      if (data.reply) {
+        const match = data.reply.match(/\{[\s\S]*\}/);
+        if (match) setCompResult(JSON.parse(match[0]));
+      }
+    } catch (e) { console.error(e); }
+    setCompLoading(false);
+  }
 
   useEffect(() => {
     fetch("/api/v1/settings").then((r) => r.json()).then((d) => {
@@ -121,9 +215,17 @@ export default function AdminSEOPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Meta Tags Editor */}
         <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <FileText size={14} style={{ color: "#f59e0b" }} /> Meta Tags Editor
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <FileText size={14} style={{ color: "#f59e0b" }} /> Meta Tags Editor
+            </h2>
+            <button onClick={generateWithAI} disabled={isGenerating}
+              className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all text-amber-400 hover:bg-amber-400/10 disabled:opacity-50"
+              style={{ border: "1px solid rgba(245,158,11,0.2)" }}>
+              {isGenerating ? <Loader2 size={12} className="animate-spin" /> : <Bot size={12} />}
+              {isGenerating ? "Generating..." : "Auto-Generate"}
+            </button>
+          </div>
           <div className="space-y-3">
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -249,38 +351,136 @@ export default function AdminSEOPage() {
           </pre>
         </div>
 
-        {/* Target Keywords */}
+        {/* Advanced Keyword Explorer (Ahrefs Style) */}
         <div className="glass-card p-5">
           <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Search size={14} style={{ color: "#f59e0b" }} /> Keyword Research
+            <Search size={14} style={{ color: "#f59e0b" }} /> Advanced Keyword Explorer
           </h2>
-          <p className="text-xs text-gray-500 mb-3">Click any keyword to check search volume and competition.</p>
-          <div className="flex flex-wrap gap-2">
-            {[
-              "buy netflix cheap", "spotify premium discount", "chatgpt plus cheap",
-              "buy digital subscriptions", "instant delivery digital products",
-              "cheap streaming services", "gaming keys cheap", "software licenses discount",
-              "metramart", "buy iptv subscription", "buy disney plus cheap",
-              "buy claude pro", "buy midjourney subscription",
-            ].map((kw) => (
-              <a key={kw}
-                href={`https://ahrefs.com/keywords-explorer?input=${encodeURIComponent(kw)}&mode=exact`}
-                target="_blank" rel="noopener noreferrer"
-                className="text-xs px-2.5 py-1 rounded-full transition-all hover:opacity-80"
-                style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)", color: "#fbbf24" }}>
-                {kw}
-              </a>
-            ))}
+          <div className="flex gap-2 mb-4">
+            <input 
+              value={kwSearch}
+              onChange={(e) => setKwSearch(e.target.value)}
+              placeholder="Enter keyword..."
+              className="input-field text-sm py-2 flex-1"
+            />
+            <button 
+              onClick={exploreKeyword}
+              disabled={kwLoading}
+              className="px-4 py-2 bg-amber-500 rounded-lg text-black text-xs font-bold disabled:opacity-50"
+            >
+              {kwLoading ? <Loader2 size={12} className="animate-spin" /> : "Explore"}
+            </button>
           </div>
-          <div className="mt-4 p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.04)", border: "1px solid rgba(245,158,11,0.1)" }}>
-            <p className="text-xs text-amber-400 font-medium mb-1">SEO Tips</p>
-            <ul className="text-xs text-gray-500 space-y-1">
-              <li>- Keep title under 60 chars, description 150-160 chars</li>
-              <li>- Add blog posts targeting long-tail keywords</li>
-              <li>- Submit sitemap to Google Search Console monthly</li>
-              <li>- Use product-specific meta descriptions</li>
-            </ul>
+
+          {kwResults && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-1">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-white/5 p-3 rounded-xl border border-white/10 text-center">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Volume</p>
+                  <p className="text-sm font-bold text-white">{kwResults.volume.toLocaleString()}</p>
+                </div>
+                <div className="bg-white/5 p-3 rounded-xl border border-white/10 text-center">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Difficulty</p>
+                  <p className={`text-sm font-bold ${kwResults.difficulty > 70 ? 'text-red-400' : kwResults.difficulty > 40 ? 'text-yellow-400' : 'text-green-400'}`}>
+                    {kwResults.difficulty}/100
+                  </p>
+                </div>
+                <div className="bg-white/5 p-3 rounded-xl border border-white/10 text-center">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">CPC</p>
+                  <p className="text-sm font-bold text-blue-400">${kwResults.cpc}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-2">Related High-Traffic Keywords</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {kwResults.related.map((kw: string) => (
+                    <button key={kw} onClick={() => setKwSearch(kw)} className="text-[10px] px-2 py-1 bg-white/5 border border-white/10 rounded-full text-gray-400 hover:text-white hover:border-amber-500/50 transition-colors">
+                      {kw}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Competitor AI Intel (SEMrush Style) */}
+        <div className="glass-card p-5">
+          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+            <BarChart size={14} style={{ color: "#f59e0b" }} /> Competitor AI Intel
+          </h2>
+          <div className="flex gap-2 mb-4">
+            <input 
+              value={compUrl}
+              onChange={(e) => setCompUrl(e.target.value)}
+              placeholder="Competitor URL (e.g. store.com)..."
+              className="input-field text-sm py-2 flex-1"
+            />
+            <button 
+              onClick={analyzeCompetitor}
+              disabled={compLoading}
+              className="px-4 py-2 bg-amber-500 rounded-lg text-black text-xs font-bold disabled:opacity-50"
+            >
+              {compLoading ? <Loader2 size={12} className="animate-spin" /> : "Spy"}
+            </button>
           </div>
+
+          {compResult && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-1">
+              <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-amber-500 uppercase font-bold tracking-widest">Est. Monthly Traffic</span>
+                  <TrendingUp size={12} className="text-amber-500" />
+                </div>
+                <p className="text-xl font-bold text-white">{compResult.traffic}</p>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                  <p className="text-[10px] text-gray-500 uppercase mb-2">Targeting Keywords</p>
+                  <div className="flex flex-wrap gap-1">
+                    {compResult.topKeywords.map((k: string) => (
+                      <span key={k} className="text-[10px] px-2 py-0.5 bg-white/5 border border-white/5 rounded text-gray-400">{k}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                  <p className="text-[10px] text-gray-500 uppercase mb-2">Strategic Vulnerabilities</p>
+                  <ul className="space-y-1">
+                    {compResult.weaknesses.map((w: string) => (
+                      <li key={w} className="text-[10px] text-red-400/80 flex items-start gap-1.5">
+                        <AlertTriangle size={10} className="mt-0.5 shrink-0" /> {w}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* AI SEO Auditor */}
+        <div className="glass-card p-5 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+              <Bot size={14} style={{ color: "#f59e0b" }} /> OWL AI SEO Auditor
+            </h2>
+            <button onClick={runAIAudit} disabled={auditing}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all text-black font-semibold disabled:opacity-50"
+              style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
+              {auditing ? <Loader2 size={12} className="animate-spin" /> : <Search size={12} />}
+              {auditing ? "Auditing..." : "Run SEO Audit"}
+            </button>
+          </div>
+          {auditResult ? (
+            <div className="p-4 rounded-xl text-sm text-gray-300 leading-relaxed whitespace-pre-wrap ai-markdown-body"
+                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              {auditResult}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500 text-center py-4">
+              Click the button above to let OWL AI analyze your meta tags and provide actionable ranking improvements.
+            </p>
+          )}
         </div>
       </div>
     </div>
