@@ -54,18 +54,26 @@ Help the admin manage the store, write product copy, answer questions, and perfo
 
     const finalMessages = [systemPrompt, ...messages];
 
-    // Llama 3.3 70B is the most reliable free model; fall back to smaller free models
-    const selectedModel = model || "meta-llama/llama-3.3-70b-instruct:free";
+    // Free model fallback chain — ordered by quality/reliability on OpenRouter
+    const FREE_FALLBACKS = [
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "qwen/qwen-2.5-72b-instruct:free",
+      "mistralai/mistral-nemo:free",
+      "google/gemini-2.0-flash-lite-001",
+    ];
+
+    const selectedModel = model || FREE_FALLBACKS[0];
     const isFreeTier = selectedModel.endsWith(":free");
 
     const payload: Record<string, unknown> = { messages: finalMessages };
 
     if (isFreeTier) {
-      payload.models = [
+      // Build fallback list: primary first, then remaining free models (deduped)
+      const fallbackList = [
         selectedModel,
-        "meta-llama/llama-3.1-8b-instruct:free",
-        "mistralai/mistral-7b-instruct:free",
-      ].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3);
+        ...FREE_FALLBACKS.filter((m) => m !== selectedModel),
+      ].slice(0, 4);
+      payload.models = fallbackList;
       payload.route = "fallback";
     } else {
       payload.model = selectedModel;

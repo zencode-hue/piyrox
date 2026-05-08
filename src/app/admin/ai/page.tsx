@@ -32,10 +32,25 @@ export default function AdminAIPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const VALID_MODELS = new Set([
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "qwen/qwen-2.5-72b-instruct:free",
+      "mistralai/mistral-nemo:free",
+      "google/gemini-2.0-flash-lite-001",
+      "openai/gpt-4o-mini",
+    ]);
+    const DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+
     const saved = localStorage.getItem("mm_ai_key");
     const savedModel = localStorage.getItem("mm_ai_model");
     if (saved) setApiKey(saved);
-    if (savedModel) setModel(savedModel);
+    if (savedModel && VALID_MODELS.has(savedModel)) {
+      setModel(savedModel);
+    } else if (savedModel) {
+      // Stale/defunct model — reset to current default
+      localStorage.setItem("mm_ai_model", DEFAULT_MODEL);
+      setModel(DEFAULT_MODEL);
+    }
   }, []);
 
   useEffect(() => {
@@ -135,11 +150,10 @@ export default function AdminAIPage() {
               <label className="block text-xs text-gray-500 mb-1">Model</label>
               <select value={model} onChange={(e) => setModel(e.target.value)}
                 className="input-field text-sm py-2">
-                <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (FREE - Best)</option>
-                <option value="google/gemini-1.5-flash">Gemini 1.5 Flash (FREE)</option>
-                <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (FREE)</option>
+                <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (FREE – Best)</option>
                 <option value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B (FREE)</option>
-                <option value="mistralai/mistral-nemo-free">Mistral Nemo (FREE)</option>
+                <option value="mistralai/mistral-nemo:free">Mistral Nemo (FREE)</option>
+                <option value="google/gemini-2.0-flash-lite-001">Gemini 2.0 Flash Lite</option>
                 <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
               </select>
             </div>
