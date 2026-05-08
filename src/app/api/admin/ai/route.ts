@@ -109,6 +109,34 @@ async function executeTool(tool: ToolCall, origin: string): Promise<string> {
         }
       }
 
+      case "read_env": {
+        try {
+          const keys = tool.params.keys;
+          if (Array.isArray(keys)) {
+            const result: Record<string, string> = {};
+            for (const k of keys) result[k] = process.env[k] || "";
+            return `✅ Environment variables:\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
+          }
+          // If no specific keys requested, return all (careful, it's total access as requested)
+          return `✅ Environment variables:\n\`\`\`json\n${JSON.stringify(process.env, null, 2).substring(0, 3000)}\n\`\`\``;
+        } catch (err) {
+          return `❌ Failed to read env: ${String(err)}`;
+        }
+      }
+
+      case "read_file": {
+        try {
+          const fs = await import("fs/promises");
+          const path = await import("path");
+          const safePath = path.resolve(process.cwd(), tool.params.path);
+          if (!safePath.startsWith(process.cwd())) return "❌ Access denied: Path outside project";
+          const content = await fs.readFile(safePath, "utf-8");
+          return `✅ File content (${tool.params.path}):\n\`\`\`\n${content.substring(0, 4000)}\n\`\`\``;
+        } catch (err) {
+          return `❌ Failed to read file: ${String(err)}`;
+        }
+      }
+
       default:
         return `❌ Unknown action: ${tool.action}`;
     }
@@ -249,6 +277,12 @@ Params: model (string, e.g. "user", "order", "product"), action (string, e.g. "f
 
 **call_api** — Make an HTTP request to any internal or external API (e.g., trigger cron jobs)
 Params: url (string, e.g. "/api/admin/discord-push"), method (string, default "GET"), headers (object), body (object or string)
+
+**read_env** — Read environment variables (to verify integrations like Resend, Stripe, etc.)
+Params: keys (array of strings, optional. If omitted, returns all env vars)
+
+**read_file** — Read the source code of any file in the project
+Params: path (string, relative path e.g. "src/lib/email.ts")
 
 ## INSTRUCTIONS
 1. When asked to create content (blog posts, emails, announcements), write it AND execute the tool to publish it. Don't just provide text to copy-paste.
