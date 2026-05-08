@@ -26,20 +26,21 @@ export default function AdminAIPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("meta-llama/llama-3.3-70b-instruct:free");
+  const [model, setModel] = useState("openrouter/owl-alpha");
   const [showConfig, setShowConfig] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const VALID_MODELS = new Set([
-      "meta-llama/llama-3.3-70b-instruct:free",
-      "qwen/qwen-2.5-72b-instruct:free",
-      "mistralai/mistral-nemo:free",
-      "google/gemini-2.0-flash-lite-001",
-      "openai/gpt-4o-mini",
+      "google/gemma-4-31b-it:free",
+      "nvidia/nemotron-3-super-120b-a12b:free",
+      "qwen/qwen3-next-80b-a3b-instruct:free",
+      "tencent/hy3-preview:free",
+      "z-ai/glm-4.5-air:free",
+      "openrouter/owl-alpha",
     ]);
-    const DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+    const DEFAULT_MODEL = "openrouter/owl-alpha";
 
     const saved = localStorage.getItem("mm_ai_key");
     const savedModel = localStorage.getItem("mm_ai_model");
@@ -147,15 +148,29 @@ export default function AdminAIPage() {
                 placeholder="sk-or-..." className="input-field text-sm py-2" />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Model</label>
-              <select value={model} onChange={(e) => setModel(e.target.value)}
-                className="input-field text-sm py-2">
-                <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (FREE – Best)</option>
-                <option value="qwen/qwen-2.5-72b-instruct:free">Qwen 2.5 72B (FREE)</option>
-                <option value="mistralai/mistral-nemo:free">Mistral Nemo (FREE)</option>
-                <option value="google/gemini-2.0-flash-lite-001">Gemini 2.0 Flash Lite</option>
-                <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
-              </select>
+              <label className="block text-xs text-gray-500 mb-2">Select AI Model</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {[
+                  { id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B" },
+                  { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3 120B" },
+                  { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen 3 Next 80B" },
+                  { id: "tencent/hy3-preview:free", name: "Tencent HY3" },
+                  { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air" },
+                  { id: "openrouter/owl-alpha", name: "Owl Alpha" }
+                ].map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => setModel(m.id)}
+                    className={`text-left text-xs px-3 py-2 rounded-lg transition-all border ${
+                      model === m.id
+                        ? "border-amber-500 bg-amber-500/10 text-amber-400"
+                        : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {m.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <button onClick={saveConfig}

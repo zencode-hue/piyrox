@@ -56,10 +56,12 @@ Help the admin manage the store, write product copy, answer questions, and perfo
 
     // Free model fallback chain — ordered by quality/reliability on OpenRouter
     const FREE_FALLBACKS = [
-      "meta-llama/llama-3.3-70b-instruct:free",
-      "qwen/qwen-2.5-72b-instruct:free",
-      "mistralai/mistral-nemo:free",
-      "google/gemini-2.0-flash-lite-001",
+      "google/gemma-4-31b-it:free",
+      "nvidia/nemotron-3-super-120b-a12b:free",
+      "qwen/qwen3-next-80b-a3b-instruct:free",
+      "tencent/hy3-preview:free",
+      "z-ai/glm-4.5-air:free",
+      "openrouter/owl-alpha"
     ];
 
     const selectedModel = model || FREE_FALLBACKS[0];
