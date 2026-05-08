@@ -348,8 +348,9 @@ Params: url (string, e.g. "/api/admin/discord-push"), method (string, default "G
         const action = firstLineBreak > -1 ? content.substring(0, firstLineBreak).trim() : content.trim();
         
         const params: Record<string, any> = {};
-        const keyMatches = [...content.matchAll(/<longcat_arg_key>([\s\S]*?)<\/longcat_arg_key>\s*<longcat_arg_value>([\s\S]*?)<\/longcat_arg_value>/g)];
-        for (const m of keyMatches) {
+        const regex = /<longcat_arg_key>([\s\S]*?)<\/longcat_arg_key>\s*<longcat_arg_value>([\s\S]*?)<\/longcat_arg_value>/g;
+        let m;
+        while ((m = regex.exec(content)) !== null) {
           let val = m[2].trim();
           if (val === "true") val = true as any;
           else if (val === "false") val = false as any;
