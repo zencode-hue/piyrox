@@ -153,19 +153,19 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14"
-        style={{ background: "rgba(6,6,6,0.98)", borderBottom: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(24px)" }}>
-        <div className="flex items-center gap-3">
-          <MetraMartLogo size={22} />
-          <span className="font-bold text-white text-sm">MetraMart</span>
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-5 h-14"
+        style={{ background: "rgba(0,0,0,0.8)", borderBottom: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)" }}>
+        <div className="flex items-center gap-2.5">
+          <MetraMartLogo size={20} />
+          <span className="font-bold text-white text-xs tracking-tight">MetraMart <span className="text-orange-500/80">Admin</span></span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter"
             style={{ background: "rgba(245,158,11,0.1)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.2)" }}>
             {currentLabel}
           </span>
-          <button onClick={() => setOpen(true)} className="p-1.5 rounded-lg bg-white/5 text-gray-400 hover:text-white">
-            <Menu size={20} />
+          <button onClick={() => setOpen(true)} className="p-1.5 rounded-full bg-white/5 text-white/60 hover:text-white">
+            <Menu size={18} />
           </button>
         </div>
       </div>

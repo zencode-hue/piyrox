@@ -46,7 +46,7 @@ export default function AdminAIBar() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] lg:left-60">
+    <div className="fixed bottom-16 lg:bottom-0 left-0 right-0 z-[100] lg:left-60">
       {/* Expanded Console */}
       {isOpen && (
         <div className="mx-4 mb-4 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-300">

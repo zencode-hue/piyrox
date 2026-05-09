@@ -8,14 +8,18 @@ async function executeTool(tool: { action: string; params: any }, origin: string
   try {
     switch (tool.action) {
       case "create_blog_post": {
+        const params = { ...tool.params };
+        if (!params.slug && params.title) {
+          params.slug = params.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        }
         const res = await fetch(`${origin}/api/admin/blog`, {
           method: "POST",
           headers: bypassHeaders,
-          body: JSON.stringify(tool.params),
+          body: JSON.stringify(params),
         });
         const data = await res.json();
         if (!res.ok) return `❌ Blog creation failed: ${data.error ?? "Unknown error"}`;
-        return `✅ Blog post created: ${tool.params.title} (Slug: ${data.slug})`;
+        return `✅ Blog post created: ${params.title} (Slug: ${data.slug || params.slug})`;
       }
 
       case "push_discord_deals": {
