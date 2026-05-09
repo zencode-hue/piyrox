@@ -366,7 +366,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
     }
 
     if (!toolCall) {
-      const bruteMatch = reply.match(/\\{[\\s\\S]*"action"\\s*:\\s*"[^"]+"[\\s\\S]*"params"\\s*:[\\s\\S]*\\}/);
+      const bruteMatch = reply.match(/\{[\s\S]*"action"\s*:\s*"[^"]+"[\s\S]*"params"\s*:[\s\S]*\}/);
       if (bruteMatch) {
         try {
           const parsed = JSON.parse(bruteMatch[0]);
@@ -379,14 +379,14 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
     }
 
     if (!toolCall) {
-      const xmlMatch = reply.match(/<longcat_tool_call>([\\s\\S]*?)<\\/longcat_tool_call>/);
+      const xmlMatch = reply.match(/<longcat_tool_call>([\s\S]*?)<\/longcat_tool_call>/);
       if (xmlMatch) {
         toolMatchStr = xmlMatch[0];
         const content = xmlMatch[1].trim();
-        const firstLineBreak = content.indexOf('\\n');
+        const firstLineBreak = content.indexOf('\n');
         const action = firstLineBreak > -1 ? content.substring(0, firstLineBreak).trim() : content.trim();
         const params: Record<string, any> = {};
-        const regex = /<longcat_arg_key>([\\s\\S]*?)<\\/longcat_arg_key>\\s*<longcat_arg_value>([\\s\\S]*?)<\\/longcat_arg_value>/g;
+        const regex = /<longcat_arg_key>([\s\S]*?)<\/longcat_arg_key>\s*<longcat_arg_value>([\s\S]*?)<\/longcat_arg_value>/g;
         let m;
         while ((m = regex.exec(content)) !== null) {
           let val = m[2].trim();
