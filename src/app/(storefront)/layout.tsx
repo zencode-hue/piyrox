@@ -1,10 +1,8 @@
-﻿import Navbar from "@/components/storefront/Navbar";
+import Navbar from "@/components/storefront/Navbar";
 import Providers from "@/components/storefront/Providers";
 import PageViewTracker from "@/components/PageViewTracker";
 import AnnouncementBar from "@/components/storefront/AnnouncementBar";
-import TawkChat from "@/components/TawkChat";
 import RecentPurchasePopupWrapper from "@/components/storefront/RecentPurchasePopupWrapper";
-import FloatingSupportButton from "@/components/storefront/FloatingSupportButton";
 import ExitIntentPopup from "@/components/storefront/ExitIntentPopup";
 import Link from "next/link";
 import { MessageCircle, Mail, XIcon } from "lucide-react";
@@ -79,17 +77,14 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
       <CurrencyProvider>
         <CartProvider>
           <PageViewTracker />
-          <TawkChat />
           <AnnouncementBar />
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <Footer />
           <RecentPurchasePopupWrapper />
-          <FloatingSupportButton />
           <ExitIntentPopup />
         </CartProvider>
       </CurrencyProvider>
     </Providers>
   );
 }
-

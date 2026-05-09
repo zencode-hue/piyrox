@@ -134,6 +134,8 @@ const jsonLd = [
   },
 ];
 
+import CustomerAIChat from "@/components/CustomerAIChat";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
@@ -155,6 +157,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-background text-white antialiased">
         {children}
+        <CustomerAIChat />
       </body>
     </html>
   );

@@ -75,8 +75,8 @@ async function executeTool(tool: ToolCall, origin: string): Promise<string> {
           headers: bypassHeaders,
           body: JSON.stringify({
             to: tool.params.audience || "all",
-            subject: tool.params.subject,
-            message: tool.params.message,
+            subject: tool.params.subject || "MetraMart Announcement",
+            message: tool.params.message || "Please check your dashboard for the latest updates.",
             type: tool.params.type || "announcement",
             customEmail: tool.params.customEmail,
             preview: tool.params.preview ?? false,

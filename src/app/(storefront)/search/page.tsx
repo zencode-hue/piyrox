@@ -120,15 +120,26 @@ export default async function SearchPage({ searchParams }: Props) {
           <p className="text-lg">Type something to search</p>
           <Link href="/products" className="text-amber-400 hover:text-amber-300 text-sm mt-2 inline-block">Browse all products →</Link>
         </div>
-      ) : mapped.length === 0 ? (
-        <div className="text-center py-20" style={{ color: "rgba(255,255,255,0.3)" }}>
-          <p className="text-lg mb-2">No results for &quot;{q}&quot;</p>
-          <p className="text-sm">Try a different search term or <Link href="/products" className="text-amber-400">browse all products</Link></p>
-        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {mapped.map((p) => <ProductCard key={p.id} {...p} />)}
-        </div>
+        <>
+          {mapped.length === 0 ? (
+            <div className="text-center py-20 bg-zinc-900/50 rounded-3xl border border-zinc-800 border-dashed mb-10">
+              <p className="text-lg mb-2 text-white">No exact matches for &quot;{q}&quot;</p>
+              <p className="text-sm text-zinc-500 mb-6">But don&apos;t worry, Metra AI is here to help!</p>
+              <div className="max-w-md mx-auto p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl">
+                <p className="text-xs font-bold text-orange-500 uppercase tracking-widest mb-3">AI Suggestion</p>
+                <p className="text-sm text-zinc-300 leading-relaxed italic mb-4">
+                  &quot;It seems we don&apos;t have a direct match, but you might be interested in our **Streaming** or **AI Tool** bundles which often include what users look for in &apos;{q}&apos;. Try searching for &apos;Netflix&apos; or &apos;ChatGPT&apos;!&quot;
+                </p>
+                <Link href="/products" className="btn-primary w-full py-2.5 text-xs">Browse Trending Now</Link>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {mapped.map((p) => <ProductCard key={p.id} {...p} />)}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
