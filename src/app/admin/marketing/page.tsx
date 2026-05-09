@@ -176,7 +176,7 @@ export default function MarketingPage() {
               </div>
               <h3 className="text-xl font-bold text-white/40 mb-2">Ready to scale?</h3>
               <p className="text-sm text-gray-600 max-w-md">
-                Select a tab and provide some details. OWL AI will build your next breakthrough marketing campaign in seconds.
+                Select a tab and provide some details. Metra AI will build your next breakthrough marketing campaign in seconds.
               </p>
             </div>
           )}

@@ -486,7 +486,7 @@ Provide 3 highly actionable, bullet-point recommendations to improve organic ran
         <div className="glass-card p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Bot size={14} style={{ color: "#f59e0b" }} /> OWL AI SEO Auditor
+              <Bot size={14} style={{ color: "#f59e0b" }} /> Metra AI SEO Auditor
             </h2>
             <button onClick={runAIAudit} disabled={auditing}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all text-black font-semibold disabled:opacity-50"
@@ -502,7 +502,7 @@ Provide 3 highly actionable, bullet-point recommendations to improve organic ran
             </div>
           ) : (
             <p className="text-xs text-gray-500 text-center py-4">
-              Click the button above to let OWL AI analyze your meta tags and provide actionable ranking improvements.
+              Click the button above to let Metra AI analyze your meta tags and provide actionable ranking improvements.
             </p>
           )}
         </div>

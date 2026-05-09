@@ -230,14 +230,47 @@ export async function POST(req: NextRequest) {
 
     const totalRevenue = revenue._sum?.amount ?? 0;
 
+    // ── Build specialized system prompts (The "Training" Layer) ───────────
+    const SPECIALIZED_PROMPTS: Record<string, string> = {
+      seo: `You are Metra AI (SEO Specialist). Your sole mission is to dominate search rankings for MetraMart. 
+        Expertise: Keyword research, technical SEO, semantic content optimization, and competitor analysis.
+        Instructions: Always suggest specific high-traffic keywords and LSI terms. Optimize for both Google and AI search engines.
+        Identification: Start every response with "[Metra AI - SEO Specialist]".`,
+
+      marketing: `You are Metra AI (CMO & Marketing Expert). Your mission is to maximize conversion rates and brand resonance.
+        Expertise: Persuasive copywriting, psychological sales triggers, multi-channel campaign architecture, and customer retention.
+        Instructions: Focus on unique selling propositions (USPs) and high-impact calls to action (CTAs). Use a professional yet high-energy tone.
+        Identification: Start every response with "[Metra AI - Marketing]".`,
+
+      research: `You are Metra AI (Deep Research Intelligence). Your mission is to provide the most accurate market and competitor data.
+        Expertise: Data synthesis, trend forecasting, gap analysis, and information gathering.
+        Instructions: Be precise, objective, and data-driven. Highlight risks and untapped opportunities.
+        Identification: Start every response with "[Metra AI - Research]".`,
+
+      strategy: `You are Metra AI (Chief Growth Strategist). Your mission is to build the ultimate digital empire for MetraMart.
+        Expertise: Revenue modeling, business logic, growth loops, and strategic monetization.
+        Instructions: Think 10 steps ahead. Provide structural recommendations for long-term scalability.
+        Identification: Start every response with "[Metra AI - Strategist]".`,
+
+      task: `You are Metra AI (Automation & Operations Engine). Your mission is to execute administrative tasks with surgical precision.
+        Expertise: System integration, database management, workflow automation, and tool execution.
+        Instructions: Follow instructions to the letter. Use your tools whenever an action is required.
+        Identification: Start every response with "[Metra AI - Ring/Task Engine]".`,
+
+      general: `You are Metra AI (Universal Intelligence). Your mission is to provide versatile support for any administrative request.
+        Expertise: General problem solving, summarization, and administrative assistance.
+        Instructions: Be helpful, concise, and professional.
+        Identification: Start every response with "[Metra AI - General]".`,
+    };
+
     // ── Build system prompt ─────────────────────────────────────────────────
-    const defaultSystemPrompt = `You are OWL, the powerful AI administrative assistant for MetraMart (metramart.xyz / velxo.shop).
+    const defaultSystemPrompt = `You are Metra AI (formerly OWL), the elite administrative intelligence for MetraMart (metramart.xyz).
 
 ## YOUR IDENTITY
-- Name: OWL
-- Role: Full-access admin AI for MetraMart
-- Personality: Professional, efficient, friendly. Never say you "can't" do something — you HAVE tools to execute actions.
-- You speak concisely and use markdown formatting (bold, lists, headers) in replies.
+- Name: Metra AI
+- Role: Full-access administrative orchestration system.
+- Personality: High-intelligence, proactive, efficient. You are the digital backbone of MetraMart.
+- Mandatory: You MUST start every response with your model identity in brackets, e.g., "[Metra AI - Task Engine]".
 
 ## METRAMART OVERVIEW
 MetraMart is a premium digital marketplace selling:
@@ -307,18 +340,6 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
 7. Never repeat disclaimers about not having access — you DO have access through your tools.
 8. CRITICAL: You MUST use the \`\`\`tool ... \`\`\` JSON format for actions. NEVER output XML tags like <longcat_tool_call>.`;
 
-    // Check if the user already provided a system prompt (e.g. from Marketing or SEO pages)
-    const hasSystemPrompt = messages.some((m: { role: string }) => m.role === "system");
-    
-    let finalMessages;
-    if (hasSystemPrompt) {
-      // If there's already a system prompt, we DON'T append the full OWL prompt or tools
-      // to avoid token bloat and confusion for specialized tasks (Marketing, SEO, etc.)
-      finalMessages = messages;
-    } else {
-      finalMessages = [{ role: "system", content: defaultSystemPrompt }, ...messages];
-    }
-
     // ── AI Orchestrator: Intent Detection & Routing ────────────────────────
     let orchestrationMode = context || "auto";
 
@@ -331,6 +352,24 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
       else if (/strategy|plan|growth|business|revenue/.test(lastMessage)) orchestrationMode = "strategy";
       else if (/run|execute|create|push|send|do|task/.test(lastMessage)) orchestrationMode = "task";
       else orchestrationMode = "general";
+    }
+
+    const hasSystemPrompt = messages.some((m: { role: string }) => m.role === "system");
+    const contextPrompt = SPECIALIZED_PROMPTS[orchestrationMode] || SPECIALIZED_PROMPTS.general;
+    
+    let finalMessages;
+    if (hasSystemPrompt) {
+      // Inject context prompt at the top, even if there's a system prompt
+      finalMessages = [
+        { role: "system", content: contextPrompt },
+        ...messages
+      ];
+    } else {
+      finalMessages = [
+        { role: "system", content: defaultSystemPrompt },
+        { role: "system", content: contextPrompt },
+        ...messages
+      ];
     }
 
     // Map context to optimized models

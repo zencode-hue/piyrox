@@ -179,7 +179,7 @@ export default function AdminSidebar() {
           { href: "/admin", icon: LayoutDashboard, label: "Home", active: pathname === "/admin" },
           { href: "/admin/orders", icon: ShoppingCart, label: "Orders", active: pathname.startsWith("/admin/orders") },
           { href: "/admin/products", icon: Package, label: "Products", active: pathname.startsWith("/admin/products") },
-          { href: "/admin/ai", icon: Bot, label: "OWL", active: pathname.startsWith("/admin/ai") },
+          { href: "/admin/ai", icon: Bot, label: "Metra AI", active: pathname.startsWith("/admin/ai") },
         ].map((item) => (
           <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center w-full h-full gap-1 transition-colors relative"
             style={{ color: item.active ? "#f59e0b" : "rgba(255,255,255,0.4)" }}>
