@@ -16,21 +16,37 @@ export async function POST(req: NextRequest) {
     if (productId) {
       product = await db.product.findUnique({ where: { id: productId } });
     } else {
-      // Pick a random active product
       const products = await db.product.findMany({ where: { isActive: true }, take: 20 });
       product = products[Math.floor(Math.random() * products.length)];
     }
 
-    if (!product) return NextResponse.json({ error: "No products available for advertising." }, { status: 404 });
+    if (!product) return NextResponse.json({ error: "No products available." }, { status: 404 });
 
-    // 2. Fetch AI API Key
-    const keySetting = await db.siteSetting.findUnique({ where: { key: "ai_api_key" } });
-    const apiKey = keySetting?.value;
-    if (!apiKey) return NextResponse.json({ error: "AI API Key missing." }, { status: 503 });
+    // 2. Fetch AI Key & Brand Tone
+    const settings = await db.siteSetting.findMany({
+      where: { key: { in: ["ai_api_key", "marketing_brand_tone", "zapier_webhook_url"] } }
+    });
+    const map: Record<string, string> = {};
+    settings.forEach(s => map[s.key] = s.value);
 
-    // 3. Ask AI to write a Social Media Ad
+    const apiKey = map["ai_api_key"];
+    if (!apiKey) return NextResponse.json({ error: "AI Key missing." }, { status: 503 });
+
+    const tone = map["marketing_brand_tone"] || "High-Energy & Professional";
+    const zapierUrl = map["zapier_webhook_url"];
+
+    // 3. Multi-Format AI Generation
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
-    const systemPrompt = `You are the Metra AI Social Media Manager. Write a punchy, high-energy advertisement for a digital product. Use EMOJIS. Keep it under 280 characters for Twitter. Include the link.`;
+    const systemPrompt = `You are the Metra AI Marketing Director. Tone: ${tone}.
+Generate a multi-platform marketing blast for this product.
+Return a JSON object exactly like this:
+{
+  "twitter": "Short punchy tweet < 280 chars with emojis",
+  "instagram": "Engaging story-style caption with hashtags",
+  "facebook": "Professional yet exciting long-form post",
+  "discord": "Markdown formatted announcement with bold headers"
+}`;
+
     const userPrompt = `Product: ${product.title}\nCategory: ${product.category}\nPrice: $${Number(product.price).toFixed(2)}\nURL: ${appUrl}/checkout/confirm?productId=${product.id}`;
 
     const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -45,29 +61,49 @@ export async function POST(req: NextRequest) {
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.9,
+        temperature: 0.85,
+        response_format: { type: "json_object" }
       }),
     });
 
     const aiData = await aiRes.json();
-    const adText = aiData.choices?.[0]?.message?.content || `🔥 Check out our latest ${product.title}! Only $${Number(product.price).toFixed(2)} at ${appUrl}/checkout/confirm?productId=${product.id}`;
+    let ads: any;
+    try {
+      ads = JSON.parse(aiData.choices?.[0]?.message?.content || "{}");
+    } catch (e) {
+      // Fallback if AI didn't return perfect JSON
+      const fallback = aiData.choices?.[0]?.message?.content || "Check out our latest deals!";
+      ads = { twitter: fallback, instagram: fallback, facebook: fallback, discord: fallback };
+    }
 
-    // 4. Push to Discord (Simulating Social Blast)
-    const bypassHeaders = { "X-Internal-AI-Bypass": process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024" };
+    // 4. Multi-Platform Execution
     const origin = new URL(req.url).origin;
+    const bypassHeaders = { "X-Internal-AI-Bypass": process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024" };
 
+    // A. Discord Push
     const discordRes = await fetch(`${origin}/api/admin/discord-push`, {
       method: "POST",
       headers: { ...bypassHeaders, "Content-Type": "application/json" },
-      body: JSON.stringify({ message: `🚀 **SOCIAL MEDIA BLAST** 🚀\n\n${adText}` }),
+      body: JSON.stringify({ message: `🚀 **MULTI-PLATFORM BLAST** 🚀\n\n${ads.discord}` }),
     });
 
-    if (!discordRes.ok) {
-      const dErr = await discordRes.json();
-      return NextResponse.json({ error: `AI generated ad, but Discord push failed: ${dErr.error}` }, { status: 500 });
+    // B. Zapier Push (The Bridge to Twitter/Meta/etc.)
+    if (zapierUrl) {
+      await fetch(zapierUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "social_blast",
+          product: product.title,
+          price: Number(product.price).toFixed(2),
+          url: `${appUrl}/checkout/confirm?productId=${product.id}`,
+          ads: ads,
+          timestamp: new Date().toISOString()
+        }),
+      }).catch(err => console.error("Zapier Push Failed:", err));
     }
 
-    // 5. Log the Blast to SiteSettings
+    // 5. Persistent Logging
     try {
       const logsSetting = await db.siteSetting.findUnique({ where: { key: "social_blast_logs" } });
       let logs = logsSetting ? JSON.parse(logsSetting.value) : [];
@@ -76,15 +112,14 @@ export async function POST(req: NextRequest) {
       logs.unshift({
         id: Math.random().toString(36).substring(7),
         product: product.title,
-        ad: adText,
+        ads: ads, // Save all versions
         status: "SUCCESS",
+        destinations: ["Discord", zapierUrl ? "Zapier (Meta/X/LinkedIn)" : ""].filter(Boolean),
         source: productId ? "MANUAL" : "AUTO",
         createdAt: new Date().toISOString()
       });
 
-      // Keep only last 50
       logs = logs.slice(0, 50);
-
       await db.siteSetting.upsert({
         where: { key: "social_blast_logs" },
         update: { value: JSON.stringify(logs) },
@@ -96,9 +131,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ 
       ok: true, 
-      message: "Social media advertisement generated and blasted successfully!",
       product: product.title,
-      ad: adText
+      ads: ads,
+      destinations: ["Discord", zapierUrl ? "Zapier" : ""]
     });
 
   } catch (error) {

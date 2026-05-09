@@ -72,6 +72,10 @@ const SECTIONS = [
     toggles: [
       { key: "marketing_automation_enabled", label: "AI Social Blast Automation", hint: "AI will autonomously generate and post product ads on a schedule (every 6 hours)" },
     ],
+    fields: [
+      { key: "marketing_brand_tone", label: "Brand Tone & Vibe", placeholder: "Hype, Professional, Gen-Z, Minimalist", hint: "Influences how Metra AI writes your ads" },
+      { key: "zapier_webhook_url", label: "Zapier Outbound Webhook", placeholder: "https://hooks.zapier.com/...", hint: "Connect this to auto-post to Twitter, Facebook, IG, and LinkedIn" },
+    ],
   },
 ];
 
