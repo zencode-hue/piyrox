@@ -154,62 +154,71 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-5 h-14"
-        style={{ background: "rgba(0,0,0,0.8)", borderBottom: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)" }}>
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 h-16"
+        style={{ 
+          background: "rgba(0,0,0,0.85)", 
+          borderBottom: "1px solid rgba(255,255,255,0.08)", 
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)"
+        }}>
         <div className="flex items-center gap-2.5">
-          <MetraMartLogo size={20} />
-          <span className="font-bold text-white text-xs tracking-tight">MetraMart <span className="text-orange-500/80">Admin</span></span>
+          <MetraMartLogo size={22} />
+          <div className="flex flex-col">
+            <span className="font-bold text-white text-[13px] leading-tight">MetraMart</span>
+            <span className="text-[10px] text-amber-500 font-bold uppercase tracking-widest opacity-80">Admin Console</span>
+          </div>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter"
-            style={{ background: "rgba(245,158,11,0.1)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.2)" }}>
-            {currentLabel}
-          </span>
-          <button onClick={() => setOpen(true)} className="p-1.5 rounded-full bg-white/5 text-white/60 hover:text-white">
+          <button onClick={() => setOpen(true)} className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 active:scale-90 transition-transform">
             <Menu size={18} />
           </button>
         </div>
       </div>
 
-      <div className="lg:hidden h-14" />
+      <div className="lg:hidden h-16" />
 
-      {/* Mobile Bottom Nav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around h-16 px-1 pb-safe"
-        style={{ background: "rgba(6,6,6,0.98)", borderTop: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(24px)" }}>
-        {[
-          { href: "/admin", icon: LayoutDashboard, label: "Home", active: pathname === "/admin" },
-          { href: "/admin/orders", icon: ShoppingCart, label: "Orders", active: pathname.startsWith("/admin/orders") },
-          { href: "/admin/products", icon: Package, label: "Products", active: pathname.startsWith("/admin/products") },
-          { href: "/admin/ai", icon: Bot, label: "Metra AI", active: pathname.startsWith("/admin/ai") },
-        ].map((item) => (
-          <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center w-full h-full gap-1 transition-colors relative"
-            style={{ color: item.active ? "#f59e0b" : "rgba(255,255,255,0.4)" }}>
-            <item.icon size={22} style={{ color: item.active ? "#f59e0b" : "rgba(255,255,255,0.4)" }} />
-            <span className="text-[10px] font-medium">{item.label}</span>
-            {item.active && <div className="absolute top-0 w-8 h-0.5 bg-amber-500 rounded-b-full" />}
-          </Link>
-        ))}
-        <button onClick={() => setOpen(true)} className="flex flex-col items-center justify-center w-full h-full gap-1 transition-colors"
-          style={{ color: "rgba(255,255,255,0.4)" }}>
-          <Menu size={22} />
-          <span className="text-[10px] font-medium">Menu</span>
-        </button>
+      {/* Mobile Bottom Nav (Native Style) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-6 pb-6 pt-2 pointer-events-none">
+        <div className="max-w-md mx-auto pointer-events-auto h-16 glass-card border-white/10 flex items-center justify-around px-2 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
+          {[
+            { href: "/admin", icon: LayoutDashboard, label: "Home", active: pathname === "/admin" },
+            { href: "/admin/orders", icon: ShoppingCart, label: "Orders", active: pathname.startsWith("/admin/orders") },
+            { href: "/admin/products", icon: Package, label: "Products", active: pathname.startsWith("/admin/products") },
+            { href: "/admin/ai", icon: Bot, label: "AI", active: pathname.startsWith("/admin/ai") },
+          ].map((item) => (
+            <Link key={item.href} href={item.href} 
+              className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all ${item.active ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20 scale-110" : "text-gray-500"}`}>
+              <item.icon size={20} strokeWidth={item.active ? 2.5 : 2} />
+              <span className={`text-[9px] mt-0.5 font-bold uppercase tracking-tighter ${item.active ? "flex" : "hidden"}`}>{item.label}</span>
+            </Link>
+          ))}
+          <button onClick={() => setOpen(true)} className="flex flex-col items-center justify-center w-12 h-12 text-gray-500 rounded-xl active:bg-white/5">
+            <Menu size={20} />
+          </button>
+        </div>
       </div>
 
+      {/* Mobile Sidebar Overlay */}
       {open && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setOpen(false)} />
-          <aside className="relative w-64 flex flex-col z-50 h-full"
-            style={{ background: "rgba(6,6,6,0.99)", borderRight: "1px solid rgba(255,255,255,0.07)" }}>
-            <div className="h-14 flex items-center gap-2.5 px-4 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <MetraMartLogo size={22} />
-              <span className="font-bold text-white text-sm">MetraMart Admin</span>
+        <div className="lg:hidden fixed inset-0 z-[100] flex animate-in fade-in duration-300">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md" onClick={() => setOpen(false)} />
+          <aside className="relative w-[280px] flex flex-col z-50 h-full animate-in slide-in-from-left duration-300 shadow-2xl"
+            style={{ background: "rgba(6,6,6,0.99)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="h-16 flex items-center justify-between px-5 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+              <div className="flex items-center gap-2.5">
+                <MetraMartLogo size={22} />
+                <span className="font-bold text-white text-sm">MetraMart <span className="text-amber-500">Admin</span></span>
+              </div>
+              <button onClick={() => setOpen(false)} className="text-gray-500 p-1">
+                <ChevronDown size={20} className="rotate-90" />
+              </button>
             </div>
-            <NavLinks pathname={pathname} onClick={() => setOpen(false)} />
-            <div className="p-3 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-              <Link href="/" className="flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-all hover:bg-white/5"
-                style={{ color: "rgba(255,255,255,0.3)" }}>
-                <ExternalLink size={11} /> View Store
+            <div className="flex-1 overflow-y-auto">
+              <NavLinks pathname={pathname} onClick={() => setOpen(false)} />
+            </div>
+            <div className="p-5 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <Link href="/" target="_blank" className="btn-secondary w-full py-2.5 text-xs gap-2">
+                <ExternalLink size={14} /> View Storefront
               </Link>
             </div>
           </aside>

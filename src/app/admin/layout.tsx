@@ -6,17 +6,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   await requireAdmin();
 
   return (
-    <div className="flex min-h-screen relative" style={{ background: "#000" }}>
+    <div className="flex min-h-screen relative overflow-x-hidden" style={{ background: "#000" }}>
       <AdminSidebar />
-      <div className="flex-1 lg:ml-60 flex flex-col min-h-screen">
-        <main className="flex-1 overflow-x-hidden pt-16 pb-32 lg:pt-0 lg:pb-0">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 lg:py-8">
+      <div className="flex-1 lg:ml-60 flex flex-col min-h-screen w-full overflow-x-hidden">
+        <main className="flex-1 w-full pt-20 pb-36 lg:pt-8 lg:pb-8">
+          <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
             {children}
           </div>
         </main>
-        <div className="fixed bottom-16 left-0 right-0 z-40 lg:hidden">
-           {/* Mobile spacing buffer for AI Bar above Bottom Nav */}
-        </div>
         <AdminAIBar />
       </div>
     </div>

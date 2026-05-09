@@ -244,6 +244,18 @@
       @apply py-2.5 px-4;
     }
   }
+
+  /* Admin Mobile Overrides */
+  .mobile-table-wrapper {
+    @apply w-full overflow-x-auto no-scrollbar;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+
+  .mobile-grid {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3;
+  }
 }
 
 /* ─── Utilities ──────────────────────────────────────────────────────────────── */
