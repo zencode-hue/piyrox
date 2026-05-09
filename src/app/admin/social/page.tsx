@@ -8,7 +8,6 @@ import {
   RefreshCw, MousePointer2, ExternalLink,
   Twitter, Facebook, Instagram, Hash, Info
 } from "lucide-react";
-import { format } from "date-fns";
 
 export default function SocialMarketingPage() {
   const [loading, setLoading] = useState(false);
@@ -130,6 +129,12 @@ export default function SocialMarketingPage() {
                 <span className="text-[9px] font-bold opacity-60">{channel.status}</span>
               </div>
             ))}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+              <span className="text-xs text-gray-400">Last Blast</span>
+              <span className="text-xs text-white">
+                {lastBlast ? new Date(lastBlast).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Never"}
+              </span>
+            </div>
           </div>
         </div>
 
