@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
     const [userCount, orderCount, lowStockCount, activeProducts, revenue, recentOrders, topProducts] = await Promise.all([
       db.user.count(),
       db.order.count(),
-      db.product.count({ where: { stock: { lte: 5 } } }),
+      db.product.count({ where: { stockCount: { lte: 5 } } }),
       db.product.count({ where: { isActive: true } }),
       db.order.aggregate({ _sum: { amount: true }, where: { status: "PAID" } }),
       db.order.findMany({ take: 10, orderBy: { createdAt: "desc" }, include: { user: true } }),
