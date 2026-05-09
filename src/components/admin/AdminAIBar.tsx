@@ -24,19 +24,22 @@ export default function AdminAIBar() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [{ role: "user", content: `Context: Admin is currently on ${pathname}. Request: ${input}` }],
+          messages: [{ role: "user", content: `You are assisting the Admin on the "${pathname}" page. The current URL path is ${pathname}. Help the admin with tasks related to this section. Request: ${input}` }],
           context: "task"
         })
       });
       const data = await res.json();
-      setResult(data.reply);
       
-      // If the AI result contains a success message for an action, refresh data
-      if (data.reply.includes("✅")) {
-        router.refresh();
+      if (!res.ok || data.error) {
+        setResult(`❌ Error: ${data.error || "Failed to get response from Metra AI"}`);
+      } else {
+        setResult(data.reply);
+        if (data.reply.includes("✅")) {
+          router.refresh();
+        }
       }
     } catch (error) {
-      setResult("❌ Error executing command.");
+      setResult("❌ Error: Could not connect to the administrative brain.");
     } finally {
       setLoading(false);
     }

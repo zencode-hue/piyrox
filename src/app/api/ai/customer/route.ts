@@ -34,16 +34,23 @@ CURRENT PRODUCT CONTEXT:
       }
     }
 
+    // Fetch all active products for a live catalog
+    const allProducts = await db.product.findMany({
+      where: { isActive: true },
+      select: { title: true, price: true, category: true, stockCount: true, unlimitedStock: true },
+      take: 50
+    });
+
+    const liveCatalog = allProducts.map(p => 
+      `- ${p.title} (${p.category}): $${Number(p.price).toFixed(2)} [${p.unlimitedStock || p.stockCount > 0 ? "In Stock" : "Out of Stock"}]`
+    ).join("\n");
+
     const BRAND_BIBLE = `
 NAME: MetraMart
 URL: https://metramart.xyz
-SLOGAN: The World's #1 Premium Digital Marketplace
-INVENTORY: 
-- Streaming: Netflix Premium (4K), Spotify Family/Individual, YouTube Premium (No Ads), Disney+, Hulu, Apple TV+, Paramount+.
-- AI Tools: ChatGPT Plus (GPT-4), Claude Pro, Midjourney (Basic/Standard), Jasper AI.
-- Software: Microsoft Windows 10/11 Pro Keys, Office 2021/365, Adobe Creative Cloud.
-- Gaming: Xbox Game Pass Ultimate, Steam Wallet Gift Cards, PlayStation Plus.
-- VPNs: NordVPN, ExpressVPN, Surfshark.
+LIVE CATALOG (REAL-TIME PRICES):
+${liveCatalog}
+
 CORE PROMISE: Instant delivery, 24/7 support, and the lowest market prices.
 `;
 
