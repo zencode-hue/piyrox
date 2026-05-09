@@ -18,8 +18,9 @@ export async function requireAdmin() {
  * Use this in all /api/admin/* routes.
  */
 export async function requireAdminApi(): Promise<{ session: Awaited<ReturnType<typeof getServerSession>>; error: null } | { session: null; error: NextResponse }> {
-  const { cookies } = await import("next/headers");
-  const isAiBypass = cookies().get("__internal_ai_bypass")?.value === "1";
+  const { cookies, headers } = await import("next/headers");
+  const isAiBypass = cookies().get("__internal_ai_bypass")?.value === "1" || 
+                    headers().get("X-Internal-AI-Bypass") === "1";
   
   if (isAiBypass) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

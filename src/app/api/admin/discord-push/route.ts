@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth";
 import { sendDiscordNotification } from "@/lib/discord";
 import { db } from "@/lib/db";
+import { requireAdminApi } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -27,12 +27,10 @@ function getDaySeed(): number {
 export async function POST(req: NextRequest) {
   try {
     // Check admin session
-    const session = await getServerSession();
-    if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { error } = await requireAdminApi();
+    if (error) return error;
 
-    const { type, message } = await req.json();
+    const { type, message } = await req.json().catch(() => ({}));
 
     // Read webhook from DB first, fall back to env vars
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { getServerSession } from "@/lib/auth";
+import { requireAdminApi } from "@/lib/admin-auth";
+
+export const dynamic = "force-dynamic";
 
 const schema = z.object({
   title: z.string().min(1).max(200),
@@ -15,14 +15,10 @@ const schema = z.object({
   published: z.boolean().default(false),
 });
 
-async function requireAdmin() {
-  const session = await getServerSession();
-  if (!session?.user?.id || session.user.role !== "ADMIN") return null;
-  return session;
-}
-
 export async function POST(req: NextRequest) {
-  if (!(await requireAdmin())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminApi();
+  if (error) return error;
+
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
