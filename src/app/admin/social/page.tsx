@@ -163,9 +163,9 @@ export default function SocialMarketingPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left: Configurator */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-2">
           <BlastConfigurator onBlast={handleBlast} />
           
           {error && (
