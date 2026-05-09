@@ -21,6 +21,9 @@ export default function AdminSEOPage() {
   const [compUrl, setCompUrl] = useState("");
   const [compLoading, setCompLoading] = useState(false);
   const [compResult, setCompResult] = useState<any>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [auditing, setAuditing] = useState(false);
+  const [auditResult, setAuditResult] = useState<string | null>(null);
 
   async function generateWithAI() {
     setIsGenerating(true);
