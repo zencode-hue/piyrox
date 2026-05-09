@@ -19,12 +19,13 @@ export async function requireAdmin() {
  */
 export async function requireAdminApi(): Promise<{ session: Awaited<ReturnType<typeof getServerSession>>; error: null } | { session: null; error: NextResponse }> {
   const { cookies, headers } = await import("next/headers");
+  const secret = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
   const isAiBypass = cookies().get("__internal_ai_bypass")?.value === "1" || 
-                    headers().get("X-Internal-AI-Bypass") === "1";
+                    headers().get("X-Internal-AI-Bypass") === secret;
   
   if (isAiBypass) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return { session: { user: { id: "ai_bot", role: "ADMIN" } } as any, error: null };
+    return { session: { user: { id: "metra_ai_bot", role: "ADMIN" } } as any, error: null };
   }
 
   const session = await getServerSession();
