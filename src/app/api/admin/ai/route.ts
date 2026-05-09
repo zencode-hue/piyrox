@@ -172,18 +172,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "API key is required." }, { status: 400 });
     }
 
-    const [userCount, orderCount, pendingStock, activeProducts, revenue, recentOrders, topProducts] = await Promise.all([
+    const [userCount, orderCount, lowStockCount, activeProducts, revenue, recentOrders, topProducts] = await Promise.all([
       db.user.count(),
       db.order.count(),
-      db.order.count({ where: { status: "PENDING_STOCK" } }),
+      db.product.count({ where: { stock: { lte: 5 } } }),
       db.product.count({ where: { isActive: true } }),
       db.order.aggregate({ _sum: { amount: true }, where: { status: "PAID" } }),
-      db.order.findMany({ take: 5, orderBy: { createdAt: "desc" } }),
-      db.product.findMany({ take: 5, where: { isActive: true }, orderBy: { createdAt: "desc" } })
+      db.order.findMany({ take: 10, orderBy: { createdAt: "desc" }, include: { user: true } }),
+      db.product.findMany({ take: 8, where: { isActive: true }, orderBy: { orders: { _count: "desc" } } })
     ]);
 
-    const recentOrdersSummary = recentOrders.map(o => `• ${o.id.slice(0,8)} | $${Number(o.amount).toFixed(2)} | ${o.status}`).join("\n");
-    const topProductsList = topProducts.map(p => `• ${p.title} | $${Number(p.price).toFixed(2)}`).join("\n");
+    const recentOrdersSummary = recentOrders.map(o => `• ${o.id.slice(0,8)} | $${Number(o.amount).toFixed(2)} | ${o.status} | ${o.user?.email || "Guest"} | ${new Date(o.createdAt).toLocaleDateString()}`).join("\n");
+    const topProductsList = topProducts.map(p => `• ${p.title} | $${Number(p.price).toFixed(2)} | ${p.category}`).join("\n");
     const totalRevenue = revenue._sum?.amount ?? 0;
 
     const BRAND_BIBLE = `
@@ -247,8 +247,11 @@ ${TOOL_DEFINITIONS}
 
 LIVE STATS:
 - Users: ${userCount} | Orders: ${orderCount} | Revenue: $${Number(totalRevenue).toFixed(2)}
-- Products:
+- Inventory: ${activeProducts} Active | ${lowStockCount} Low Stock Alert!
+- Top Sellers:
 ${topProductsList}
+- Recent Activity:
+${recentOrdersSummary}
 
 MANDATORY: Identify yourself in brackets at the start of every reply. NEVER mention Velxo. NEVER use [Your Brand] or other placeholders. You ARE MetraMart.`;
 
