@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, User, Bot, Loader2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface Message {
   role: "user" | "assistant";
@@ -9,6 +10,9 @@ interface Message {
 }
 
 export default function CustomerAIChat({ productId }: { productId?: string }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Hi! I'm Metra AI. How can I help you today? 😊" }
@@ -50,6 +54,9 @@ export default function CustomerAIChat({ productId }: { productId?: string }) {
       setIsLoading(false);
     }
   };
+
+  // Do not render for admins
+  if (isAdmin) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
