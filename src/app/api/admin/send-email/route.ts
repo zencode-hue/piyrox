@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
   to: z.enum(["all", "customers", "guests", "custom", "order"]),
-  customEmail: z.string().email().optional(),
+  customEmail: z.union([z.string().email(), z.array(z.string().email())]).optional(),
   subject: z.string().min(1).max(200),
   message: z.string().min(1).max(5000),
   type: z.enum(["announcement", "order_reminder", "custom"]).default("custom"),
@@ -93,11 +93,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, sent: 1 });
     }
 
-    // ── Single custom email ───────────────────────────────────────────────────
+    // ── Single/Multiple custom emails ─────────────────────────────────────────
     if (to === "custom" && customEmail) {
-      if (preview) return NextResponse.json({ count: 1, preview: true });
-      await sendEmail(customEmail, subject, message);
-      return NextResponse.json({ ok: true, sent: 1 });
+      const targetEmails = Array.isArray(customEmail) ? customEmail : [customEmail];
+      if (preview) return NextResponse.json({ count: targetEmails.length, preview: true });
+      
+      let sent = 0;
+      for (const email of targetEmails) {
+        await sendEmail(email, subject, message);
+        sent++;
+        if (targetEmails.length > 1) await new Promise(r => setTimeout(r, 150));
+      }
+      return NextResponse.json({ ok: true, sent });
     }
 
     // ── Bulk send ─────────────────────────────────────────────────────────────

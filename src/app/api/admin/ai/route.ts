@@ -1,40 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { requireAdminApi } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
-const TOOL_DEFINITIONS = `
-## AVAILABLE TOOLS (Total Control)
-Respond with a JSON tool call block for any action:
-\`\`\`tool
-{ "action": "ACTION_NAME", "params": { ... } }
-\`\`\`
-
-ACTIONS:
-1. create_blog_post: title, content (markdown), excerpt, category, emoji.
-2. push_discord_deals: No params. Pushes daily highlights.
-3. send_discord_message: message (string). Custom announcements.
-4. send_email: audience ("all"|"customers"|"guests"), subject, message (PLAIN TEXT), customEmail, preview (bool).
-5. run_db_query: model ("user"|"order"|"product"), action ("findMany"|"create"|"update"|"delete"), args (Prisma object).
-6. call_api: url, method (default POST), body.
-7. read_env: keys (optional array).
-8. read_file: path (string).
-`;
-
-// ── Tool definitions the AI can invoke ──────────────────────────────────────
-interface ToolCall {
-  action: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  params: Record<string, any>;
-}
-
-async function executeTool(tool: ToolCall, origin: string): Promise<string> {
-  const bypassHeaders = { 
-    "Content-Type": "application/json", 
-    "X-Internal-AI-Bypass": "1",
-    "cookie": "__internal_ai_bypass=1"
-  };
-
+async function executeTool(tool: { action: string; params: any }, origin: string, bypassHeaders: Record<string, string>) {
   try {
     switch (tool.action) {
       case "create_blog_post": {
@@ -44,14 +14,15 @@ async function executeTool(tool: ToolCall, origin: string): Promise<string> {
           body: JSON.stringify(tool.params),
         });
         const data = await res.json();
-        if (!res.ok) return `❌ Blog failed: ${data.error ?? "Unknown error"}`;
-        return `✅ Blog post created: ${data.data?.slug}`;
+        if (!res.ok) return `❌ Blog creation failed: ${data.error ?? "Unknown error"}`;
+        return `✅ Blog post created: ${tool.params.title} (Slug: ${data.slug})`;
       }
 
       case "push_discord_deals": {
-        const res = await fetch(`${origin}/api/admin/discord-push?type=deals`, {
+        const res = await fetch(`${origin}/api/admin/discord-push`, {
           method: "POST",
           headers: bypassHeaders,
+          body: JSON.stringify({ type: "deals" }),
         });
         const data = await res.json();
         if (!res.ok) return `❌ Discord deals failed: ${data.error ?? "Unknown error"}`;
@@ -91,51 +62,23 @@ async function executeTool(tool: ToolCall, origin: string): Promise<string> {
       case "run_db_query": {
         try {
           const { model, action, args } = tool.params;
-          const { db } = await import("@/lib/db");
-          const dbModel = (db as any)[model];
+          const { db: prisma } = await import("@/lib/db");
+          const dbModel = (prisma as any)[model];
           if (!dbModel || typeof dbModel[action] !== "function") return `❌ Invalid model/action: ${model}.${action}`;
           const result = await dbModel[action](args);
           return `✅ Success: ${JSON.stringify(result, null, 2).substring(0, 1500)}`;
         } catch (err) { return `❌ DB Error: ${String(err)}`; }
       }
 
-      case "call_api": {
+      case "update_inventory_count": {
         try {
-          let { method = "POST" } = tool.params;
-          const { url, headers = {}, body } = tool.params;
-          const finalUrl = url.startsWith("/") ? `${origin}${url}` : url;
-          const fetchOpts: RequestInit = {
-            method,
-            headers: { ...headers, ...bypassHeaders },
-          };
-          if (body) fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body);
-          const res = await fetch(finalUrl, fetchOpts);
-          const text = await res.text();
-          return `✅ API Response (${res.status}): ${text.substring(0, 1500)}`;
-        } catch (err) { return `❌ API Error: ${String(err)}`; }
-      }
-
-      case "read_env": {
-        try {
-          const keys = tool.params.keys;
-          if (Array.isArray(keys)) {
-            const result: Record<string, string> = {};
-            for (const k of keys) result[k] = process.env[k] || "";
-            return `✅ Env: ${JSON.stringify(result, null, 2)}`;
-          }
-          return `✅ Env (Partial): ${JSON.stringify(process.env, null, 2).substring(0, 2000)}`;
-        } catch (err) { return `❌ Env Error: ${String(err)}`; }
-      }
-
-      case "read_file": {
-        try {
-          const fs = await import("fs/promises");
-          const path = await import("path");
-          const safePath = path.resolve(process.cwd(), tool.params.path);
-          if (!safePath.startsWith(process.cwd())) return "❌ Access denied";
-          const content = await fs.readFile(safePath, "utf-8");
-          return `✅ File (${tool.params.path}):\n${content.substring(0, 3000)}`;
-        } catch (err) { return `❌ File Error: ${String(err)}`; }
+          const { productId, count } = tool.params;
+          const updated = await db.product.update({
+            where: { id: productId },
+            data: { stockCount: count }
+          });
+          return `✅ Inventory updated for ${updated.title}: ${count} items.`;
+        } catch (err) { return `❌ Inventory Error: ${String(err)}`; }
       }
 
       default:
@@ -146,165 +89,118 @@ async function executeTool(tool: ToolCall, origin: string): Promise<string> {
   }
 }
 
+const TOOL_DEFINITIONS = `
+Available Tools (USE JSON FORMAT):
+1. { "action": "create_blog_post", "params": { "title": "str", "excerpt": "str", "content": "html", "category": "str", "emoji": "str", "published": true } }
+2. { "action": "push_discord_deals", "params": {} }
+3. { "action": "send_discord_message", "params": { "message": "str" } }
+4. { "action": "send_email", "params": { "audience": "all|customers|guests|custom", "subject": "str", "message": "str", "customEmail": "str|array" } }
+5. { "action": "run_db_query", "params": { "model": "user|product|order|blogPost", "action": "count|findMany|findUnique", "args": {} } }
+6. { "action": "update_inventory_count", "params": { "productId": "str", "count": 10 } }
+`;
+
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { error: authError } = await requireAdminApi();
+    if (authError) return authError;
 
-    const body = await req.json().catch(() => ({}));
-    const { messages, context, model: bodyModel } = body;
+    const { messages, context, model: selectedModelName } = await req.json();
+    let selectedModel = selectedModelName || "auto";
+    const origin = new URL(req.url).origin;
+    const bypassHeaders = { "X-Internal-AI-Bypass": process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024" };
 
-    const { db } = await import("@/lib/db");
-    const [keySetting, modelSetting] = await Promise.all([
-      db.siteSetting.findUnique({ where: { key: "ai_api_key" } }),
-      db.siteSetting.findUnique({ where: { key: "ai_model" } })
-    ]);
-
+    const keySetting = await db.siteSetting.findUnique({ where: { key: "ai_api_key" } });
     const apiKey = keySetting?.value;
-    const globalModel = modelSetting?.value;
-    let selectedModel = bodyModel || globalModel || "inclusionai/ring-2.6-1t:free";
+    if (!apiKey) return NextResponse.json({ error: "No AI API Key configured." }, { status: 400 });
 
-    if (!apiKey) {
-      return NextResponse.json({ error: "API key is required." }, { status: 400 });
-    }
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    const [userCount, orderCount, lowStockCount, activeProducts, revenue, recentOrders, topProducts] = await Promise.all([
+    const [
+      userCount, orderCount, lowStockCount, activeProducts, 
+      revenueTotal, revenue24h, recentOrders, topProducts,
+      lowStockItems, topCustomers
+    ] = await Promise.all([
       db.user.count(),
       db.order.count(),
       db.product.count({ where: { stockCount: { lte: 5 } } }),
       db.product.count({ where: { isActive: true } }),
       db.order.aggregate({ _sum: { amount: true }, where: { status: "PAID" } }),
+      db.order.aggregate({ _sum: { amount: true }, where: { status: "PAID", createdAt: { gte: twentyFourHoursAgo } } }),
       db.order.findMany({ take: 10, orderBy: { createdAt: "desc" }, include: { user: true } }),
-      db.product.findMany({ take: 8, where: { isActive: true }, orderBy: { orders: { _count: "desc" } } })
+      db.product.findMany({ take: 8, where: { isActive: true }, orderBy: { orders: { _count: "desc" } } }),
+      db.product.findMany({ where: { stockCount: { lte: 5 }, isActive: true }, select: { title: true, stockCount: true, id: true } }),
+      db.user.findMany({ take: 5, orderBy: { orders: { _count: "desc" } }, select: { email: true, name: true } })
     ]);
 
-    const recentOrdersSummary = recentOrders.map(o => `• ${o.id.slice(0,8)} | $${Number(o.amount).toFixed(2)} | ${o.status} | ${o.user?.email || "Guest"} | ${new Date(o.createdAt).toLocaleDateString()}`).join("\n");
-    const topProductsList = topProducts.map(p => `• ${p.title} | $${Number(p.price).toFixed(2)} | ${p.category}`).join("\n");
-    const totalRevenue = revenue._sum?.amount ?? 0;
-
+    const totalRev = Number(revenueTotal._sum?.amount ?? 0).toFixed(2);
+    const rev24h = Number(revenue24h._sum?.amount ?? 0).toFixed(2);
+    
     const BRAND_BIBLE = `
 NAME: MetraMart
-URL: https://metramart.xyz
-SLOGAN: The World's #1 Premium Digital Marketplace
-INVENTORY: 
-- Streaming: Netflix Premium (4K), Spotify Family/Individual, YouTube Premium (No Ads), Disney+, Hulu, Apple TV+, Paramount+.
-- AI Tools: ChatGPT Plus (GPT-4), Claude Pro, Midjourney (Basic/Standard), Jasper AI.
-- Software: Microsoft Windows 10/11 Pro Keys, Office 2021/365, Adobe Creative Cloud.
-- Gaming: Xbox Game Pass Ultimate, Steam Wallet Gift Cards, PlayStation Plus.
-- VPNs: NordVPN, ExpressVPN, Surfshark.
-IDENTITY RULES:
-1. NEVER mention "Velxo".
-2. NEVER say "I am an AI model" or mention "GPT-4", "Ring", or "Llama". 
-3. You are Metra AI, the internal brain of MetraMart.
-4. NEVER use placeholders like "[Brand Name]" or "[Your Product]". Use "MetraMart" and specific items from the inventory list above.
-`;
-
-    const FORMATTING_RULES = `
-- EMAILS: Use PLAIN TEXT ONLY. NO asterisks (*), NO hashtags (#), NO bold (**). Use line breaks for structure.
-- SOCIAL MEDIA: Use EMOJIS for structure. NO headers (#). NO bold (**).
-- ADMIN CHAT: Markdown is allowed for internal readability.
+IDENTITY: World's #1 Premium Digital Marketplace.
+BRAIN: Metra AI (Total Control Administrative Interface).
+INVENTORY: Streaming (Netflix, Spotify, YT Premium), AI Tools (ChatGPT Plus, Midjourney), Software (Windows, Adobe), Gaming (Xbox Game Pass).
+RULES: 
+1. Identify yourself in brackets at the start.
+2. If orchestrationMode="task", use TOOLS for ANY execution.
+3. If orchestrationMode="marketing", follow STRICT_CLEAN_TEXT.
 `;
 
     const SPECIALIZED_PROMPTS: Record<string, string> = {
-      seo: `${BRAND_BIBLE}
-        You are the Metra AI SEO Specialist. Your job is to rank MetraMart products on Page 1.
-        Training: You use LSI keywords, analyze search intent, and write meta tags that trigger high CTR.
-        Action: Provide keyword-rich titles and descriptions. Identify semantic gaps.
-        ID: [Metra AI - SEO Specialist]`,
-
-      marketing: `${BRAND_BIBLE} ${FORMATTING_RULES}
-        You are the Metra AI CMO. You write copy that SELLS.
-        Training: You use AIDA framework. You focus on FOMO and urgency.
-        Action: Generate creative, non-generic social posts and email campaigns.
-        ID: [Metra AI - Marketing]`,
-
-      strategy: `${BRAND_BIBLE}
-        You are the Metra AI Strategist. You maximize revenue.
-        Training: You understand churn rates, upsells, and cross-sells.
-        Action: Suggest pricing adjustments and loyalty programs.
-        ID: [Metra AI - Strategist]`,
-
-      task: `${BRAND_BIBLE}
-        You are the Metra AI Task Engine. You execute admin operations.
-        Training: You prioritize precision. You confirm actions. You never make up data.
-        Action: Create blogs, push discord deals, and manage stock.
-        ID: [Metra AI - Task Engine]`,
-
-      general: `${BRAND_BIBLE}
-        You are Metra AI General Intelligence.
-        Training: You are helpful, polite, and deeply knowledgeable about MetraMart operations.
-        ID: [Metra AI - General]`,
+      seo: `[Metra AI - SEO Specialist (OWL)] You are a Page 1 ranking expert. Analyze keywords and suggest metadata improvements for top visibility.`,
+      marketing: `[Metra AI - Marketing Specialist (GPT)] You are a world-class CMO. Write high-conversion, emoji-rich copy. NO bold or headers.`,
+      strategy: `[Metra AI - Strategy Thinker (Qwen)] You are a business growth analyst. Use data to suggest monetization improvements and churn reduction.`,
+      task: `[Metra AI - Task Engine (Ring)] YOU ARE THE EXECUTOR. Trigger Discord, Email, and DB actions using TOOLS. Confirm every operation.`,
+      general: `[Metra AI - General (Nemotron)] Total administrative support. Guide the admin through MetraMart operations.`,
     };
-
-    const defaultSystemPrompt = `You are Metra AI, the total-control administrative brain for MetraMart.
-${BRAND_BIBLE}
-${FORMATTING_RULES}
-${TOOL_DEFINITIONS}
-
-LIVE STATS:
-- Users: ${userCount} | Orders: ${orderCount} | Revenue: $${Number(totalRevenue).toFixed(2)}
-- Inventory: ${activeProducts} Active | ${lowStockCount} Low Stock Alert!
-- Top Sellers:
-${topProductsList}
-- Recent Activity:
-${recentOrdersSummary}
-
-MANDATORY: Identify yourself in brackets at the start of every reply. NEVER mention Velxo. NEVER use [Your Brand] or other placeholders. You ARE MetraMart.`;
-
-    const STRICT_CLEAN_TEXT = `
-MANDATORY FORMATTING:
-- DO NOT use **bold** or *italics*.
-- DO NOT use # headers.
-- Use EMOJIS for all styling and emphasis.
-- Deliver ONLY plain text + emojis.
-`;
 
     let orchestrationMode = context || "auto";
     if (orchestrationMode === "auto") {
-      const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || "";
-      if (/seo|keyword|meta|rank|optimize|competitor/.test(lastMsg)) orchestrationMode = "seo";
-      else if (/campaign|social|post|market|facebook|fb|ig|instagram|tiktok|ads|copy|email|newsletter|write/.test(lastMsg)) orchestrationMode = "marketing";
-      else if (/strategy|plan|growth|revenue|profit|business|monetize/.test(lastMsg)) orchestrationMode = "strategy";
-      else if (/run|execute|push|send|task|blog|create|webhook|discord|action/.test(lastMsg)) orchestrationMode = "task";
+      const lastMsg = (messages[messages.length - 1]?.content || "").toLowerCase();
+      if (/seo|keyword|meta|rank|optimize/.test(lastMsg)) orchestrationMode = "seo";
+      else if (/campaign|social|post|market|facebook|ig|ads|copy|newsletter/.test(lastMsg)) orchestrationMode = "marketing";
+      else if (/strategy|plan|growth|revenue|monetize|profit/.test(lastMsg)) orchestrationMode = "strategy";
+      else if (/run|execute|push|send|task|blog|email|discord|action|update/.test(lastMsg)) orchestrationMode = "task";
       else orchestrationMode = "general";
     }
 
-    const contextPrompt = SPECIALIZED_PROMPTS[orchestrationMode] || SPECIALIZED_PROMPTS.general;
-    const finalSystemContent = `
-${defaultSystemPrompt}
-${contextPrompt}
-${orchestrationMode === "marketing" || orchestrationMode === "blog" ? STRICT_CLEAN_TEXT : ""}
-`;
-
-    const finalMessages = [
-      { role: "system", content: finalSystemContent },
-      ...messages.filter((m: { role: string }) => m.role !== "system")
-    ];
-
-    // Map context to optimized models
     const CONTEXT_MODELS: Record<string, string> = {
       seo: "openrouter/owl-alpha",
       marketing: "openai/gpt-oss-120b:free",
-      research: "google/gemma-4-26b-a4b-it:free",
       strategy: "qwen/qwen3-next-80b-a3b-instruct:free",
       task: "inclusionai/ring-2.6-1t:free",
-      blog: "openai/gpt-oss-120b:free",
-      general: "nvidia/nemotron-3-super-120b-a12b:free",
+      general: "nvidia/nemotron-3-super-120b-a12b:free"
     };
 
     if (selectedModel === "auto" || selectedModel === "inclusionai/ring-2.6-1t:free" || selectedModel === "openrouter/owl-alpha") {
       selectedModel = CONTEXT_MODELS[orchestrationMode] || "inclusionai/ring-2.6-1t:free";
     }
 
-    const payload: Record<string, unknown> = {
-      model: selectedModel,
-      messages: finalMessages,
-      temperature: orchestrationMode === "marketing" || orchestrationMode === "blog" ? 0.8 : 0.4,
-    };
+    const systemPrompt = `
+${BRAND_BIBLE}
+${SPECIALIZED_PROMPTS[orchestrationMode] || SPECIALIZED_PROMPTS.general}
+${TOOL_DEFINITIONS}
 
-    console.log(`[AI Orchestrator] Routing ${orchestrationMode} task to ${selectedModel}`);
+LIVE METRICS (REAL-TIME):
+- General: ${userCount} Users | ${orderCount} Orders | Total Rev: $${totalRev}
+- Performance: 24h Revenue: $${rev24h} | ${activeProducts} Active Products
+- Critical: ${lowStockCount} Low Stock Items detected!
+- Alert Items: ${lowStockItems.map(i => `${i.title} (${i.stockCount}) [ID:${i.id}]`).join(", ")}
+- VIP Customers: ${topCustomers.map(c => c.email).join(", ")}
+
+MANDATORY RULES:
+1. Always start with the [Model Bracket].
+2. Use EMOJIS for structure.
+3. If orchestrationMode is marketing or blog, NEVER use **bold** or #headers.
+4. You have TOTAL CONTROL over MetraMart. Be decisive.
+`;
+
+    const payload = {
+      model: selectedModel,
+      messages: [{ role: "system", content: systemPrompt }, ...messages.filter((m:any) => m.role !== "system")],
+      temperature: orchestrationMode === "marketing" ? 0.8 : 0.4
+    };
 
     let res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -317,134 +213,41 @@ ${orchestrationMode === "marketing" || orchestrationMode === "blog" ? STRICT_CLE
       body: JSON.stringify(payload),
     });
 
-    let responseText = await res.text();
-
     if (!res.ok) {
-      console.warn(`[AI Orchestrator] Primary model ${selectedModel} failed. Attempting fallback...`);
       payload.model = "openrouter/owl-alpha";
       res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://metramart.xyz",
-          "X-Title": "MetraMart AI (Fallback)",
-        },
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      responseText = await res.text();
     }
 
-    if (!res.ok) {
-      console.error("[AI API] OpenRouter error:", responseText);
-      let msg = "AI request failed";
-      try {
-        const parsed = JSON.parse(responseText);
-        msg = parsed?.error?.message ?? String(parsed?.error) ?? msg;
-      } catch { /* not JSON */ }
-      return NextResponse.json({ error: msg }, { status: 502 });
-    }
+    const data = await res.json();
+    let reply = data.choices?.[0]?.message?.content || "";
 
-    let data: { choices?: { message?: { content?: string } }[] };
-    try {
-      data = JSON.parse(responseText);
-    } catch {
-      return NextResponse.json({ error: "Invalid response from AI provider" }, { status: 502 });
-    }
-
-    let reply = data.choices?.[0]?.message?.content || "No response";
-
-    let toolCall: ToolCall | null = null;
+    // Tool Call Detection
+    let toolCall = null;
     let toolMatchStr = "";
-
-    const jsonMatch = reply.match(/```(?:tool|json)?\s*\n([\s\S]*?)\n```/);
-    if (jsonMatch) {
+    const bruteMatch = reply.match(/\{[\s\S]*"action"\s*:\s*"[^"]+"[\s\S]*"params"\s*:[\s\S]*\}/);
+    if (bruteMatch) {
       try {
-        const parsed = JSON.parse(jsonMatch[1]);
-        if (parsed && typeof parsed === "object" && "action" in parsed && "params" in parsed) {
+        const parsed = JSON.parse(bruteMatch[0]);
+        if (parsed?.action && parsed?.params) {
           toolCall = parsed;
-          toolMatchStr = jsonMatch[0];
+          toolMatchStr = bruteMatch[0];
         }
-      } catch (err) { console.error("JSON parse error:", err); }
+      } catch (e) {}
     }
 
-    if (!toolCall) {
-      const bruteMatch = reply.match(/\{[\s\S]*"action"\s*:\s*"[^"]+"[\s\S]*"params"\s*:[\s\S]*\}/);
-      if (bruteMatch) {
-        try {
-          const parsed = JSON.parse(bruteMatch[0]);
-          if (parsed && typeof parsed === "object" && "action" in parsed && "params" in parsed) {
-            toolCall = parsed;
-            toolMatchStr = bruteMatch[0];
-          }
-        } catch (e) { /* ignore */ }
-      }
-    }
-
-    if (!toolCall) {
-      const xmlMatch = reply.match(/<longcat_tool_call>([\s\S]*?)<\/longcat_tool_call>/);
-      if (xmlMatch) {
-        toolMatchStr = xmlMatch[0];
-        const content = xmlMatch[1].trim();
-        const firstLineBreak = content.indexOf('\n');
-        const action = firstLineBreak > -1 ? content.substring(0, firstLineBreak).trim() : content.trim();
-        const params: Record<string, any> = {};
-        const regex = /<longcat_arg_key>([\s\S]*?)<\/longcat_arg_key>\s*<longcat_arg_value>([\s\S]*?)<\/longcat_arg_value>/g;
-        let m;
-        while ((m = regex.exec(content)) !== null) {
-          let val = m[2].trim();
-          if (val === "true") val = true as any;
-          else if (val === "false") val = false as any;
-          params[m[1].trim()] = val;
-        }
-        toolCall = { action, params };
-      }
-    }
-
-    let toolResult: string | null = null;
     if (toolCall) {
-      if (selectedModel !== "openrouter/owl-alpha") {
-        try {
-          const valPayload = {
-            model: "openrouter/owl-alpha",
-            messages: [
-              ...finalMessages,
-              { role: "assistant", content: reply },
-              { role: "system", content: "You are the validation layer. Review the tool call above. If it looks correct, reply with 'VALIDATED'. If you have small SEO or safety improvements, specify them in 1 short sentence. DO NOT REPEAT THE TOOL CALL." }
-            ],
-            max_tokens: 100
-          };
-          const valRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-              "HTTP-Referer": "https://metramart.xyz",
-              "X-Title": "MetraMart AI (Validation)",
-            },
-            body: JSON.stringify(valPayload),
-          });
-          const valData = await valRes.json();
-          const validation = valData.choices?.[0]?.message?.content;
-          if (validation && !validation.includes("VALIDATED")) {
-            reply += `\n\n> **OWL Advice:** ${validation}`;
-          }
-        } catch (e) { console.error("[AI Orchestrator] Validation failed:", e); }
-      }
-
-      try {
-        const origin = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || "https://metramart.xyz";
-        toolResult = await executeTool(toolCall, origin);
-        reply = reply.replace(toolMatchStr, "").trim();
-        reply += `\n\n---\n**🔧 Action Result:**\n${toolResult}`;
-      } catch (err) {
-        reply += `\n\n---\n**🔧 Action Error:** Could not parse tool call — ${String(err)}`;
-      }
+      const toolResult = await executeTool(toolCall, origin, bypassHeaders);
+      const cleanReply = reply.replace(toolMatchStr, "").trim();
+      reply = `${cleanReply}\n\n**Action Result:**\n${toolResult}`;
     }
 
-    return NextResponse.json({ reply, toolResult });
-  } catch (error) {
-    console.error("[AI API] Internal error:", error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ reply });
+  } catch (err) {
+    console.error("[AI API] Error:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
