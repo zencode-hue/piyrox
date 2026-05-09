@@ -65,6 +65,14 @@ const SECTIONS = [
       { key: "maintenance_message", label: "Maintenance Message", placeholder: "We'll be back shortly.", hint: "Message shown during maintenance" },
     ],
   },
+  {
+    title: "Marketing Automation",
+    icon: Send,
+    color: "text-orange-400",
+    toggles: [
+      { key: "marketing_automation_enabled", label: "AI Social Blast Automation", hint: "AI will autonomously generate and post product ads on a schedule (every 6 hours)" },
+    ],
+  },
 ];
 
 export default function SiteSettingsEditor({ initialValues }: Props) {

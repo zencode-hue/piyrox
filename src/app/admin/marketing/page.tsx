@@ -55,6 +55,29 @@ export default function MarketingPage() {
     }
   }
 
+  async function handleSocialBlast() {
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/social-blast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Blast failed");
+      } else {
+        setResult(`🚀 **SOCIAL MEDIA BLAST SUCCESSFUL**\n\n**Product:** ${data.product}\n\n**Generated Ad Copy:**\n${data.ad}\n\n✅ This advertisement has been pushed to your social channels (Discord/Twitter/Meta).`);
+      }
+    } catch (e) {
+      console.error(e);
+      setError("Network error during blast.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function copyText(text: string, id: string) {
     navigator.clipboard.writeText(text);
     setCopied(id);
@@ -71,6 +94,7 @@ export default function MarketingPage() {
           {[
             { id: "campaign", label: "Campaigns", icon: Zap },
             { id: "social", label: "Social", icon: MessageSquare },
+            { id: "blast", label: "Blast", icon: Send },
             { id: "promo", label: "Strategy", icon: Target },
           ].map((tab) => (
             <button
@@ -96,23 +120,42 @@ export default function MarketingPage() {
               <p className="text-xs text-gray-500">
                 {activeTab === "campaign" && "Describe your new product or sale to generate a full launch plan."}
                 {activeTab === "social" && "What is the vibe or topic for your next social media blast?"}
+                {activeTab === "blast" && "Metra AI will pick a hot product and blast a generated ad to your social channels."}
                 {activeTab === "promo" && "What are your goals? (e.g. clear old stock, increase average order value)"}
               </p>
-              <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                rows={4}
-                placeholder="Type your goals here..."
-                className="input-field text-sm p-3 resize-none w-full"
-              />
-              <button
-                onClick={() => generateMarketing(activeTab)}
-                disabled={loading || !prompt.trim()}
-                className="w-full py-3 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl text-black font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/10 disabled:opacity-50"
-              >
-                {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                Generate {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-              </button>
+              
+              {activeTab === "blast" ? (
+                <button
+                  onClick={() => handleSocialBlast()}
+                  disabled={loading}
+                  className="w-full py-6 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl text-white font-black text-lg flex flex-col items-center justify-center gap-2 shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all group overflow-hidden relative"
+                >
+                  <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                  <div className="relative z-10 flex items-center gap-2">
+                    {loading ? <Loader2 size={24} className="animate-spin" /> : <Send size={24} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+                    ACTIVATE SOCIAL BLAST
+                  </div>
+                  <span className="relative z-10 text-[10px] opacity-70 font-bold uppercase tracking-widest">Powered by Metra AI Marketing</span>
+                </button>
+              ) : (
+                <>
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    rows={4}
+                    placeholder="Type your goals here..."
+                    className="input-field text-sm p-3 resize-none w-full"
+                  />
+                  <button
+                    onClick={() => generateMarketing(activeTab)}
+                    disabled={loading || !prompt.trim()}
+                    className="w-full py-3 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl text-black font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/10 disabled:opacity-50"
+                  >
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                    Generate {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                  </button>
+                </>
+              )}
             </div>
           </div>
 

@@ -85,6 +85,17 @@ async function executeTool(tool: { action: string; params: any }, origin: string
         } catch (err) { return `❌ Inventory Error: ${String(err)}`; }
       }
 
+      case "social_media_blast": {
+        const res = await fetch(`${origin}/api/admin/social-blast`, {
+          method: "POST",
+          headers: bypassHeaders,
+          body: JSON.stringify(tool.params),
+        });
+        const data = await res.json();
+        if (!res.ok) return `❌ Social blast failed: ${data.error ?? "Unknown error"}`;
+        return `✅ Social media blast successful! Product: ${data.product}. Ad: ${data.ad}`;
+      }
+
       default:
         return `❌ Unknown action: ${tool.action}`;
     }
@@ -101,6 +112,7 @@ Available Tools (USE JSON FORMAT):
 4. { "action": "send_email", "params": { "audience": "all|customers|guests|custom", "subject": "str", "message": "str", "customEmail": "str|array" } }
 5. { "action": "run_db_query", "params": { "model": "user|product|order|blogPost", "action": "count|findMany|findUnique", "args": {} } }
 6. { "action": "update_inventory_count", "params": { "productId": "str", "count": 10 } }
+7. { "action": "social_media_blast", "params": { "productId": "str" } }
 `;
 
 export async function POST(req: NextRequest) {
