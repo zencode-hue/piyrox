@@ -253,32 +253,35 @@ ${recentOrdersSummary}
 
 MANDATORY: Identify yourself in brackets at the start of every reply. NEVER mention Velxo. NEVER use [Your Brand] or other placeholders. You ARE MetraMart.`;
 
+    const STRICT_CLEAN_TEXT = `
+MANDATORY FORMATTING:
+- DO NOT use **bold** or *italics*.
+- DO NOT use # headers.
+- Use EMOJIS for all styling and emphasis.
+- Deliver ONLY plain text + emojis.
+`;
+
     let orchestrationMode = context || "auto";
     if (orchestrationMode === "auto") {
       const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || "";
-      if (/seo|keyword|meta|rank/.test(lastMsg)) orchestrationMode = "seo";
-      else if (/campaign|social|post|market/.test(lastMsg)) orchestrationMode = "marketing";
-      else if (/strategy|plan|growth/.test(lastMsg)) orchestrationMode = "strategy";
-      else if (/run|execute|push|send|task/.test(lastMsg)) orchestrationMode = "task";
+      if (/seo|keyword|meta|rank|optimize|competitor/.test(lastMsg)) orchestrationMode = "seo";
+      else if (/campaign|social|post|market|facebook|fb|ig|instagram|tiktok|ads|copy|email|newsletter|write/.test(lastMsg)) orchestrationMode = "marketing";
+      else if (/strategy|plan|growth|revenue|profit|business|monetize/.test(lastMsg)) orchestrationMode = "strategy";
+      else if (/run|execute|push|send|task|blog|create|webhook|discord|action/.test(lastMsg)) orchestrationMode = "task";
       else orchestrationMode = "general";
     }
 
     const contextPrompt = SPECIALIZED_PROMPTS[orchestrationMode] || SPECIALIZED_PROMPTS.general;
-    const hasSystemPrompt = messages.some((m: { role: string }) => m.role === "system");
-    
-    let finalMessages;
-    if (hasSystemPrompt) {
-      finalMessages = [
-        { role: "system", content: contextPrompt },
-        ...messages
-      ];
-    } else {
-      finalMessages = [
-        { role: "system", content: defaultSystemPrompt },
-        { role: "system", content: contextPrompt },
-        ...messages
-      ];
-    }
+    const finalSystemContent = `
+${defaultSystemPrompt}
+${contextPrompt}
+${orchestrationMode === "marketing" || orchestrationMode === "blog" ? STRICT_CLEAN_TEXT : ""}
+`;
+
+    const finalMessages = [
+      { role: "system", content: finalSystemContent },
+      ...messages.filter((m: { role: string }) => m.role !== "system")
+    ];
 
     // Map context to optimized models
     const CONTEXT_MODELS: Record<string, string> = {
