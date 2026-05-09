@@ -89,6 +89,7 @@ model Product {
   orders    Order[]
   reviews   Review[]
   variants  ProductVariant[]
+  socialBlasts SocialBlast[]
 
   @@index([category])
   @@index([title])
@@ -455,6 +456,30 @@ model PartnerPayoutRequest {
 
   partnerAffiliate PartnerAffiliate @relation(fields: [partnerAffiliateId], references: [id])
 
-  @@index([partnerAffiliateId])
+  @@index([status])
+}
+
+// ─── Social Automation ────────────────────────────────────────────────────────
+
+model SocialBlast {
+  id           String   @id @default(cuid())
+  productId    String?
+  productTitle String?
+  platforms    String[] // e.g. ["twitter", "discord", "instagram"]
+  content      Json     // { twitter: "...", discord: "...", instagram: "..." }
+  imageUrl     String?
+  imagePrompt  String?
+  tone         String   @default("High-Energy")
+  length       String   @default("Medium")
+  status       String   @default("SENT") // SENT, SCHEDULED, FAILED
+  clicks       Int      @default(0)
+  platformStats Json?   // { twitter: 12, discord: 5 }
+  scheduledFor DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  product      Product? @relation(fields: [productId], references: [id])
+
+  @@index([createdAt])
   @@index([status])
 }
