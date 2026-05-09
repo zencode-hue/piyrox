@@ -91,11 +91,22 @@ async function executeTool(tool: ToolCall, origin: string): Promise<string> {
 
       case "call_api": {
         try {
-          const { url, method = "GET", headers = {}, body } = tool.params;
+          let { method = "GET" } = tool.params;
+          const { url, headers = {}, body } = tool.params;
+          
+          // Internal admin APIs usually require POST
+          if (url.startsWith("/api/admin") && !tool.params.method) {
+            method = "POST";
+          }
+
           const finalUrl = url.startsWith("/") ? `${origin}${url}` : url;
           const fetchOpts: RequestInit = {
             method,
-            headers: { ...headers, cookie: "__internal_ai_bypass=1" },
+            headers: { 
+              ...headers, 
+              "Content-Type": "application/json",
+              cookie: "__internal_ai_bypass=1" 
+            },
           };
           if (body) {
             fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body);
@@ -152,7 +163,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { messages } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { messages, context, model: bodyModel } = body;
 
     // ── Fetch configuration from database ──────────────────────────────────
     const { db } = await import("@/lib/db");
@@ -162,7 +174,10 @@ export async function POST(req: NextRequest) {
     ]);
 
     const apiKey = keySetting?.value;
-    const model = modelSetting?.value;
+    const globalModel = modelSetting?.value;
+    
+    // Priority: Request Body Model > Global Setting Model > Default
+    let selectedModel = bodyModel || globalModel || "inclusionai/ring-2.6-1t:free";
 
     if (!apiKey) {
       return NextResponse.json({ error: "API key is required. Please set it in the AI config." }, { status: 400 });
@@ -304,15 +319,46 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
       finalMessages = [{ role: "system", content: defaultSystemPrompt }, ...messages];
     }
 
-    // ── Model selection ─────────────────────────────────────────────────────
-    const selectedModel = model || "openrouter/owl-alpha";
+    // ── AI Orchestrator: Intent Detection & Routing ────────────────────────
+    let orchestrationMode = context || "auto";
+
+    // Intent detection if in auto mode
+    if (orchestrationMode === "auto") {
+      const lastMessage = messages[messages.length - 1]?.content?.toLowerCase() || "";
+      if (/seo|keyword|meta|rank|sitemap/.test(lastMessage)) orchestrationMode = "seo";
+      else if (/campaign|social|post|marketing|ad|copy|sales/.test(lastMessage)) orchestrationMode = "marketing";
+      else if (/competitor|market|research|gather|info|analyze/.test(lastMessage)) orchestrationMode = "research";
+      else if (/strategy|plan|growth|business|revenue/.test(lastMessage)) orchestrationMode = "strategy";
+      else if (/run|execute|create|push|send|do|task/.test(lastMessage)) orchestrationMode = "task";
+      else orchestrationMode = "general";
+    }
+
+    // Map context to optimized models
+    const CONTEXT_MODELS: Record<string, string> = {
+      seo: "openrouter/owl-alpha",
+      marketing: "openai/gpt-oss-120b:free",
+      research: "google/gemma-4-26b-a4b-it:free",
+      strategy: "qwen/qwen3-next-80b-a3b-instruct:free",
+      task: "inclusionai/ring-2.6-1t:free",
+      blog: "openai/gpt-oss-120b:free",
+      general: "nvidia/nemotron-3-super-120b-a12b:free",
+    };
+
+    // Routing Logic:
+    // If model is "auto" or one of the defaults, we let the orchestrator choose based on context.
+    if (selectedModel === "auto" || selectedModel === "inclusionai/ring-2.6-1t:free" || selectedModel === "openrouter/owl-alpha") {
+      selectedModel = CONTEXT_MODELS[orchestrationMode] || "inclusionai/ring-2.6-1t:free";
+    }
 
     const payload: Record<string, unknown> = {
       model: selectedModel,
       messages: finalMessages,
+      temperature: orchestrationMode === "marketing" || orchestrationMode === "blog" ? 0.8 : 0.4,
     };
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    console.log(`[AI Orchestrator] Routing ${orchestrationMode} task to ${selectedModel}`);
+
+    let res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -323,7 +369,25 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
       body: JSON.stringify(payload),
     });
 
-    const responseText = await res.text();
+    let responseText = await res.text();
+
+    // ── Advanced Fallback & Collaboration Layer ────────────────────────────
+    if (!res.ok) {
+      console.warn(`[AI Orchestrator] Primary model ${selectedModel} failed. Attempting fallback...`);
+      // Try OWL Alpha as the universal fallback
+      payload.model = "openrouter/owl-alpha";
+      res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://metramart.xyz",
+          "X-Title": "MetraMart AI (Fallback)",
+        },
+        body: JSON.stringify(payload),
+      });
+      responseText = await res.text();
+    }
 
     if (!res.ok) {
       console.error("[AI API] OpenRouter error:", responseText);
@@ -405,6 +469,40 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
 
     let toolResult: string | null = null;
     if (toolCall) {
+      // ── Collaboration/Validation Layer (OWL Alpha) ────────────────────────
+      // If we have a tool call and the primary model wasn't OWL, we let OWL "validate" or "enhance" the task.
+      if (selectedModel !== "openrouter/owl-alpha") {
+        try {
+          console.log("[AI Orchestrator] Collaboration: OWL Alpha validating task...");
+          const valPayload = {
+            model: "openrouter/owl-alpha",
+            messages: [
+              ...finalMessages,
+              { role: "assistant", content: reply },
+              { role: "system", content: "You are the validation layer. Review the tool call above. If it looks correct, reply with 'VALIDATED'. If you have small SEO or safety improvements, specify them in 1 short sentence. DO NOT REPEAT THE TOOL CALL." }
+            ],
+            max_tokens: 100
+          };
+          const valRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+              "HTTP-Referer": "https://metramart.xyz",
+              "X-Title": "MetraMart AI (Validation)",
+            },
+            body: JSON.stringify(valPayload),
+          });
+          const valData = await valRes.json();
+          const validation = valData.choices?.[0]?.message?.content;
+          if (validation && !validation.includes("VALIDATED")) {
+            reply += `\n\n> **OWL Advice:** ${validation}`;
+          }
+        } catch (e) {
+          console.error("[AI Orchestrator] Validation failed:", e);
+        }
+      }
+
       try {
         const origin =
           req.nextUrl.origin ||

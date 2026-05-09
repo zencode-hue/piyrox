@@ -34,7 +34,10 @@ export default function AdminSEOPage() {
       const res = await fetch("/api/admin/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({ 
+          messages: [{ role: "user", content: prompt }],
+          context: "seo"
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -67,7 +70,10 @@ Provide 3 highly actionable, bullet-point recommendations to improve organic ran
       const res = await fetch("/api/admin/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({ 
+          messages: [{ role: "user", content: prompt }],
+          context: "seo"
+        }),
       });
       const data = await res.json();
       if (data.reply) setAuditResult(data.reply);
@@ -88,7 +94,10 @@ Provide 3 highly actionable, bullet-point recommendations to improve organic ran
       const res = await fetch("/api/admin/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({ 
+          messages: [{ role: "user", content: prompt }],
+          context: "seo"
+        }),
       });
       const data = await res.json();
       if (data.reply) {

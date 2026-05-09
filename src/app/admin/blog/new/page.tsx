@@ -41,7 +41,8 @@ export default function NewBlogPostPage() {
             content: `Write a high-quality, SEO-optimized blog post for "${form.title}" in the ${form.category} category.
             Include a short excerpt (first paragraph) and then the full markdown content.
             Use a friendly and professional tone. Keep it informative.` 
-          }]
+          }],
+          context: "blog"
         }),
       });
       const data = await res.json();

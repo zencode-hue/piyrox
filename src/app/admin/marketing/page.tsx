@@ -37,7 +37,8 @@ export default function MarketingPage() {
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: prompt }
-          ]
+          ],
+          context: type === "promo" ? "strategy" : "marketing"
         }),
       });
       const data = await res.json();

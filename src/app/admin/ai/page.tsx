@@ -11,12 +11,13 @@ interface Message {
 }
 
 const AI_MODELS = [
-  { id: "openrouter/owl-alpha", name: "OWL Alpha", tag: "Smart" },
-  { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash", tag: "FREE" },
-  { id: "meta-llama/llama-3.1-8b-instruct:free", name: "Llama 3.1 8B", tag: "FREE" },
-  { id: "qwen/qwen-2.5-72b-instruct:free", name: "Qwen 2.5 72B", tag: "FREE" },
-  { id: "deepseek/deepseek-r1:free", name: "DeepSeek R1", tag: "FREE" },
-  { id: "mistralai/mistral-7b-instruct:free", name: "Mistral 7B", tag: "FREE" },
+  { id: "auto", name: "Auto Routing (Recommended)", tag: "AI Engine" },
+  { id: "inclusionai/ring-2.6-1t:free", name: "Ring 2.6 (Task Pro)", tag: "Tasks" },
+  { id: "openrouter/owl-alpha", name: "OWL Alpha", tag: "SEO" },
+  { id: "google/gemma-4-26b-a4b-it:free", name: "Gemma 4", tag: "Research" },
+  { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3", tag: "Multi" },
+  { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen 3 Next", tag: "Strategy" },
+  { id: "openai/gpt-oss-120b:free", name: "GPT OSS", tag: "Marketing" },
 ];
 
 const QUICK_PROMPTS = [
@@ -73,7 +74,7 @@ export default function AdminAIPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("openrouter/owl-alpha");
+  const [model, setModel] = useState("auto");
   const [showConfig, setShowConfig] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -158,7 +159,8 @@ export default function AdminAIPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: newMessages.map((m) => ({ role: m.role, content: m.content }))
+          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
+          model: model
         }),
       });
 
