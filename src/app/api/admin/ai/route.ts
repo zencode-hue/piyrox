@@ -239,17 +239,17 @@ IDENTITY RULES:
     };
 
     const defaultSystemPrompt = `You are Metra AI, the total-control administrative brain for MetraMart.
-\${BRAND_BIBLE}
-\${FORMATTING_RULES}
-\${TOOL_DEFINITIONS}
+${BRAND_BIBLE}
+${FORMATTING_RULES}
+${TOOL_DEFINITIONS}
 
 LIVE STATS:
-- Users: \${userCount} | Orders: \${orderCount} | Revenue: \$\${Number(totalRevenue).toFixed(2)}
-- Inventory: \${activeProducts} Active | \${lowStockCount} Low Stock Alert!
+- Users: ${userCount} | Orders: ${orderCount} | Revenue: $${Number(totalRevenue).toFixed(2)}
+- Inventory: ${activeProducts} Active | ${lowStockCount} Low Stock Alert!
 - Top Sellers:
-\${topProductsList}
+${topProductsList}
 - Recent Activity:
-\${recentOrdersSummary}
+${recentOrdersSummary}
 
 MANDATORY: Identify yourself in brackets at the start of every reply. NEVER mention Velxo. NEVER use [Your Brand] or other placeholders. You ARE MetraMart.`;
 
@@ -301,12 +301,12 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
       temperature: orchestrationMode === "marketing" || orchestrationMode === "blog" ? 0.8 : 0.4,
     };
 
-    console.log(\`[AI Orchestrator] Routing \${orchestrationMode} task to \${selectedModel}\`);
+    console.log(`[AI Orchestrator] Routing ${orchestrationMode} task to ${selectedModel}`);
 
     let res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: \`Bearer \${apiKey}\`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://metramart.xyz",
         "X-Title": "MetraMart Admin AI",
@@ -317,7 +317,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
     let responseText = await res.text();
 
     if (!res.ok) {
-      console.warn(\`[AI Orchestrator] Primary model \${selectedModel} failed. Attempting fallback...\`);
+      console.warn(`[AI Orchestrator] Primary model ${selectedModel} failed. Attempting fallback...`);
       payload.model = "openrouter/owl-alpha";
       res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
@@ -354,7 +354,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
     let toolCall: ToolCall | null = null;
     let toolMatchStr = "";
 
-    const jsonMatch = reply.match(/\\\`\\\`\\\`(?:tool|json)?\\s*\\n([\\s\\S]*?)\\n\\\`\\\`\\\`/);
+    const jsonMatch = reply.match(/```(?:tool|json)?\s*\n([\s\S]*?)\n```/);
     if (jsonMatch) {
       try {
         const parsed = JSON.parse(jsonMatch[1]);
@@ -414,7 +414,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
           const valRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-              Authorization: \`Bearer \${apiKey}\`,
+              Authorization: `Bearer ${apiKey}`,
               "Content-Type": "application/json",
               "HTTP-Referer": "https://metramart.xyz",
               "X-Title": "MetraMart AI (Validation)",
@@ -424,7 +424,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
           const valData = await valRes.json();
           const validation = valData.choices?.[0]?.message?.content;
           if (validation && !validation.includes("VALIDATED")) {
-            reply += \`\\n\\n> **OWL Advice:** \${validation}\`;
+            reply += `\n\n> **OWL Advice:** ${validation}`;
           }
         } catch (e) { console.error("[AI Orchestrator] Validation failed:", e); }
       }
@@ -433,9 +433,9 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
         const origin = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || "https://metramart.xyz";
         toolResult = await executeTool(toolCall, origin);
         reply = reply.replace(toolMatchStr, "").trim();
-        reply += \`\\n\\n---\\n**🔧 Action Result:**\\n\${toolResult}\`;
+        reply += `\n\n---\n**🔧 Action Result:**\n${toolResult}`;
       } catch (err) {
-        reply += \`\\n\\n---\\n**🔧 Action Error:** Could not parse tool call — \${String(err)}\`;
+        reply += `\n\n---\n**🔧 Action Error:** Could not parse tool call — ${String(err)}`;
       }
     }
 
