@@ -12,12 +12,14 @@ export default function MarketingPage() {
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
   async function generateMarketing(type: string) {
     if (!prompt.trim()) return;
     setLoading(true);
     setResult(null);
+    setError(null);
     try {
       let systemPrompt = "";
       if (type === "campaign") {
@@ -39,8 +41,15 @@ export default function MarketingPage() {
         }),
       });
       const data = await res.json();
-      if (data.reply) setResult(data.reply);
-    } catch (e) { console.error(e); }
+      if (!res.ok) {
+        setError(data.error ?? "AI request failed");
+      } else if (data.reply) {
+        setResult(data.reply);
+      }
+    } catch (e) { 
+      console.error(e); 
+      setError("Network error. Please try again.");
+    }
     setLoading(false);
   }
 
@@ -144,12 +153,22 @@ export default function MarketingPage() {
                   {copied === "res" ? <Check size={16} className="text-green-400" /> : <Copy size={16} className="text-gray-400" />}
                 </button>
               </div>
+              {error && (
+                <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                  {error}
+                </div>
+              )}
               <div className="prose prose-invert max-w-none prose-p:text-gray-400 prose-headings:text-white prose-strong:text-amber-400 whitespace-pre-wrap text-sm leading-relaxed">
                 {result}
               </div>
             </div>
           ) : (
             <div className="h-full min-h-[400px] rounded-2xl border-2 border-dashed border-white/5 flex flex-col items-center justify-center text-center p-8">
+              {error && (
+                <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm max-w-md">
+                  <strong>Error:</strong> {error}
+                </div>
+              )}
               <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center mb-4">
                 <Megaphone size={32} className="text-gray-600" />
               </div>

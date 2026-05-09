@@ -216,9 +216,7 @@ export async function POST(req: NextRequest) {
     const totalRevenue = revenue._sum?.amount ?? 0;
 
     // ── Build system prompt ─────────────────────────────────────────────────
-    const systemPrompt = {
-      role: "system",
-      content: `You are OWL, the powerful AI administrative assistant for MetraMart (metramart.xyz / velxo.shop).
+    const defaultSystemPrompt = `You are OWL, the powerful AI administrative assistant for MetraMart (metramart.xyz / velxo.shop).
 
 ## YOUR IDENTITY
 - Name: OWL
@@ -292,10 +290,31 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
 5. If unsure about an action, ask for confirmation first.
 6. You have DIRECT ACCESS to the CMS, Discord, and email system. USE THEM.
 7. Never repeat disclaimers about not having access — you DO have access through your tools.
-8. CRITICAL: You MUST use the \`\`\`tool ... \`\`\` JSON format for actions. NEVER output XML tags like <longcat_tool_call>.`,
-    };
+8. CRITICAL: You MUST use the \`\`\`tool ... \`\`\` JSON format for actions. NEVER output XML tags like <longcat_tool_call>.`;
 
-    const finalMessages = [systemPrompt, ...messages];
+    // Check if the user already provided a system prompt (e.g. from Marketing or SEO pages)
+    const hasSystemPrompt = messages.some((m: { role: string }) => m.role === "system");
+    
+    let finalMessages;
+    if (hasSystemPrompt) {
+      // If there's already a system prompt, we append OWL's identity and tools to it.
+      // This allows specialized pages (like Marketing) to keep their focused prompt while still having tool access.
+      const toolInstructions = defaultSystemPrompt.includes("## AVAILABLE TOOLS") 
+        ? "\n\n" + defaultSystemPrompt.substring(defaultSystemPrompt.indexOf("## AVAILABLE TOOLS"))
+        : "";
+        
+      finalMessages = messages.map((m: { role: string; content: string }) => {
+        if (m.role === "system") {
+          return {
+            role: "system",
+            content: `${m.content}\n\nYou are OWL, the MetraMart AI assistant.${toolInstructions}`
+          };
+        }
+        return m;
+      });
+    } else {
+      finalMessages = [{ role: "system", content: defaultSystemPrompt }, ...messages];
+    }
 
     // ── Model selection ─────────────────────────────────────────────────────
     const selectedModel = model || "openrouter/owl-alpha";

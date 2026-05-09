@@ -21,12 +21,14 @@ export default function AdminSEOPage() {
   const [compUrl, setCompUrl] = useState("");
   const [compLoading, setCompLoading] = useState(false);
   const [compResult, setCompResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [auditing, setAuditing] = useState(false);
   const [auditResult, setAuditResult] = useState<string | null>(null);
 
   async function generateWithAI() {
     setIsGenerating(true);
+    setError(null);
     try {
       const prompt = `You are an expert SEO specialist. Generate an optimized Meta Title (max 60 chars), Meta Description (max 150 chars), and 5-8 comma-separated Keywords for MetraMart, a premium digital marketplace selling Netflix, Spotify, ChatGPT Plus, gaming keys, and software licenses. RESPOND WITH ONLY THIS JSON FORMAT, NO OTHER TEXT: { "title": "...", "description": "...", "keywords": "..." }`;
       const res = await fetch("/api/admin/ai", {
@@ -35,7 +37,9 @@ export default function AdminSEOPage() {
         body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
       });
       const data = await res.json();
-      if (data.reply) {
+      if (!res.ok) {
+        setError(data.error ?? "AI generation failed");
+      } else if (data.reply) {
         const match = data.reply.match(/\{[\s\S]*\}/);
         if (match) {
           const parsed = JSON.parse(match[0]);
@@ -46,6 +50,7 @@ export default function AdminSEOPage() {
       }
     } catch (err) {
       console.error(err);
+      setError("Network error during generation.");
     }
     setIsGenerating(false);
   }
@@ -229,6 +234,11 @@ Provide 3 highly actionable, bullet-point recommendations to improve organic ran
               {isGenerating ? "Generating..." : "Auto-Generate"}
             </button>
           </div>
+          {error && (
+            <div className="mb-3 p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+              {error}
+            </div>
+          )}
           <div className="space-y-3">
             <div>
               <div className="flex items-center justify-between mb-1">

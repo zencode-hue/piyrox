@@ -12,11 +12,11 @@ interface Message {
 
 const AI_MODELS = [
   { id: "openrouter/owl-alpha", name: "OWL Alpha", tag: "Smart" },
-  { id: "google/gemini-2.5-flash:free", name: "Gemini 2.5 Flash", tag: "FREE" },
-  { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B", tag: "FREE" },
+  { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash", tag: "FREE" },
+  { id: "meta-llama/llama-3.1-8b-instruct:free", name: "Llama 3.1 8B", tag: "FREE" },
   { id: "qwen/qwen-2.5-72b-instruct:free", name: "Qwen 2.5 72B", tag: "FREE" },
-  { id: "deepseek/deepseek-r1-distill-llama-70b:free", name: "DeepSeek R1", tag: "FREE" },
-  { id: "mistralai/mistral-nemo:free", name: "Mistral Nemo", tag: "FREE" },
+  { id: "deepseek/deepseek-r1:free", name: "DeepSeek R1", tag: "FREE" },
+  { id: "mistralai/mistral-7b-instruct:free", name: "Mistral 7B", tag: "FREE" },
 ];
 
 const QUICK_PROMPTS = [
