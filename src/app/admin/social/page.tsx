@@ -7,7 +7,6 @@ import {
   TrendingUp, MessageSquare, Globe, ArrowRight,
   RefreshCw, MousePointer2, ExternalLink
 } from "lucide-react";
-import { format } from "date-fns";
 
 export default function SocialMarketingPage() {
   const [loading, setLoading] = useState(false);
@@ -86,7 +85,7 @@ export default function SocialMarketingPage() {
           <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
             <span className="text-xs text-gray-400">Last Blast</span>
             <span className="text-xs text-white">
-              {lastBlast ? format(new Date(lastBlast), "HH:mm") : "Never"}
+              {lastBlast ? new Date(lastBlast).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Never"}
             </span>
           </div>
         </div>
@@ -145,7 +144,7 @@ export default function SocialMarketingPage() {
                       {log.ad}
                     </p>
                     <div className="flex items-center gap-3 pt-1 text-[10px] text-gray-600">
-                      <span className="flex items-center gap-1"><Clock size={10} /> {format(new Date(log.createdAt), "MMM d, HH:mm")}</span>
+                      <span className="flex items-center gap-1"><Clock size={10} /> {new Date(log.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}, {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       <span className="flex items-center gap-1 text-green-500/70"><Check size={10} /> Delivered</span>
                     </div>
                   </div>
