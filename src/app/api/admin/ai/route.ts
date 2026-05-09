@@ -297,21 +297,9 @@ Params: path (string, relative path e.g. "src/lib/email.ts")
     
     let finalMessages;
     if (hasSystemPrompt) {
-      // If there's already a system prompt, we append OWL's identity and tools to it.
-      // This allows specialized pages (like Marketing) to keep their focused prompt while still having tool access.
-      const toolInstructions = defaultSystemPrompt.includes("## AVAILABLE TOOLS") 
-        ? "\n\n" + defaultSystemPrompt.substring(defaultSystemPrompt.indexOf("## AVAILABLE TOOLS"))
-        : "";
-        
-      finalMessages = messages.map((m: { role: string; content: string }) => {
-        if (m.role === "system") {
-          return {
-            role: "system",
-            content: `${m.content}\n\nYou are OWL, the MetraMart AI assistant.${toolInstructions}`
-          };
-        }
-        return m;
-      });
+      // If there's already a system prompt, we DON'T append the full OWL prompt or tools
+      // to avoid token bloat and confusion for specialized tasks (Marketing, SEO, etc.)
+      finalMessages = messages;
     } else {
       finalMessages = [{ role: "system", content: defaultSystemPrompt }, ...messages];
     }

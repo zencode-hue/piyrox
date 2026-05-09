@@ -51,8 +51,9 @@ export default function AdminSEOPage() {
     } catch (err) {
       console.error(err);
       setError("Network error during generation.");
+    } finally {
+      setIsGenerating(false);
     }
-    setIsGenerating(false);
   }
 
   async function runAIAudit() {
@@ -72,8 +73,9 @@ Provide 3 highly actionable, bullet-point recommendations to improve organic ran
       if (data.reply) setAuditResult(data.reply);
     } catch {
       setAuditResult("Audit failed. Please check AI settings.");
+    } finally {
+      setAuditing(false);
     }
-    setAuditing(false);
   }
 
   async function exploreKeyword() {

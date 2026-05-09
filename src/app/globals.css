@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -229,6 +229,20 @@
 
   .sidebar-item.active svg {
     color: #fde68a;
+  }
+
+  /* Mobile specific adjustments */
+  @media (max-width: 1024px) {
+    .glass-card {
+      @apply p-4;
+      border-radius: 12px;
+    }
+    .input-field {
+      @apply py-2.5;
+    }
+    .btn-primary, .btn-secondary {
+      @apply py-2.5 px-4;
+    }
   }
 }
 

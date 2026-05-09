@@ -45,7 +45,9 @@ export default function NewBlogPostPage() {
         }),
       });
       const data = await res.json();
-      if (data.reply) {
+      if (!res.ok) {
+        setErr(data.error ?? "AI generation failed");
+      } else if (data.reply) {
         const text = data.reply;
         // Simple heuristic to split excerpt and content
         const paragraphs = text.split("\n\n");
@@ -56,8 +58,12 @@ export default function NewBlogPostPage() {
           set("content", text);
         }
       }
-    } catch (e) { console.error(e); }
-    setAiLoading(false);
+    } catch (e) { 
+      console.error(e); 
+      setErr("Network error. Please try again.");
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {

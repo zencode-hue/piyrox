@@ -49,8 +49,9 @@ export default function MarketingPage() {
     } catch (e) { 
       console.error(e); 
       setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   function copyText(text: string, id: string) {
