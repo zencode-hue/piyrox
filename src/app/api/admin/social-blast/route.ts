@@ -67,6 +67,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `AI generated ad, but Discord push failed: ${dErr.error}` }, { status: 500 });
     }
 
+    // 5. Log the Blast to SiteSettings
+    try {
+      const logsSetting = await db.siteSetting.findUnique({ where: { key: "social_blast_logs" } });
+      let logs = logsSetting ? JSON.parse(logsSetting.value) : [];
+      if (!Array.isArray(logs)) logs = [];
+      
+      logs.unshift({
+        id: Math.random().toString(36).substring(7),
+        product: product.title,
+        ad: adText,
+        status: "SUCCESS",
+        source: productId ? "MANUAL" : "AUTO",
+        createdAt: new Date().toISOString()
+      });
+
+      // Keep only last 50
+      logs = logs.slice(0, 50);
+
+      await db.siteSetting.upsert({
+        where: { key: "social_blast_logs" },
+        update: { value: JSON.stringify(logs) },
+        create: { key: "social_blast_logs", value: JSON.stringify(logs) }
+      });
+    } catch (e) {
+      console.error("[Logging Error]:", e);
+    }
+
     return NextResponse.json({ 
       ok: true, 
       message: "Social media advertisement generated and blasted successfully!",

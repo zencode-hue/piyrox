@@ -19,6 +19,7 @@ const navGroups = [
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/analytics", label: "Analytics", icon: BarChart2 },
+      { href: "/admin/social", label: "Social Automation", icon: Globe },
       { href: "/admin/seo", label: "SEO Tools", icon: Globe },
     ],
   },
