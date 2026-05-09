@@ -29,122 +29,120 @@ interface ToolCall {
 }
 
 async function executeTool(tool: ToolCall, origin: string): Promise<string> {
-  try {
-    switch (tool.action) {
-      case "create_blog_post": {
-        const res = await fetch(`${origin}/api/admin/blog`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", cookie: "__internal_ai_bypass=1" },
   const bypassHeaders = { 
     "Content-Type": "application/json", 
     "X-Internal-AI-Bypass": "1",
     "cookie": "__internal_ai_bypass=1"
   };
 
-  switch (tool.action) {
-    case "create_blog_post": {
-      const res = await fetch(`${origin}/api/admin/blog`, {
-        method: "POST",
-        headers: bypassHeaders,
-        body: JSON.stringify(tool.params),
-      });
-      const data = await res.json();
-      if (!res.ok) return `❌ Blog failed: ${data.error ?? "Unknown error"}`;
-      return `✅ Blog post created: ${data.data?.slug}`;
-    }
+  try {
+    switch (tool.action) {
+      case "create_blog_post": {
+        const res = await fetch(`${origin}/api/admin/blog`, {
+          method: "POST",
+          headers: bypassHeaders,
+          body: JSON.stringify(tool.params),
+        });
+        const data = await res.json();
+        if (!res.ok) return `❌ Blog failed: ${data.error ?? "Unknown error"}`;
+        return `✅ Blog post created: ${data.data?.slug}`;
+      }
 
-    case "push_discord_deals": {
-      const res = await fetch(`${origin}/api/admin/discord-push?type=deals`, {
-        method: "POST",
-        headers: bypassHeaders,
-      });
-      const data = await res.json();
-      if (!res.ok) return `❌ Discord deals failed: ${data.error ?? "Unknown error"}`;
-      return `✅ Today's deals pushed to Discord!`;
-    }
+      case "push_discord_deals": {
+        const res = await fetch(`${origin}/api/admin/discord-push?type=deals`, {
+          method: "POST",
+          headers: bypassHeaders,
+        });
+        const data = await res.json();
+        if (!res.ok) return `❌ Discord deals failed: ${data.error ?? "Unknown error"}`;
+        return `✅ Today's deals pushed to Discord!`;
+      }
 
-    case "send_discord_message": {
-      const res = await fetch(`${origin}/api/admin/discord-push`, {
-        method: "POST",
-        headers: bypassHeaders,
-        body: JSON.stringify({ message: tool.params.message }),
-      });
-      const data = await res.json();
-      if (!res.ok) return `❌ Discord message failed: ${data.error ?? "Unknown error"}`;
-      return `✅ Discord announcement sent!`;
-    }
+      case "send_discord_message": {
+        const res = await fetch(`${origin}/api/admin/discord-push`, {
+          method: "POST",
+          headers: bypassHeaders,
+          body: JSON.stringify({ message: tool.params.message }),
+        });
+        const data = await res.json();
+        if (!res.ok) return `❌ Discord message failed: ${data.error ?? "Unknown error"}`;
+        return `✅ Discord announcement sent!`;
+      }
 
-    case "send_email": {
-      const res = await fetch(`${origin}/api/admin/send-email`, {
-        method: "POST",
-        headers: bypassHeaders,
-        body: JSON.stringify({
-          to: tool.params.audience || "all",
-          subject: tool.params.subject,
-          message: tool.params.message,
-          type: tool.params.type || "announcement",
-          customEmail: tool.params.customEmail,
-          preview: tool.params.preview ?? false,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) return `❌ Email failed: ${data.error ?? "Unknown error"}`;
-      if (data.preview) return `📊 Preview: would send to ${data.count} recipients.`;
-      return `✅ Email sent to ${data.sent} recipients! (${data.failed || 0} failed)`;
-    }
+      case "send_email": {
+        const res = await fetch(`${origin}/api/admin/send-email`, {
+          method: "POST",
+          headers: bypassHeaders,
+          body: JSON.stringify({
+            to: tool.params.audience || "all",
+            subject: tool.params.subject,
+            message: tool.params.message,
+            type: tool.params.type || "announcement",
+            customEmail: tool.params.customEmail,
+            preview: tool.params.preview ?? false,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) return `❌ Email failed: ${data.error ?? "Unknown error"}`;
+        if (data.preview) return `📊 Preview: would send to ${data.count} recipients.`;
+        return `✅ Email sent to ${data.sent} recipients! (${data.failed || 0} failed)`;
+      }
 
-    case "run_db_query": {
-      try {
-        const { model, action, args } = tool.params;
-        const { db } = await import("@/lib/db");
-        const dbModel = (db as any)[model];
-        if (!dbModel || typeof dbModel[action] !== "function") return `❌ Invalid model/action: ${model}.${action}`;
-        const result = await dbModel[action](args);
-        return `✅ Success: ${JSON.stringify(result, null, 2).substring(0, 1500)}`;
-      } catch (err) { return `❌ DB Error: ${String(err)}`; }
-    }
+      case "run_db_query": {
+        try {
+          const { model, action, args } = tool.params;
+          const { db } = await import("@/lib/db");
+          const dbModel = (db as any)[model];
+          if (!dbModel || typeof dbModel[action] !== "function") return `❌ Invalid model/action: ${model}.${action}`;
+          const result = await dbModel[action](args);
+          return `✅ Success: ${JSON.stringify(result, null, 2).substring(0, 1500)}`;
+        } catch (err) { return `❌ DB Error: ${String(err)}`; }
+      }
 
-    case "call_api": {
-      try {
-        let { method = "POST" } = tool.params;
-        const { url, headers = {}, body } = tool.params;
-        const finalUrl = url.startsWith("/") ? `${origin}${url}` : url;
-        const fetchOpts: RequestInit = {
-          method,
-          headers: { ...headers, ...bypassHeaders },
-        };
-        if (body) fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body);
-        const res = await fetch(finalUrl, fetchOpts);
-        const text = await res.text();
-        return `✅ API Response (${res.status}): ${text.substring(0, 1500)}`;
-      } catch (err) { return `❌ API Error: ${String(err)}`; }
-    }
+      case "call_api": {
+        try {
+          let { method = "POST" } = tool.params;
+          const { url, headers = {}, body } = tool.params;
+          const finalUrl = url.startsWith("/") ? `${origin}${url}` : url;
+          const fetchOpts: RequestInit = {
+            method,
+            headers: { ...headers, ...bypassHeaders },
+          };
+          if (body) fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body);
+          const res = await fetch(finalUrl, fetchOpts);
+          const text = await res.text();
+          return `✅ API Response (${res.status}): ${text.substring(0, 1500)}`;
+        } catch (err) { return `❌ API Error: ${String(err)}`; }
+      }
 
-    case "read_env": {
-      try {
-        const keys = tool.params.keys;
-        if (Array.isArray(keys)) {
-          const result: Record<string, string> = {};
-          for (const k of keys) result[k] = process.env[k] || "";
-          return `✅ Env: ${JSON.stringify(result, null, 2)}`;
-        }
-        return `✅ Env (Partial): ${JSON.stringify(process.env, null, 2).substring(0, 2000)}`;
-      } catch (err) { return `❌ Env Error: ${String(err)}`; }
-    }
+      case "read_env": {
+        try {
+          const keys = tool.params.keys;
+          if (Array.isArray(keys)) {
+            const result: Record<string, string> = {};
+            for (const k of keys) result[k] = process.env[k] || "";
+            return `✅ Env: ${JSON.stringify(result, null, 2)}`;
+          }
+          return `✅ Env (Partial): ${JSON.stringify(process.env, null, 2).substring(0, 2000)}`;
+        } catch (err) { return `❌ Env Error: ${String(err)}`; }
+      }
 
-    case "read_file": {
-      try {
-        const fs = await import("fs/promises");
-        const path = await import("path");
-        const safePath = path.resolve(process.cwd(), tool.params.path);
-        if (!safePath.startsWith(process.cwd())) return "❌ Access denied";
-        const content = await fs.readFile(safePath, "utf-8");
-        return `✅ File (${tool.params.path}):\n${content.substring(0, 3000)}`;
-      } catch (err) { return `❌ File Error: ${String(err)}`; }
-    }
+      case "read_file": {
+        try {
+          const fs = await import("fs/promises");
+          const path = await import("path");
+          const safePath = path.resolve(process.cwd(), tool.params.path);
+          if (!safePath.startsWith(process.cwd())) return "❌ Access denied";
+          const content = await fs.readFile(safePath, "utf-8");
+          return `✅ File (${tool.params.path}):\n${content.substring(0, 3000)}`;
+        } catch (err) { return `❌ File Error: ${String(err)}`; }
+      }
 
-    default:
-      return `❌ Unknown action: ${tool.action}`;
+      default:
+        return `❌ Unknown action: ${tool.action}`;
+    }
+  } catch (err) {
+    return `❌ Tool execution error: ${String(err)}`;
   }
 }
 
@@ -241,17 +239,17 @@ IDENTITY RULES:
     };
 
     const defaultSystemPrompt = `You are Metra AI, the total-control administrative brain for MetraMart.
-${BRAND_BIBLE}
-${FORMATTING_RULES}
-${TOOL_DEFINITIONS}
+\${BRAND_BIBLE}
+\${FORMATTING_RULES}
+\${TOOL_DEFINITIONS}
 
 LIVE STATS:
-- Users: ${userCount} | Orders: ${orderCount} | Revenue: $${Number(totalRevenue).toFixed(2)}
-- Inventory: ${activeProducts} Active | ${lowStockCount} Low Stock Alert!
+- Users: \${userCount} | Orders: \${orderCount} | Revenue: \$\${Number(totalRevenue).toFixed(2)}
+- Inventory: \${activeProducts} Active | \${lowStockCount} Low Stock Alert!
 - Top Sellers:
-${topProductsList}
+\${topProductsList}
 - Recent Activity:
-${recentOrdersSummary}
+\${recentOrdersSummary}
 
 MANDATORY: Identify yourself in brackets at the start of every reply. NEVER mention Velxo. NEVER use [Your Brand] or other placeholders. You ARE MetraMart.`;
 
@@ -293,8 +291,6 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
       general: "nvidia/nemotron-3-super-120b-a12b:free",
     };
 
-    // Routing Logic:
-    // If model is "auto" or one of the defaults, we let the orchestrator choose based on context.
     if (selectedModel === "auto" || selectedModel === "inclusionai/ring-2.6-1t:free" || selectedModel === "openrouter/owl-alpha") {
       selectedModel = CONTEXT_MODELS[orchestrationMode] || "inclusionai/ring-2.6-1t:free";
     }
@@ -305,12 +301,12 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
       temperature: orchestrationMode === "marketing" || orchestrationMode === "blog" ? 0.8 : 0.4,
     };
 
-    console.log(`[AI Orchestrator] Routing ${orchestrationMode} task to ${selectedModel}`);
+    console.log(\`[AI Orchestrator] Routing \${orchestrationMode} task to \${selectedModel}\`);
 
     let res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: \`Bearer \${apiKey}\`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://metramart.xyz",
         "X-Title": "MetraMart Admin AI",
@@ -320,15 +316,13 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
 
     let responseText = await res.text();
 
-    // ── Advanced Fallback & Collaboration Layer ────────────────────────────
     if (!res.ok) {
-      console.warn(`[AI Orchestrator] Primary model ${selectedModel} failed. Attempting fallback...`);
-      // Try OWL Alpha as the universal fallback
+      console.warn(\`[AI Orchestrator] Primary model \${selectedModel} failed. Attempting fallback...\`);
       payload.model = "openrouter/owl-alpha";
       res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: \`Bearer \${apiKey}\`,
           "Content-Type": "application/json",
           "HTTP-Referer": "https://metramart.xyz",
           "X-Title": "MetraMart AI (Fallback)",
@@ -344,9 +338,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
       try {
         const parsed = JSON.parse(responseText);
         msg = parsed?.error?.message ?? String(parsed?.error) ?? msg;
-      } catch {
-        /* not JSON */
-      }
+      } catch { /* not JSON */ }
       return NextResponse.json({ error: msg }, { status: 502 });
     }
 
@@ -354,10 +346,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
     try {
       data = JSON.parse(responseText);
     } catch {
-      return NextResponse.json(
-        { error: "Invalid response from AI provider" },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: "Invalid response from AI provider" }, { status: 502 });
     }
 
     let reply = data.choices?.[0]?.message?.content || "No response";
@@ -365,7 +354,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
     let toolCall: ToolCall | null = null;
     let toolMatchStr = "";
 
-    const jsonMatch = reply.match(/```(?:tool|json)?\s*\n([\s\S]*?)\n```/);
+    const jsonMatch = reply.match(/\\\`\\\`\\\`(?:tool|json)?\\s*\\n([\\s\\S]*?)\\n\\\`\\\`\\\`/);
     if (jsonMatch) {
       try {
         const parsed = JSON.parse(jsonMatch[1]);
@@ -373,14 +362,11 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
           toolCall = parsed;
           toolMatchStr = jsonMatch[0];
         }
-      } catch (err) {
-        console.error("JSON parse error:", err);
-      }
+      } catch (err) { console.error("JSON parse error:", err); }
     }
 
-    // If standard markdown block fails, look for raw JSON containing action and params
     if (!toolCall) {
-      const bruteMatch = reply.match(/\{[\s\S]*"action"\s*:\s*"[^"]+"[\s\S]*"params"\s*:[\s\S]*\}/);
+      const bruteMatch = reply.match(/\\{[\\s\\S]*"action"\\s*:\\s*"[^"]+"[\\s\\S]*"params"\\s*:[\\s\\S]*\\}/);
       if (bruteMatch) {
         try {
           const parsed = JSON.parse(bruteMatch[0]);
@@ -388,23 +374,19 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
             toolCall = parsed;
             toolMatchStr = bruteMatch[0];
           }
-        } catch (e) {
-          /* ignore */
-        }
+        } catch (e) { /* ignore */ }
       }
     }
 
     if (!toolCall) {
-      // Fallback for models that leak XML tool calls
-      const xmlMatch = reply.match(/<longcat_tool_call>([\s\S]*?)<\/longcat_tool_call>/);
+      const xmlMatch = reply.match(/<longcat_tool_call>([\\s\\S]*?)<\\/longcat_tool_call>/);
       if (xmlMatch) {
         toolMatchStr = xmlMatch[0];
         const content = xmlMatch[1].trim();
-        const firstLineBreak = content.indexOf('\n');
+        const firstLineBreak = content.indexOf('\\n');
         const action = firstLineBreak > -1 ? content.substring(0, firstLineBreak).trim() : content.trim();
-        
         const params: Record<string, any> = {};
-        const regex = /<longcat_arg_key>([\s\S]*?)<\/longcat_arg_key>\s*<longcat_arg_value>([\s\S]*?)<\/longcat_arg_value>/g;
+        const regex = /<longcat_arg_key>([\\s\\S]*?)<\\/longcat_arg_key>\\s*<longcat_arg_value>([\\s\\S]*?)<\\/longcat_arg_value>/g;
         let m;
         while ((m = regex.exec(content)) !== null) {
           let val = m[2].trim();
@@ -418,11 +400,8 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
 
     let toolResult: string | null = null;
     if (toolCall) {
-      // ── Collaboration/Validation Layer (OWL Alpha) ────────────────────────
-      // If we have a tool call and the primary model wasn't OWL, we let OWL "validate" or "enhance" the task.
       if (selectedModel !== "openrouter/owl-alpha") {
         try {
-          console.log("[AI Orchestrator] Collaboration: OWL Alpha validating task...");
           const valPayload = {
             model: "openrouter/owl-alpha",
             messages: [
@@ -435,7 +414,7 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
           const valRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${apiKey}`,
+              Authorization: \`Bearer \${apiKey}\`,
               "Content-Type": "application/json",
               "HTTP-Referer": "https://metramart.xyz",
               "X-Title": "MetraMart AI (Validation)",
@@ -445,25 +424,18 @@ MANDATORY: Identify yourself in brackets at the start of every reply. NEVER ment
           const valData = await valRes.json();
           const validation = valData.choices?.[0]?.message?.content;
           if (validation && !validation.includes("VALIDATED")) {
-            reply += `\n\n> **OWL Advice:** ${validation}`;
+            reply += \`\\n\\n> **OWL Advice:** \${validation}\`;
           }
-        } catch (e) {
-          console.error("[AI Orchestrator] Validation failed:", e);
-        }
+        } catch (e) { console.error("[AI Orchestrator] Validation failed:", e); }
       }
 
       try {
-        const origin =
-          req.nextUrl.origin ||
-          process.env.NEXT_PUBLIC_APP_URL ||
-          "https://metramart.xyz";
+        const origin = req.nextUrl.origin || process.env.NEXT_PUBLIC_APP_URL || "https://metramart.xyz";
         toolResult = await executeTool(toolCall, origin);
-
-        // Replace the tool block with the result
         reply = reply.replace(toolMatchStr, "").trim();
-        reply += `\n\n---\n**🔧 Action Result:**\n${toolResult}`;
+        reply += \`\\n\\n---\\n**🔧 Action Result:**\\n\${toolResult}\`;
       } catch (err) {
-        reply += `\n\n---\n**🔧 Action Error:** Could not parse tool call — ${String(err)}`;
+        reply += \`\\n\\n---\\n**🔧 Action Error:** Could not parse tool call — \${String(err)}\`;
       }
     }
 
