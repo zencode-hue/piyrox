@@ -306,12 +306,12 @@ async function callOpenRouter(
       if (!res.ok) continue;
       const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
       const content = data.choices?.[0]?.message?.content;
-      if (content) return content;
+      if (content) return { content, model: m };
     } catch (_) {
       continue;
     }
   }
-  return "⚠️ All AI models are currently unavailable. Please try again shortly.";
+  return { content: "⚠️ All AI models are currently unavailable. Please try again shortly.", model: "none" };
 }
 
 // ─── Tool Definitions (for system prompt) ─────────────────────────────────────
@@ -406,9 +406,18 @@ export async function POST(req: NextRequest) {
       else orchestrationMode = "general";
     }
 
-    const selectedModel = (selectedModelName && selectedModelName !== "auto")
-      ? selectedModelName
-      : (CONTEXT_MODELS[orchestrationMode] || "google/gemma-4-31b-it:free");
+    // ── Model Selection ────────────────────────────────────────────────────────
+    let selectedModel = "google/gemma-4-31b-it:free"; // Global default
+    
+    if (selectedModelName && selectedModelName !== "auto") {
+      // User explicitly chose a model in the UI (like Gemma in Chat)
+      selectedModel = selectedModelName;
+    } else {
+      // Auto-routing based on message content
+      selectedModel = CONTEXT_MODELS[orchestrationMode] || "google/gemma-4-31b-it:free";
+    }
+
+    console.log(`[AI Router] Mode: ${orchestrationMode}, Model: ${selectedModel}, Name: ${selectedModelName}`);
 
     // ── Persona ────────────────────────────────────────────────────────────────
     const PERSONAS: Record<string, string> = {
@@ -453,7 +462,9 @@ ${TOOL_DEFINITIONS}
     ];
 
     const temperature = orchestrationMode === "marketing" ? 0.85 : 0.35;
-    let reply = await callOpenRouter(apiKey, selectedModel, aiMessages, temperature);
+    const aiResponse = await callOpenRouter(apiKey, selectedModel, aiMessages, temperature);
+    let reply = aiResponse.content;
+    const finalModel = aiResponse.model;
 
     // ── Execute Tool Calls ────────────────────────────────────────────────────
     const toolCalls = parseToolCalls(reply);
@@ -480,7 +491,7 @@ ${TOOL_DEFINITIONS}
         : `━━━ Action Results ━━━\n${results.join("\n")}`;
     }
 
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply, model: finalModel });
   } catch (err) {
     console.error("[Metra AI] Critical Error:", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });

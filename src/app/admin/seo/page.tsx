@@ -48,6 +48,8 @@ export default function AdminSEOPage() {
   const [optimizerText, setOptimizerText] = useState("");
   const [optimizerLoading, setOptimizerLoading] = useState(false);
   const [optimizerResult, setOptimizerResult] = useState<any>(null);
+  const [metrics, setMetrics] = useState<{ indexedCount: number, healthScore: number, totalViews: number, trafficData: any[] } | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/v1/settings").then((r) => r.json()).then((d) => {
@@ -57,6 +59,17 @@ export default function AdminSEOPage() {
       if (d.data?.app_url) setAppUrl(d.data.app_url);
     }).catch(() => {});
     setAppUrl(window.location.origin);
+    
+    // Fetch real SEO metrics
+    async function loadMetrics() {
+      try {
+        const res = await fetch("/api/admin/seo/metrics");
+        const data = await res.json();
+        if (data && !data.error) setMetrics(data);
+      } catch (e) { console.error(e); }
+      finally { setMetricsLoading(false); }
+    }
+    loadMetrics();
   }, []);
 
   async function saveMeta() {
@@ -232,11 +245,13 @@ export default function AdminSEOPage() {
           <div className="glass-card px-4 py-2 flex items-center gap-3">
             <div className="text-right">
               <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Global Health</p>
-              <p className="text-sm font-bold text-green-400">88/100</p>
+              <p className={`text-sm font-bold ${metricsLoading ? "animate-pulse" : metrics?.healthScore && metrics.healthScore > 80 ? "text-green-400" : "text-amber-400"}`}>
+                {metricsLoading ? "--" : `${metrics?.healthScore ?? 0}/100`}
+              </p>
             </div>
-            <div className="w-10 h-10 rounded-full border-2 border-green-500/20 flex items-center justify-center relative">
-              <div className="absolute inset-0 rounded-full border-t-2 border-green-400 animate-spin-slow"></div>
-              <CheckCircle size={16} className="text-green-400" />
+            <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center relative ${metrics?.healthScore && metrics.healthScore > 80 ? "border-green-500/20" : "border-amber-500/20"}`}>
+              {!metricsLoading && <div className={`absolute inset-0 rounded-full border-t-2 animate-spin-slow ${metrics?.healthScore && metrics.healthScore > 80 ? "border-green-400" : "border-amber-400"}`}></div>}
+              {metricsLoading ? <Loader2 size={16} className="text-gray-500 animate-spin" /> : <CheckCircle size={16} className={metrics?.healthScore && metrics.healthScore > 80 ? "text-green-400" : "text-amber-400"} />}
             </div>
           </div>
         </div>
@@ -286,20 +301,22 @@ export default function AdminSEOPage() {
                   </div>
                 </div>
                 <div className="h-48 flex items-end gap-2 px-2">
-                  {[40, 65, 45, 80, 55, 90, 75, 100, 85, 110, 95, 120].map((h, i) => (
+                  {metricsLoading ? (
+                    <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs italic">Loading traffic trends...</div>
+                  ) : (metrics?.trafficData || []).map((d, i) => (
                     <div key={i} className="flex-1 group relative">
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-amber-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                        {h}k
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-amber-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        {d.views} views
                       </div>
                       <div 
                         className="w-full bg-gradient-to-t from-amber-500/10 to-amber-500/40 rounded-t-sm group-hover:to-amber-500 transition-all duration-300"
-                        style={{ height: `${h}%` }}
+                        style={{ height: `${Math.min(100, (d.views / (Math.max(...(metrics?.trafficData?.map(m => m.views) || [1]))) * 100))}%` }}
                       ></div>
                     </div>
                   ))}
                 </div>
                 <div className="flex justify-between mt-3 text-[10px] text-gray-500 uppercase tracking-tighter">
-                  <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+                  {metrics?.trafficData ? metrics.trafficData.map(d => <span key={d.date}>{d.date}</span>) : <span>Loading...</span>}
                 </div>
               </div>
 
@@ -317,8 +334,8 @@ export default function AdminSEOPage() {
                     <div className="p-2 rounded-lg bg-purple-500/10"><Layers size={18} className="text-purple-500"/></div>
                     <span className="text-sm font-semibold text-white">Indexed Pages</span>
                   </div>
-                  <p className="text-xl font-bold text-white">1,248 Pages</p>
-                  <p className="text-xs text-gray-400 mt-1"><span className="text-green-400">98%</span> indexation rate</p>
+                  <p className="text-xl font-bold text-white">{metricsLoading ? "..." : metrics?.indexedCount?.toLocaleString() ?? 0} Pages</p>
+                  <p className="text-xs text-gray-400 mt-1"><span className="text-green-400">Live</span> indexation status</p>
                 </div>
               </div>
             </div>
