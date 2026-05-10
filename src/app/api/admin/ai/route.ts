@@ -89,7 +89,7 @@ async function executeTool(
           args: Record<string, unknown>;
         };
         const { db: prisma } = await import("@/lib/db");
-        const dbModel = (prisma as Record<string, unknown>)[model] as Record<string, Function> | undefined;
+        const dbModel = (prisma as unknown as Record<string, unknown>)[model] as Record<string, Function> | undefined;
         if (!dbModel || typeof dbModel[action] !== "function") {
           return `❌ Invalid model/action: ${model}.${action}`;
         }
@@ -273,9 +273,11 @@ AVAILABLE TOOLS — respond with JSON tool call when execution is needed:
 
 TOOL RULES:
 - Use EXACTLY ONE tool call per action.
-- ALWAYS use JSON format for tool calls.
+- Both JSON and XML formats are supported.
+- JSON format: { "action": "name", "params": { "key": "value" } }
+- XML format: <tool_call>action_name<arg_key>k</arg_key><arg_value>v</arg_value></tool_call>
 - After triggering a tool, confirm it with a human-readable summary.
-- Never show raw JSON to the admin — wrap it in your narration.
+- Never show raw code to the admin — wrap it in your narration.
 `;
 
 // ─── Main Route ───────────────────────────────────────────────────────────────

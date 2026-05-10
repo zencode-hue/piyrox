@@ -174,16 +174,50 @@ export async function POST(req: NextRequest) {
           },
           body: JSON.stringify({
             board_id: process.env.PINTEREST_BOARD_ID || "",
-            note: finalAds.pinterest,
-            link: finalAds.pinterest.includes("http") ? finalAds.pinterest : undefined,
+            title: product.title,
+            description: finalAds.pinterest.substring(0, 500),
+            link: `${origin}/api/social/click/${blast.id}/pinterest`,
+            media_source: {
+              source_type: "image_url",
+              url: product.imageUrl || "https://metramart.xyz/logo-square.png", // Fallback to logo
+            },
           }),
         });
         if (pinterestRes.ok) successDestinations.push("Pinterest");
+        else {
+          const errData = await pinterestRes.json();
+          console.error("Pinterest API Error:", errData);
+        }
       } catch (err) {
         console.error("Pinterest Push Failed:", err);
       }
     }
-
+    // 5c. Zapier Webhook (for remaining platforms or multi-chain)
+    if (zapierUrl && platforms.length > 0) {
+      try {
+        const zapRes = await fetch(zapierUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            blastId: blast.id,
+            product: {
+              id: product.id,
+              title: product.title,
+              price: product.price,
+              image: product.imageUrl,
+              url: `${origin}/product/${product.slug || product.id}`
+            },
+            ads: finalAds,
+            platforms: platforms,
+            tone,
+            timestamp: new Date().toISOString()
+          }),
+        });
+        if (zapRes.ok) successDestinations.push("Zapier");
+      } catch (err) {
+        console.error("Zapier Webhook Failed:", err);
+      }
+    }
     // 6. Finalize DB Entry
     await db.socialBlast.update({
       where: { id: blast.id },
