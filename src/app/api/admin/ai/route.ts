@@ -4,28 +4,45 @@ import { requireAdminApi } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
-async function executeTool(tool: { action: string; params: any }, origin: string, bypassHeaders: Record<string, string>) {
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface ToolCall {
+  action: string;
+  params: Record<string, unknown>;
+  raw: string;
+}
+
+// ─── Tool Executor ────────────────────────────────────────────────────────────
+async function executeTool(
+  tool: ToolCall,
+  origin: string,
+  bypassHeaders: Record<string, string>
+): Promise<string> {
   try {
     switch (tool.action) {
+      // ── Blog ────────────────────────────────────────────────────────────────
       case "create_blog_post": {
-        const params = { ...tool.params };
+        const params = { ...tool.params } as Record<string, unknown>;
         if (!params.slug && params.title) {
-          params.slug = params.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+          params.slug = (params.title as string)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
         }
         const res = await fetch(`${origin}/api/admin/blog`, {
           method: "POST",
-          headers: bypassHeaders,
+          headers: { ...bypassHeaders, "Content-Type": "application/json" },
           body: JSON.stringify(params),
         });
         const data = await res.json();
         if (!res.ok) return `❌ Blog creation failed: ${data.error ?? "Unknown error"}`;
-        return `✅ Blog post created: ${params.title} (Slug: ${data.slug || params.slug})`;
+        return `✅ Blog post created: "${params.title}" (Slug: ${data.slug || params.slug})`;
       }
 
+      // ── Discord ─────────────────────────────────────────────────────────────
       case "push_discord_deals": {
         const res = await fetch(`${origin}/api/admin/discord-push`, {
           method: "POST",
-          headers: bypassHeaders,
+          headers: { ...bypassHeaders, "Content-Type": "application/json" },
           body: JSON.stringify({ type: "deals" }),
         });
         const data = await res.json();
@@ -36,7 +53,7 @@ async function executeTool(tool: { action: string; params: any }, origin: string
       case "send_discord_message": {
         const res = await fetch(`${origin}/api/admin/discord-push`, {
           method: "POST",
-          headers: bypassHeaders,
+          headers: { ...bypassHeaders, "Content-Type": "application/json" },
           body: JSON.stringify({ message: tool.params.message }),
         });
         const data = await res.json();
@@ -44,14 +61,15 @@ async function executeTool(tool: { action: string; params: any }, origin: string
         return `✅ Discord announcement sent!`;
       }
 
+      // ── Email ───────────────────────────────────────────────────────────────
       case "send_email": {
         const res = await fetch(`${origin}/api/admin/send-email`, {
           method: "POST",
-          headers: bypassHeaders,
+          headers: { ...bypassHeaders, "Content-Type": "application/json" },
           body: JSON.stringify({
             to: tool.params.audience || "all",
             subject: tool.params.subject || "MetraMart Announcement",
-            message: tool.params.message || "Please check your dashboard for the latest updates.",
+            message: tool.params.message || "Check your dashboard for the latest updates.",
             type: tool.params.type || "announcement",
             customEmail: tool.params.customEmail,
             preview: tool.params.preview ?? false,
@@ -63,237 +81,347 @@ async function executeTool(tool: { action: string; params: any }, origin: string
         return `✅ Email sent to ${data.sent} recipients! (${data.failed || 0} failed)`;
       }
 
+      // ── Database ─────────────────────────────────────────────────────────────
       case "run_db_query": {
-        try {
-          const { model, action, args } = tool.params;
-          const { db: prisma } = await import("@/lib/db");
-          const dbModel = (prisma as any)[model];
-          if (!dbModel || typeof dbModel[action] !== "function") return `❌ Invalid model/action: ${model}.${action}`;
-          const result = await dbModel[action](args);
-          return `✅ Success: ${JSON.stringify(result, null, 2).substring(0, 1500)}`;
-        } catch (err) { return `❌ DB Error: ${String(err)}`; }
+        const { model, action, args } = tool.params as {
+          model: string;
+          action: string;
+          args: Record<string, unknown>;
+        };
+        const { db: prisma } = await import("@/lib/db");
+        const dbModel = (prisma as Record<string, unknown>)[model] as Record<string, Function> | undefined;
+        if (!dbModel || typeof dbModel[action] !== "function") {
+          return `❌ Invalid model/action: ${model}.${action}`;
+        }
+        const result = await dbModel[action](args ?? {});
+        return `✅ DB Result (${model}.${action}): ${JSON.stringify(result, null, 2).substring(0, 1500)}`;
       }
 
+      // ── Inventory ────────────────────────────────────────────────────────────
       case "update_inventory_count": {
-        try {
-          const { productId, count } = tool.params;
-          const updated = await db.product.update({
-            where: { id: productId },
-            data: { stockCount: count }
-          });
-          return `✅ Inventory updated for ${updated.title}: ${count} items.`;
-        } catch (err) { return `❌ Inventory Error: ${String(err)}`; }
+        const { productId, count } = tool.params as { productId: string; count: number };
+        const updated = await db.product.update({
+          where: { id: productId },
+          data: { stockCount: count },
+        });
+        return `✅ Inventory updated for "${updated.title}": ${count} units.`;
       }
 
+      // ── Social Blast ─────────────────────────────────────────────────────────
       case "social_media_blast": {
         const res = await fetch(`${origin}/api/admin/social-blast`, {
           method: "POST",
-          headers: bypassHeaders,
+          headers: { ...bypassHeaders, "Content-Type": "application/json" },
           body: JSON.stringify(tool.params),
         });
         const data = await res.json();
         if (!res.ok) return `❌ Social blast failed: ${data.error ?? "Unknown error"}`;
-        return `✅ Social media blast successful! Product: ${data.product}. Ad: ${data.ad}`;
+        return `✅ Social blast launched! Product: ${data.product}. Destinations: ${(data.destinations || []).join(", ")}.`;
+      }
+
+      // ── Product Management ────────────────────────────────────────────────────
+      case "toggle_product": {
+        const { productId, active } = tool.params as { productId: string; active: boolean };
+        const updated = await db.product.update({
+          where: { id: productId },
+          data: { isActive: active },
+        });
+        return `✅ Product "${updated.title}" is now ${active ? "ACTIVE" : "INACTIVE"}.`;
+      }
+
+      // ── Discount ─────────────────────────────────────────────────────────────
+      case "create_discount": {
+        const { code, percent, maxUses } = tool.params as {
+          code: string;
+          percent: number;
+          maxUses?: number;
+        };
+        const discount = await db.discount.create({
+          data: {
+            code: code.toUpperCase(),
+            percent,
+            maxUses: maxUses ?? 100,
+            isActive: true,
+          },
+        });
+        return `✅ Discount code "${discount.code}" created: ${percent}% off (max ${discount.maxUses} uses).`;
       }
 
       default:
-        return `❌ Unknown action: ${tool.action}`;
+        return `❌ Unknown tool action: "${tool.action}". Check available tools.`;
     }
   } catch (err) {
-    return `❌ Tool execution error: ${String(err)}`;
+    return `❌ Tool execution error [${tool.action}]: ${String(err)}`;
   }
 }
 
+// ─── Tool Call Parser ─────────────────────────────────────────────────────────
+function parseToolCalls(reply: string): ToolCall[] {
+  const toolCalls: ToolCall[] = [];
+  const seen = new Set<string>();
+
+  // 1. JSON format: {"action": "...", "params": {...}}
+  const jsonRegex = /\{\s*"action"\s*:\s*"([^"]+)"\s*,\s*"params"\s*:\s*(\{[\s\S]*?\})\s*\}/g;
+  let jm: RegExpExecArray | null;
+  while ((jm = jsonRegex.exec(reply)) !== null) {
+    const raw = jm[0];
+    if (seen.has(raw)) continue;
+    try {
+      const parsed = JSON.parse(raw) as { action: string; params: Record<string, unknown> };
+      if (parsed.action && parsed.params !== undefined) {
+        toolCalls.push({ action: parsed.action, params: parsed.params, raw });
+        seen.add(raw);
+      }
+    } catch (_) {}
+  }
+
+  // 2. XML format: <tool_call>action_name<arg_key>k</arg_key><arg_value>v</arg_value>...</tool_call>
+  const xmlRegex = /<tool_call>([\s\S]*?)<\/tool_call>/g;
+  let xm: RegExpExecArray | null;
+  while ((xm = xmlRegex.exec(reply)) !== null) {
+    const raw = xm[0];
+    if (seen.has(raw)) continue;
+    try {
+      const block = xm[1].trim();
+      const actionMatch = block.match(/^([a-z_]+)/);
+      if (!actionMatch) continue;
+      const action = actionMatch[1];
+      const params: Record<string, unknown> = {};
+      const pairRegex = /<arg_key>([^<]+)<\/arg_key>\s*<arg_value>([\s\S]*?)<\/arg_value>/g;
+      let pm: RegExpExecArray | null;
+      while ((pm = pairRegex.exec(block)) !== null) {
+        const key = pm[1].trim();
+        let value: unknown = pm[2].trim();
+        try { value = JSON.parse(value as string); } catch (_) {}
+        params[key] = value;
+      }
+      toolCalls.push({ action, params, raw });
+      seen.add(raw);
+    } catch (_) {}
+  }
+
+  // 3. Anthropic-style <tool_use> format
+  const anthropicRegex = /<tool_use>\s*<name>([^<]+)<\/name>\s*<input>([\s\S]*?)<\/input>\s*<\/tool_use>/g;
+  let am: RegExpExecArray | null;
+  while ((am = anthropicRegex.exec(reply)) !== null) {
+    const raw = am[0];
+    if (seen.has(raw)) continue;
+    try {
+      const action = am[1].trim();
+      const params = JSON.parse(am[2].trim()) as Record<string, unknown>;
+      toolCalls.push({ action, params, raw });
+      seen.add(raw);
+    } catch (_) {}
+  }
+
+  return toolCalls;
+}
+
+// ─── Model Fallback Chain ─────────────────────────────────────────────────────
+const FALLBACK_MODELS = [
+  "google/gemini-2.0-flash-001",
+  "openai/gpt-4o-mini",
+  "anthropic/claude-3-haiku",
+  "meta-llama/llama-3.1-8b-instruct:free",
+];
+
+async function callOpenRouter(
+  apiKey: string,
+  model: string,
+  messages: unknown[],
+  temperature: number
+): Promise<string> {
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+    "HTTP-Referer": "https://metramart.xyz",
+    "X-Title": "MetraMart Admin AI",
+  };
+
+  const modelsToTry = [model, ...FALLBACK_MODELS.filter((m) => m !== model)];
+
+  for (const m of modelsToTry) {
+    try {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ model: m, messages, temperature, max_tokens: 2000 }),
+      });
+      if (!res.ok) continue;
+      const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+      const content = data.choices?.[0]?.message?.content;
+      if (content) return content;
+    } catch (_) {
+      continue;
+    }
+  }
+  return "⚠️ All AI models are currently unavailable. Please try again shortly.";
+}
+
+// ─── Tool Definitions (for system prompt) ─────────────────────────────────────
 const TOOL_DEFINITIONS = `
-Available Tools (USE JSON FORMAT):
-1. { "action": "create_blog_post", "params": { "title": "str", "excerpt": "str", "content": "html", "category": "str", "emoji": "str", "published": true } }
-2. { "action": "push_discord_deals", "params": {} }
-3. { "action": "send_discord_message", "params": { "message": "str" } }
-4. { "action": "send_email", "params": { "audience": "all|customers|guests|custom", "subject": "str", "message": "str", "customEmail": "str|array" } }
-5. { "action": "run_db_query", "params": { "model": "user|product|order|blogPost", "action": "count|findMany|findUnique", "args": {} } }
-6. { "action": "update_inventory_count", "params": { "productId": "str", "count": 10 } }
-7. { "action": "social_media_blast", "params": { "productId": "str" } }
+AVAILABLE TOOLS — respond with JSON tool call when execution is needed:
+{ "action": "create_blog_post", "params": { "title": "str", "excerpt": "str", "content": "html", "category": "str", "emoji": "str", "published": true } }
+{ "action": "push_discord_deals", "params": {} }
+{ "action": "send_discord_message", "params": { "message": "str" } }
+{ "action": "send_email", "params": { "audience": "all|customers|guests|custom", "subject": "str", "message": "str", "customEmail": "str" } }
+{ "action": "run_db_query", "params": { "model": "user|product|order|blogPost|socialBlast|discount", "action": "count|findMany|findUnique|aggregate", "args": {} } }
+{ "action": "update_inventory_count", "params": { "productId": "str", "count": 10 } }
+{ "action": "social_media_blast", "params": { "productId": "str", "platforms": ["twitter","instagram","facebook","discord","telegram","pinterest"], "tone": "str" } }
+{ "action": "toggle_product", "params": { "productId": "str", "active": true } }
+{ "action": "create_discount", "params": { "code": "SALE20", "percent": 20, "maxUses": 100 } }
+
+TOOL RULES:
+- Use EXACTLY ONE tool call per action.
+- ALWAYS use JSON format for tool calls.
+- After triggering a tool, confirm it with a human-readable summary.
+- Never show raw JSON to the admin — wrap it in your narration.
 `;
 
+// ─── Main Route ───────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
     const { error: authError } = await requireAdminApi();
     if (authError) return authError;
 
-    const { messages, context, model: selectedModelName } = await req.json();
-    let selectedModel = selectedModelName || "auto";
+    const { messages, context, model: selectedModelName } = await req.json() as {
+      messages: Array<{ role: string; content: string }>;
+      context?: string;
+      model?: string;
+    };
+
     const origin = new URL(req.url).origin;
-    const bypassHeaders = { "X-Internal-AI-Bypass": process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024" };
+    const bypassKey = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
+    const bypassHeaders: Record<string, string> = {
+      "X-Internal-AI-Bypass": bypassKey,
+      "Content-Type": "application/json",
+    };
 
     const keySetting = await db.siteSetting.findUnique({ where: { key: "ai_api_key" } });
     const apiKey = keySetting?.value;
     if (!apiKey) return NextResponse.json({ error: "No AI API Key configured." }, { status: 400 });
 
+    // ── Live Metrics ──────────────────────────────────────────────────────────
     const now = new Date();
-    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const ago24h = new Date(now.getTime() - 86_400_000);
+    const ago7d  = new Date(now.getTime() - 7 * 86_400_000);
 
     const [
-      userCount, orderCount, lowStockCount, activeProducts, 
-      revenueTotal, revenue24h, recentOrders, topProducts,
-      lowStockItems, topCustomers
+      userCount, orderCount, lowStockCount, activeProducts,
+      revenueTotal, revenue24h, revenue7d, lowStockItems, topCustomers,
+      recentOrders, socialBlastCount,
     ] = await Promise.all([
       db.user.count(),
       db.order.count(),
       db.product.count({ where: { stockCount: { lte: 5 } } }),
       db.product.count({ where: { isActive: true } }),
       db.order.aggregate({ _sum: { amount: true }, where: { status: "PAID" } }),
-      db.order.aggregate({ _sum: { amount: true }, where: { status: "PAID", createdAt: { gte: twentyFourHoursAgo } } }),
-      db.order.findMany({ take: 10, orderBy: { createdAt: "desc" }, include: { user: true } }),
-      db.product.findMany({ take: 8, where: { isActive: true }, orderBy: { orders: { _count: "desc" } } }),
+      db.order.aggregate({ _sum: { amount: true }, where: { status: "PAID", createdAt: { gte: ago24h } } }),
+      db.order.aggregate({ _sum: { amount: true }, where: { status: "PAID", createdAt: { gte: ago7d } } }),
       db.product.findMany({ where: { stockCount: { lte: 5 }, isActive: true }, select: { title: true, stockCount: true, id: true } }),
-      db.user.findMany({ take: 5, orderBy: { orders: { _count: "desc" } }, select: { email: true, name: true } })
+      db.user.findMany({ take: 5, orderBy: { orders: { _count: "desc" } }, select: { email: true, name: true } }),
+      db.order.findMany({ take: 5, orderBy: { createdAt: "desc" }, include: { user: { select: { email: true } } } }),
+      db.socialBlast.count(),
     ]);
 
     const totalRev = Number(revenueTotal._sum?.amount ?? 0).toFixed(2);
-    const rev24h = Number(revenue24h._sum?.amount ?? 0).toFixed(2);
-    
-    const BRAND_BIBLE = `
-NAME: MetraMart
-IDENTITY: World's #1 Premium Digital Marketplace.
-BRAIN: Metra AI (Total Control Administrative Interface).
-INVENTORY: Streaming (Netflix, Spotify, YT Premium), AI Tools (ChatGPT Plus, Midjourney), Software (Windows, Adobe), Gaming (Xbox Game Pass).
-RULES: 
-1. Identify yourself in brackets at the start.
-2. If orchestrationMode="task", use TOOLS for ANY execution.
-3. If orchestrationMode="marketing", follow STRICT_CLEAN_TEXT.
-`;
+    const rev24h   = Number(revenue24h._sum?.amount ?? 0).toFixed(2);
+    const rev7d    = Number(revenue7d._sum?.amount ?? 0).toFixed(2);
 
-    const SPECIALIZED_PROMPTS: Record<string, string> = {
-      seo: `[Metra AI - SEO Specialist (OWL)] You are a Page 1 ranking expert. Analyze keywords and suggest metadata improvements for top visibility.`,
-      marketing: `[Metra AI - Marketing Specialist (GPT)] You are a world-class CMO. Write high-conversion, emoji-rich copy. NO bold or headers.`,
-      strategy: `[Metra AI - Strategy Thinker (Qwen)] You are a business growth analyst. Use data to suggest monetization improvements and churn reduction.`,
-      task: `[Metra AI - Task Engine (Ring)] YOU ARE THE EXECUTOR. Trigger Discord, Email, and DB actions using TOOLS. Confirm every operation.`,
-      general: `[Metra AI - General (Nemotron)] Total administrative support. Guide the admin through MetraMart operations.`,
+    // ── Mode Detection ─────────────────────────────────────────────────────────
+    const CONTEXT_MODELS: Record<string, string> = {
+      seo:       "google/gemini-2.0-flash-001",
+      marketing: "google/gemini-2.0-flash-001",
+      strategy:  "google/gemini-2.0-flash-001",
+      task:      "google/gemini-2.0-flash-001",
+      general:   "google/gemini-2.0-flash-001",
     };
 
     let orchestrationMode = context || "auto";
     if (orchestrationMode === "auto") {
       const lastMsg = (messages[messages.length - 1]?.content || "").toLowerCase();
-      if (/seo|keyword|meta|rank|optimize/.test(lastMsg)) orchestrationMode = "seo";
-      else if (/campaign|social|post|market|facebook|ig|ads|copy|newsletter/.test(lastMsg)) orchestrationMode = "marketing";
-      else if (/strategy|plan|growth|revenue|monetize|profit/.test(lastMsg)) orchestrationMode = "strategy";
-      else if (/run|execute|push|send|task|blog|email|discord|action|update/.test(lastMsg)) orchestrationMode = "task";
+      if (/seo|keyword|meta|rank|optimize|serp/.test(lastMsg))                          orchestrationMode = "seo";
+      else if (/campaign|social|post|market|facebook|ig|ads|copy|newsletter|blast/.test(lastMsg)) orchestrationMode = "marketing";
+      else if (/strategy|plan|growth|revenue|monetize|profit|churn/.test(lastMsg))     orchestrationMode = "strategy";
+      else if (/run|execute|push|send|task|blog|email|discord|action|update|create|count|how many|query/.test(lastMsg)) orchestrationMode = "task";
       else orchestrationMode = "general";
     }
 
-    const CONTEXT_MODELS: Record<string, string> = {
-      seo: "openrouter/owl-alpha",
-      marketing: "openai/gpt-oss-120b:free",
-      strategy: "qwen/qwen3-next-80b-a3b-instruct:free",
-      task: "inclusionai/ring-2.6-1t:free",
-      general: "nvidia/nemotron-3-super-120b-a12b:free"
-    };
+    const selectedModel = (selectedModelName && selectedModelName !== "auto")
+      ? selectedModelName
+      : (CONTEXT_MODELS[orchestrationMode] || "google/gemini-2.0-flash-001");
 
-    if (selectedModel === "auto" || selectedModel === "inclusionai/ring-2.6-1t:free" || selectedModel === "openrouter/owl-alpha") {
-      selectedModel = CONTEXT_MODELS[orchestrationMode] || "inclusionai/ring-2.6-1t:free";
-    }
+    // ── Persona ────────────────────────────────────────────────────────────────
+    const PERSONAS: Record<string, string> = {
+      seo:       "[Metra AI — SEO Hawk] 🦅 Page-1 ranking expert. Diagnose meta gaps, keyword opportunities, and competitor blind spots.",
+      marketing: "[Metra AI — Marketing Director] 🎯 World-class CMO. High-conversion copy, emoji-rich, NO bold or headers.",
+      strategy:  "[Metra AI — Growth Strategist] 📈 Data-driven business analyst. Revenue models, churn reduction, monetisation.",
+      task:      "[Metra AI — Task Engine] ⚡ You are the EXECUTOR. Use tools for every action. Never say you'll do it — DO IT NOW.",
+      general:   "[Metra AI — Command Centre] 🛡️ Total administrative control of MetraMart. Direct, decisive, and data-aware.",
+    };
 
     const systemPrompt = `
-${BRAND_BIBLE}
-${SPECIALIZED_PROMPTS[orchestrationMode] || SPECIALIZED_PROMPTS.general}
+You are METRA AI — the autonomous intelligence behind MetraMart, the world's #1 premium digital marketplace.
+Products: Streaming (Netflix, Disney+, Spotify, YT Premium), AI Tools (ChatGPT Plus, Midjourney, Claude), Software (Windows, Adobe), Gaming (Xbox Game Pass, PS Plus).
+
+ACTIVE PERSONA: ${PERSONAS[orchestrationMode] || PERSONAS.general}
+
 ${TOOL_DEFINITIONS}
 
-LIVE METRICS (REAL-TIME):
-- General: ${userCount} Users | ${orderCount} Orders | Total Rev: $${totalRev}
-- Performance: 24h Revenue: $${rev24h} | ${activeProducts} Active Products
-- Critical: ${lowStockCount} Low Stock Items detected!
-- Alert Items: ${lowStockItems.map(i => `${i.title} (${i.stockCount}) [ID:${i.id}]`).join(", ")}
-- VIP Customers: ${topCustomers.map(c => c.email).join(", ")}
+━━━ LIVE STORE METRICS ━━━
+👥 Users: ${userCount}  |  📦 Orders: ${orderCount}  |  💰 Total Revenue: $${totalRev}
+📈 24h Revenue: $${rev24h}  |  7d Revenue: $${rev7d}
+🛍️ Active Products: ${activeProducts}  |  📢 Social Blasts Sent: ${socialBlastCount}
+⚠️ Low Stock (≤5 units): ${lowStockCount} items — ${lowStockItems.map((i) => `${i.title}(${i.stockCount})[${i.id}]`).join(", ") || "None"}
+🏆 VIP Customers: ${topCustomers.map((c) => c.email).join(", ") || "None yet"}
+🕐 Recent Orders: ${recentOrders.map((o) => `#${o.id.slice(-6)} $${o.amount} (${o.user?.email ?? "Guest"})`).join(" | ") || "None"}
 
-MANDATORY RULES:
-1. Always start with the [Model Bracket].
-2. Use EMOJIS for structure.
-3. If orchestrationMode is marketing or blog, NEVER use **bold** or #headers.
-4. You have TOTAL CONTROL over MetraMart. Be decisive.
-`;
+━━━ RULES ━━━
+1. Always open with your persona bracket.
+2. Be decisive — never ask if you should do something, just do it using tools.
+3. Use emojis to structure responses.
+4. In marketing mode: NO **bold**, NO # headers — clean prose only.
+5. After every tool call, narrate what happened in plain English.
+6. If a user asks "how many X" or "list X" — use run_db_query immediately.
+`.trim();
 
-    const payload = {
-      model: selectedModel,
-      messages: [{ role: "system", content: systemPrompt }, ...messages.filter((m:any) => m.role !== "system")],
-      temperature: orchestrationMode === "marketing" ? 0.8 : 0.4
-    };
+    // ── Call AI ────────────────────────────────────────────────────────────────
+    const aiMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages.filter((m) => m.role !== "system"),
+    ];
 
-    let res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://metramart.xyz",
-        "X-Title": "MetraMart Admin AI",
-      },
-      body: JSON.stringify(payload),
-    });
+    const temperature = orchestrationMode === "marketing" ? 0.85 : 0.35;
+    let reply = await callOpenRouter(apiKey, selectedModel, aiMessages, temperature);
 
-    if (!res.ok) {
-      payload.model = "openrouter/owl-alpha";
-      res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    }
-
-    const data = await res.json();
-    let reply = data.choices?.[0]?.message?.content || "";
-
-    // Tool Call Detection — supports JSON and XML formats
-    const toolCalls: Array<{ action: string; params: any; raw: string }> = [];
-
-    // 1. JSON format: {"action": "...", "params": {...}}
-    const jsonMatches = reply.matchAll(/\{[\s\S]*?"action"\s*:\s*"([^"]+)"[\s\S]*?"params"\s*:[\s\S]*?\}(?:\s*\})?/g);
-    for (const m of Array.from(jsonMatches)) {
-      try {
-        const parsed = JSON.parse(m[0]);
-        if (parsed?.action && parsed?.params !== undefined) {
-          toolCalls.push({ action: parsed.action, params: parsed.params, raw: m[0] });
-        }
-      } catch (e) {}
-    }
-
-    // 2. XML format: <tool_call>action_name<arg_key>key</arg_key><arg_value>value</arg_value>...</tool_call>
-    const xmlMatches = reply.matchAll(/<tool_call>([\s\S]*?)<\/tool_call>/g);
-    for (const m of Array.from(xmlMatches)) {
-      try {
-        const block = m[1].trim();
-        // Extract action name (text before first <arg_key>)
-        const actionMatch = block.match(/^([a-z_]+)/);
-        if (!actionMatch) continue;
-        const action = actionMatch[1];
-        // Extract all arg_key/arg_value pairs
-        const params: Record<string, any> = {};
-        const argPairs = block.matchAll(/<arg_key>([^<]+)<\/arg_key>\s*<arg_value>([\s\S]*?)<\/arg_value>/g);
-        for (const pair of Array.from(argPairs)) {
-          const key = pair[1].trim();
-          let value: any = pair[2].trim();
-          // Try to parse JSON values (objects, arrays, numbers, booleans)
-          try { value = JSON.parse(value); } catch (_) {}
-          params[key] = value;
-        }
-        toolCalls.push({ action, params, raw: m[0] });
-      } catch (e) {}
-    }
-
+    // ── Execute Tool Calls ────────────────────────────────────────────────────
+    const toolCalls = parseToolCalls(reply);
     if (toolCalls.length > 0) {
       let cleanReply = reply;
       const results: string[] = [];
+
       for (const tc of toolCalls) {
         cleanReply = cleanReply.replace(tc.raw, "").trim();
-        const toolResult = await executeTool({ action: tc.action, params: tc.params }, origin, bypassHeaders);
-        results.push(toolResult);
+        const result = await executeTool(tc, origin, bypassHeaders);
+        results.push(result);
       }
-      // Remove leftover "Clear Console" artifacts and extra whitespace
-      cleanReply = cleanReply.replace(/Clear\s*Console/gi, "").trim();
-      reply = `${cleanReply}\n\n**Action Results:**\n${results.join("\n")}`;
+
+      // Strip model noise
+      cleanReply = cleanReply
+        .replace(/Clear\s*Console/gi, "")
+        .replace(/<\/?tool_call>/g, "")
+        .replace(/<arg_key>[^<]*<\/arg_key>/g, "")
+        .replace(/<arg_value>[^<]*<\/arg_value>/g, "")
+        .trim();
+
+      reply = cleanReply
+        ? `${cleanReply}\n\n━━━ Action Results ━━━\n${results.join("\n")}`
+        : `━━━ Action Results ━━━\n${results.join("\n")}`;
     }
 
     return NextResponse.json({ reply });
   } catch (err) {
-    console.error("[AI API] Error:", err);
+    console.error("[Metra AI] Critical Error:", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
