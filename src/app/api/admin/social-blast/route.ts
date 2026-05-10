@@ -26,10 +26,14 @@ export async function POST(req: NextRequest) {
       product = await db.product.findUnique({ where: { id: productId } });
     } else {
       const products = await db.product.findMany({ where: { isActive: true }, take: 20 });
-      product = products[Math.floor(Math.random() * products.length)];
+      if (products.length > 0) {
+        product = products[Math.floor(Math.random() * products.length)];
+      }
     }
 
-    if (!product) return NextResponse.json({ error: "No products available." }, { status: 404 });
+    if (!product) {
+      return NextResponse.json({ error: "No products available to blast. Create a product first." }, { status: 404 });
+    }
 
     // 2. Fetch Settings
     const settings = await db.siteSetting.findMany({
@@ -61,119 +65,123 @@ export async function POST(req: NextRequest) {
 
     // 3. Multi-Format AI Generation (if not manual)
     if (!manualContent) {
-      if (!apiKey) return NextResponse.json({ error: "AI Key missing for generation." }, { status: 503 });
+      if (!apiKey) {
+        // Fallback if no API key
+        finalAds = platforms.reduce((acc: any, p: string) => {
+          acc[p] = `Check out our new ${product.title}! Only $${Number(product.price).toFixed(2)}. {{TRACKING_LINK}}`;
+          return acc;
+        }, {});
+      } else {
+        const platformPrompts = {
+          twitter: "Short punchy tweet < 280 chars with emojis and trending hashtags",
+          instagram: "Engaging story-style caption with emojis and hashtags",
+          facebook: "Professional yet exciting long-form post with a clear Call to Action",
+          discord: "Markdown formatted announcement with bold headers and bullet points",
+          linkedin: "Professional, value-driven post focusing on benefits",
+          telegram: "Short, direct broadcast message with emojis",
+          pinterest: "Inspirational and descriptive pin caption with keywords and hashtags",
+        };
 
-      const platformPrompts = {
-        twitter: "Short punchy tweet < 280 chars with emojis and trending hashtags",
-        instagram: "Engaging story-style caption with emojis and hashtags",
-        facebook: "Professional yet exciting long-form post with a clear Call to Action",
-        discord: "Markdown formatted announcement with bold headers and bullet points",
-        linkedin: "Professional, value-driven post focusing on benefits",
-        telegram: "Short, direct broadcast message with emojis",
-        pinterest: "Inspirational and descriptive pin caption with keywords and hashtags",
-      };
+        const requestedPlatforms = platforms.reduce((acc: any, p: string) => {
+          if ((platformPrompts as any)[p]) acc[p] = (platformPrompts as any)[p];
+          return acc;
+        }, {});
 
-      const requestedPlatforms = platforms.reduce((acc: any, p: string) => {
-        if ((platformPrompts as any)[p]) acc[p] = (platformPrompts as any)[p];
-        return acc;
-      }, {});
+        try {
+          const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+              "HTTP-Referer": "https://metramart.xyz",
+              "X-Title": "MetraMart Admin",
+            },
+            body: JSON.stringify({
+              model: "openai/gpt-4o-mini",
+              messages: [
+                { role: "system", content: `You are the Metra AI Marketing Director. Tone: ${tone}. Length: ${length}. Generate JSON ads for: ${Object.keys(requestedPlatforms).join(", ")}. Include {{TRACKING_LINK}}.` },
+                { role: "user", content: `Product: ${product.title}\nDescription: ${product.description}\nPrice: $${Number(product.price).toFixed(2)}` }
+              ],
+              temperature: 0.8,
+              response_format: { type: "json_object" }
+            }),
+          });
 
-      const systemPrompt = `You are the Metra AI Marketing Director. 
-Tone: ${tone}. 
-Content Length: ${length}.
-Generate a multi-platform marketing blast for this product. 
-${includeImage ? "Also generate a 'dalle_prompt' that would create a stunning high-converting social media image for this product." : ""}
-Return a JSON object with keys for each platform: ${Object.keys(requestedPlatforms).join(", ")} ${includeImage ? "and 'dalle_prompt'" : ""}.
-Ensure each platform's content is unique and optimized for that specific medium.
-Include the tracking link: {{TRACKING_LINK}} in every post where appropriate.`;
-
-      const userPrompt = `Product: ${product.title}\nDescription: ${product.description}\nCategory: ${product.category}\nPrice: $${Number(product.price).toFixed(2)}`;
-
-      const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "openai/gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
-          ],
-          temperature: 0.8,
-          response_format: { type: "json_object" }
-        }),
-      });
-
-      const aiData = await aiRes.json();
-      let ads: any = {};
-      try {
-        ads = JSON.parse(aiData.choices?.[0]?.message?.content || "{}");
-        dallePrompt = ads.dalle_prompt || "";
-      } catch (e) {
-        console.error("AI JSON Parse Error:", e);
-        ads = { twitter: "Check out " + product.title + "!" };
-      }
-
-      // 4. Inject Tracking Links
-      const origin = new URL(req.url).origin;
-      for (const platform of platforms) {
-        if (ads[platform]) {
-          const trackingLink = `${origin}/api/social/click/${blast.id}/${platform}`;
-          finalAds[platform] = ads[platform].replace("{{TRACKING_LINK}}", trackingLink);
-          if (!finalAds[platform].includes(trackingLink)) {
-            finalAds[platform] += `\n\nCheck it out: ${trackingLink}`;
+          if (aiRes.ok) {
+            const aiData = await aiRes.json();
+            const ads = JSON.parse(aiData.choices?.[0]?.message?.content || "{}");
+            dallePrompt = ads.dalle_prompt || "";
+            // Merge generated ads
+            for (const p of platforms) {
+              if (ads[p]) finalAds[p] = ads[p];
+            }
+          } else {
+            console.error("OpenRouter Error:", await aiRes.text());
+            throw new Error("AI Service Unavailable");
           }
-        }
-      }
-    } else {
-      // Manual content tracking link injection
-      const origin = new URL(req.url).origin;
-      for (const platform of platforms) {
-        if (finalAds[platform]) {
-          const trackingLink = `${origin}/api/social/click/${blast.id}/${platform}`;
-          finalAds[platform] = finalAds[platform].split("{{TRACKING_LINK}}").join(trackingLink);
+        } catch (e) {
+          console.error("AI Generation Failed, using fallback:", e);
+          platforms.forEach((p: string) => {
+            if (!finalAds[p]) finalAds[p] = `Check out ${product.title}! Available now for $${Number(product.price).toFixed(2)}. {{TRACKING_LINK}}`;
+          });
         }
       }
     }
 
-    // 5. Execution
+    // 4. Inject Tracking Links
+    const reqUrl = new URL(req.url);
+    const origin = reqUrl.origin;
+    for (const p of platforms) {
+      if (finalAds[p]) {
+        const trackingLink = `${origin}/api/social/click/${blast.id}/${p}`;
+        finalAds[p] = finalAds[p].split("{{TRACKING_LINK}}").join(trackingLink);
+        // If not present, append it
+        if (!finalAds[p].includes(trackingLink)) {
+          finalAds[p] += `\n\nLink: ${trackingLink}`;
+        }
+      }
+    }
+
+    // 5. Execution (Discord & Zapier)
     const secret = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
     const bypassHeaders = { 
       "Content-Type": "application/json",
       "X-Internal-AI-Bypass": secret 
     };
-    const origin = new URL(req.url).origin;
     const successDestinations = [];
 
     if (platforms.includes("discord") && finalAds.discord) {
-      const dRes = await fetch(`${origin}/api/admin/discord-push`, {
-        method: "POST",
-        headers: bypassHeaders,
-        body: JSON.stringify({ message: `🚀 **SOCIAL BLAST** 🚀\n\n${finalAds.discord}` }),
-      });
-      if (dRes.ok) successDestinations.push("Discord");
-      else console.error("Discord Push Failed:", await dRes.text());
+      try {
+        const dRes = await fetch(`${origin}/api/admin/discord-push`, {
+          method: "POST",
+          headers: bypassHeaders,
+          body: JSON.stringify({ message: `🚀 **SOCIAL BLAST** 🚀\n\n${finalAds.discord}` }),
+        });
+        if (dRes.ok) successDestinations.push("Discord");
+      } catch (err) {
+        console.error("Discord Loopback Failed:", err);
+      }
     }
 
-    if (zapierUrl) {
-      await fetch(zapierUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event: "social_blast",
-          blastId: blast.id,
-          product: product.title,
-          price: Number(product.price).toFixed(2),
-          url: `${appUrl}/checkout/confirm?productId=${product.id}`,
-          ads: finalAds,
-          imagePrompt: dallePrompt,
-          manualImage: manualImage,
-          timestamp: new Date().toISOString()
-        }),
-      }).catch(err => console.error("Zapier Push Failed:", err));
-      successDestinations.push("Zapier (Meta/X/LinkedIn/Pinterest)");
+    // 5b. Pinterest Direct Push (if token available)
+    if (platforms.includes("pinterest") && finalAds.pinterest) {
+      try {
+        const pinterestRes = await fetch("https://api.pinterest.com/v5/pins", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.PINTEREST_ACCESS_TOKEN}`,
+          },
+          body: JSON.stringify({
+            board_id: process.env.PINTEREST_BOARD_ID || "",
+            note: finalAds.pinterest,
+            link: finalAds.pinterest.includes("http") ? finalAds.pinterest : undefined,
+          }),
+        });
+        if (pinterestRes.ok) successDestinations.push("Pinterest");
+      } catch (err) {
+        console.error("Pinterest Push Failed:", err);
+      }
     }
 
     // 6. Finalize DB Entry
@@ -195,8 +203,10 @@ Include the tracking link: {{TRACKING_LINK}} in every post where appropriate.`;
     });
 
   } catch (error) {
-    console.error("[Social Blast Error]:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("[Social Blast Critical Error]:", error);
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : "Internal server error" 
+    }, { status: 500 });
   }
 }
 

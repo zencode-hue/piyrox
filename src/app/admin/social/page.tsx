@@ -68,6 +68,7 @@ export default function SocialMarketingPage() {
       case "facebook": return <Facebook size={14} className="text-[#1877F2]" />;
       case "discord": return <MessageSquare size={14} className="text-[#5865F2]" />;
       case "linkedin": return <Linkedin size={14} className="text-[#0A66C2]" />;
+      case "pinterest": return <Layout size={14} className="text-[#E60023]" />;
       default: return <Globe size={14} className="text-gray-400" />;
     }
   };

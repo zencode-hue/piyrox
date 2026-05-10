@@ -72,6 +72,10 @@ export default function BlastConfigurator({ onBlast }: { onBlast: (config: any) 
     try {
       // Small delay to simulate AI writing if needed, or we could call a specialized endpoint
       // For now, we'll let the main API handle it if they leave it blank, but let's provide a "Draft"
+
+  const generateAIContent = async (platform: string) => {
+    setIsWriting(platform);
+    try {
       const res = await fetch("/api/admin/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,9 +85,14 @@ export default function BlastConfigurator({ onBlast }: { onBlast: (config: any) 
         })
       });
       const data = await res.json();
-      setManualContent(prev => ({ ...prev, [platform]: data.reply }));
+      if (data.reply) {
+        setManualContent(prev => ({ ...prev, [platform]: data.reply }));
+      } else if (data.error) {
+        setManualContent(prev => ({ ...prev, [platform]: `⚠️ AI Writer Error: ${data.error}` }));
+      }
     } catch (e) {
       console.error(e);
+      setManualContent(prev => ({ ...prev, [platform]: "⚠️ Connection error. Please try writing manually." }));
     } finally {
       setIsWriting(null);
     }
