@@ -83,16 +83,32 @@ async function executeTool(
 
       // ── Database ─────────────────────────────────────────────────────────────
       case "run_db_query": {
-        const { model, action, args } = tool.params as {
+        let { model, action, args } = tool.params as {
           model: string;
           action: string;
-          args: Record<string, unknown>;
+          args: any;
         };
         const { db: prisma } = await import("@/lib/db");
+        
+        // Fix for common AI mistakes
+        if (action === "aggregate" && args?.count === true) {
+          action = "count";
+          delete args.count;
+        }
+
+        // Ensure args are wrapped in 'where' for count/findMany/findUnique if they look like filters
+        if (["count", "findMany", "findUnique", "aggregate"].includes(action)) {
+          if (args && !args.where && !args.select && !args.include && !args._count && !args.data) {
+            // If they just passed filters, wrap them
+            args = { where: args };
+          }
+        }
+
         const dbModel = (prisma as unknown as Record<string, unknown>)[model] as Record<string, Function> | undefined;
         if (!dbModel || typeof dbModel[action] !== "function") {
           return `❌ Invalid model/action: ${model}.${action}`;
         }
+        
         const result = await dbModel[action](args ?? {});
         return `✅ DB Result (${model}.${action}): ${JSON.stringify(result, null, 2).substring(0, 1500)}`;
       }
