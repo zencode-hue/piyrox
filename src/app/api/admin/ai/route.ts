@@ -241,24 +241,54 @@ MANDATORY RULES:
     const data = await res.json();
     let reply = data.choices?.[0]?.message?.content || "";
 
-    // Tool Call Detection
-    let toolCall = null;
-    let toolMatchStr = "";
-    const bruteMatch = reply.match(/\{[\s\S]*"action"\s*:\s*"[^"]+"[\s\S]*"params"\s*:[\s\S]*\}/);
-    if (bruteMatch) {
+    // Tool Call Detection — supports JSON and XML formats
+    const toolCalls: Array<{ action: string; params: any; raw: string }> = [];
+
+    // 1. JSON format: {"action": "...", "params": {...}}
+    const jsonMatches = reply.matchAll(/\{[\s\S]*?"action"\s*:\s*"([^"]+)"[\s\S]*?"params"\s*:[\s\S]*?\}(?:\s*\})?/g);
+    for (const m of Array.from(jsonMatches)) {
       try {
-        const parsed = JSON.parse(bruteMatch[0]);
-        if (parsed?.action && parsed?.params) {
-          toolCall = parsed;
-          toolMatchStr = bruteMatch[0];
+        const parsed = JSON.parse(m[0]);
+        if (parsed?.action && parsed?.params !== undefined) {
+          toolCalls.push({ action: parsed.action, params: parsed.params, raw: m[0] });
         }
       } catch (e) {}
     }
 
-    if (toolCall) {
-      const toolResult = await executeTool(toolCall, origin, bypassHeaders);
-      const cleanReply = reply.replace(toolMatchStr, "").trim();
-      reply = `${cleanReply}\n\n**Action Result:**\n${toolResult}`;
+    // 2. XML format: <tool_call>action_name<arg_key>key</arg_key><arg_value>value</arg_value>...</tool_call>
+    const xmlMatches = reply.matchAll(/<tool_call>([\s\S]*?)<\/tool_call>/g);
+    for (const m of Array.from(xmlMatches)) {
+      try {
+        const block = m[1].trim();
+        // Extract action name (text before first <arg_key>)
+        const actionMatch = block.match(/^([a-z_]+)/);
+        if (!actionMatch) continue;
+        const action = actionMatch[1];
+        // Extract all arg_key/arg_value pairs
+        const params: Record<string, any> = {};
+        const argPairs = block.matchAll(/<arg_key>([^<]+)<\/arg_key>\s*<arg_value>([\s\S]*?)<\/arg_value>/g);
+        for (const pair of Array.from(argPairs)) {
+          const key = pair[1].trim();
+          let value: any = pair[2].trim();
+          // Try to parse JSON values (objects, arrays, numbers, booleans)
+          try { value = JSON.parse(value); } catch (_) {}
+          params[key] = value;
+        }
+        toolCalls.push({ action, params, raw: m[0] });
+      } catch (e) {}
+    }
+
+    if (toolCalls.length > 0) {
+      let cleanReply = reply;
+      const results: string[] = [];
+      for (const tc of toolCalls) {
+        cleanReply = cleanReply.replace(tc.raw, "").trim();
+        const toolResult = await executeTool({ action: tc.action, params: tc.params }, origin, bypassHeaders);
+        results.push(toolResult);
+      }
+      // Remove leftover "Clear Console" artifacts and extra whitespace
+      cleanReply = cleanReply.replace(/Clear\s*Console/gi, "").trim();
+      reply = `${cleanReply}\n\n**Action Results:**\n${results.join("\n")}`;
     }
 
     return NextResponse.json({ reply });
