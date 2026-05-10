@@ -276,10 +276,9 @@ function parseToolCalls(reply: string): ToolCall[] {
 
 // ─── Model Fallback Chain ─────────────────────────────────────────────────────
 const FALLBACK_MODELS = [
-  "google/gemini-2.0-flash-001",
-  "openai/gpt-4o-mini",
-  "anthropic/claude-3-haiku",
-  "meta-llama/llama-3.1-8b-instruct:free",
+  "google/gemma-4-31b-it:free",
+  "openrouter/owl-alpha",
+  "openai/gpt-oss-120b:free",
 ];
 
 async function callOpenRouter(
@@ -390,26 +389,26 @@ export async function POST(req: NextRequest) {
 
     // ── Mode Detection ─────────────────────────────────────────────────────────
     const CONTEXT_MODELS: Record<string, string> = {
-      seo:       "google/gemini-2.0-flash-001",
-      marketing: "google/gemini-2.0-flash-001",
-      strategy:  "google/gemini-2.0-flash-001",
-      task:      "google/gemini-2.0-flash-001",
-      general:   "google/gemini-2.0-flash-001",
+      seo:       "openrouter/owl-alpha",
+      marketing: "openai/gpt-oss-120b:free",
+      strategy:  "openai/gpt-oss-120b:free",
+      task:      "google/gemma-4-31b-it:free",
+      general:   "google/gemma-4-31b-it:free",
     };
 
     let orchestrationMode = context || "auto";
     if (orchestrationMode === "auto") {
       const lastMsg = (messages[messages.length - 1]?.content || "").toLowerCase();
       if (/seo|keyword|meta|rank|optimize|serp/.test(lastMsg))                          orchestrationMode = "seo";
-      else if (/campaign|social|post|market|facebook|ig|ads|copy|newsletter|blast/.test(lastMsg)) orchestrationMode = "marketing";
+      else if (/campaign|social|post|market|facebook|ig|ads|copy|newsletter|blast|write|description|content|blog|story|article/.test(lastMsg)) orchestrationMode = "marketing";
       else if (/strategy|plan|growth|revenue|monetize|profit|churn/.test(lastMsg))     orchestrationMode = "strategy";
-      else if (/run|execute|push|send|task|blog|email|discord|action|update|create|count|how many|query/.test(lastMsg)) orchestrationMode = "task";
+      else if (/run|execute|push|send|task|discord|action|update|create|count|how many|query|delete|edit|change|email/.test(lastMsg)) orchestrationMode = "task";
       else orchestrationMode = "general";
     }
 
     const selectedModel = (selectedModelName && selectedModelName !== "auto")
       ? selectedModelName
-      : (CONTEXT_MODELS[orchestrationMode] || "google/gemini-2.0-flash-001");
+      : (CONTEXT_MODELS[orchestrationMode] || "google/gemma-4-31b-it:free");
 
     // ── Persona ────────────────────────────────────────────────────────────────
     const PERSONAS: Record<string, string> = {

@@ -12,12 +12,9 @@ interface Message {
 
 const AI_MODELS = [
   { id: "auto", name: "Auto Routing (Recommended)", tag: "AI Engine" },
-  { id: "inclusionai/ring-2.6-1t:free", name: "Ring 2.6 (Task Pro)", tag: "Tasks" },
+  { id: "google/gemma-4-31b-it:free", name: "Gemma 4 (Main)", tag: "Tasks/Email" },
   { id: "openrouter/owl-alpha", name: "OWL Alpha", tag: "SEO" },
-  { id: "google/gemma-4-26b-a4b-it:free", name: "Gemma 4", tag: "Research" },
-  { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3", tag: "Multi" },
-  { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen 3 Next", tag: "Strategy" },
-  { id: "openai/gpt-oss-120b:free", name: "GPT OSS", tag: "Marketing" },
+  { id: "openai/gpt-oss-120b:free", name: "GPT OSS", tag: "Strategy/Writing" },
 ];
 
 const QUICK_PROMPTS = [
