@@ -104,6 +104,26 @@ async function executeTool(
           }
         }
 
+        // Helper to replace date placeholders
+        const processDates = (obj: any) => {
+          if (!obj || typeof obj !== "object") return;
+          const now = new Date();
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
+          
+          for (const key in obj) {
+            if (typeof obj[key] === "string") {
+              if (obj[key] === "TODAY_START") obj[key] = startOfToday.toISOString();
+              else if (obj[key] === "TODAY_END") obj[key] = now.toISOString();
+              else if (obj[key] === "YESTERDAY_START") obj[key] = startOfYesterday.toISOString();
+              else if (obj[key] === "NOW") obj[key] = now.toISOString();
+            } else if (typeof obj[key] === "object") {
+              processDates(obj[key]);
+            }
+          }
+        };
+        processDates(args);
+
         const dbModel = (prisma as unknown as Record<string, unknown>)[model] as Record<string, Function> | undefined;
         if (!dbModel || typeof dbModel[action] !== "function") {
           return `❌ Invalid model/action: ${model}.${action}`;
@@ -314,6 +334,7 @@ TOOL RULES:
 - XML format: <tool_call>action_name<arg_key>k</arg_key><arg_value>v</arg_value></tool_call>
 - After triggering a tool, confirm it with a human-readable summary.
 - Never show raw code to the admin — wrap it in your narration.
+- For DB dates, you can use: "TODAY_START", "TODAY_END", "YESTERDAY_START", "NOW".
 `;
 
 // ─── Main Route ───────────────────────────────────────────────────────────────
