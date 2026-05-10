@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     const sampledProducts = products.slice(0, 20);
     if (sampledProducts.length > 0) {
       totalCheckPoints += sampledProducts.length;
-      sampledProducts.forEach(p => {
+      sampledProducts.forEach((p: any) => {
         if (p.description && p.description.length > 100) healthPoints++;
       });
     }
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     const sampledBlogs = blogPosts.slice(0, 10);
     if (sampledBlogs.length > 0) {
       totalCheckPoints += sampledBlogs.length;
-      sampledBlogs.forEach(b => {
+      sampledBlogs.forEach((b: any) => {
         if (b.excerpt && b.excerpt.length > 20) healthPoints++;
       });
     }
