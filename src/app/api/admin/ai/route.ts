@@ -136,15 +136,16 @@ async function executeTool(
           percent: number;
           maxUses?: number;
         };
-        const discount = await db.discount.create({
+        const discount = await db.discountCode.create({
           data: {
             code: code.toUpperCase(),
-            percent,
-            maxUses: maxUses ?? 100,
-            isActive: true,
+            type: "PERCENTAGE",
+            value: percent,
+            usageLimit: maxUses ?? 100,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default 30 days
           },
         });
-        return `✅ Discount code "${discount.code}" created: ${percent}% off (max ${discount.maxUses} uses).`;
+        return `✅ Discount code "${discount.code}" created: ${percent}% off (Limit: ${discount.usageLimit}).`;
       }
 
       default:
@@ -265,7 +266,7 @@ AVAILABLE TOOLS — respond with JSON tool call when execution is needed:
 { "action": "push_discord_deals", "params": {} }
 { "action": "send_discord_message", "params": { "message": "str" } }
 { "action": "send_email", "params": { "audience": "all|customers|guests|custom", "subject": "str", "message": "str", "customEmail": "str" } }
-{ "action": "run_db_query", "params": { "model": "user|product|order|blogPost|socialBlast|discount", "action": "count|findMany|findUnique|aggregate", "args": {} } }
+{ "action": "run_db_query", "params": { "model": "user|product|order|blogPost|socialBlast|discountCode", "action": "count|findMany|findUnique|aggregate", "args": {} } }
 { "action": "update_inventory_count", "params": { "productId": "str", "count": 10 } }
 { "action": "social_media_blast", "params": { "productId": "str", "platforms": ["twitter","instagram","facebook","discord","telegram","pinterest"], "tone": "str" } }
 { "action": "toggle_product", "params": { "productId": "str", "active": true } }
