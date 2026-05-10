@@ -96,8 +96,9 @@ async function executeTool(
           delete args.count;
         }
 
-        // Ensure args are wrapped in 'where' for count/findMany/findUnique if they look like filters
-        if (["count", "findMany", "findUnique", "aggregate"].includes(action)) {
+        // Ensure args are wrapped in 'where' for read actions if they look like filters
+        const readActions = ["count", "findMany", "findUnique", "findFirst", "aggregate"];
+        if (readActions.includes(action)) {
           if (args && !args.where && !args.select && !args.include && !args._count && !args.data) {
             // If they just passed filters, wrap them
             args = { where: args };
@@ -321,7 +322,7 @@ AVAILABLE TOOLS — respond with JSON tool call when execution is needed:
 { "action": "push_discord_deals", "params": {} }
 { "action": "send_discord_message", "params": { "message": "str" } }
 { "action": "send_email", "params": { "audience": "all|customers|guests|custom", "subject": "str", "message": "str", "customEmail": "str" } }
-{ "action": "run_db_query", "params": { "model": "user|product|order|blogPost|socialBlast|discountCode|pageView", "action": "count|findMany|findUnique|aggregate", "args": {} } }
+{ "action": "run_db_query", "params": { "model": "user|product|order|blogPost|socialBlast|discountCode|pageView", "action": "count|findMany|findUnique|aggregate|create|update|delete|updateMany|deleteMany|upsert", "args": {} } }
 { "action": "update_inventory_count", "params": { "productId": "str", "count": 10 } }
 { "action": "social_media_blast", "params": { "productId": "str", "platforms": ["twitter","instagram","facebook","discord","telegram","pinterest"], "tone": "str" } }
 { "action": "toggle_product", "params": { "productId": "str", "active": true } }
@@ -441,7 +442,9 @@ ${TOOL_DEFINITIONS}
 3. Use emojis to structure responses.
 4. In marketing mode: NO **bold**, NO # headers — clean prose only.
 5. After every tool call, narrate what happened in plain English.
-6. If a user asks "how many X" or "list X" — use run_db_query immediately.
+6. You have FULL authority to READ, EDIT, and CREATE data in the database.
+7. Available Models: user, product, order, blogPost, socialBlast, discountCode, pageView, affiliate, referral, inventoryItem, productVariant, staffMember.
+8. If a user asks "how many X" or "list X" or "change X" — use run_db_query immediately.
 `.trim();
 
     // ── Call AI ────────────────────────────────────────────────────────────────
