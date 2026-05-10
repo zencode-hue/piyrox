@@ -286,7 +286,7 @@ async function callOpenRouter(
   model: string,
   messages: unknown[],
   temperature: number
-): Promise<string> {
+): Promise<{ content: string; model: string }> {
   const headers = {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
