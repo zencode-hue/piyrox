@@ -37,13 +37,27 @@ export async function POST(req: NextRequest) {
 
     // 2. Fetch Settings
     const settings = await db.siteSetting.findMany({
-      where: { key: { in: ["ai_api_key", "zapier_webhook_url"] } }
+      where: { key: { in: [
+        "ai_api_key", 
+        "zapier_webhook_url", 
+        "telegram_bot_token", 
+        "telegram_chat_id",
+        "marketing_webhook_url",
+        "pinterest_access_token",
+        "pinterest_board_id"
+      ] } }
     });
     const map: Record<string, string> = {};
     settings.forEach(s => map[s.key] = s.value);
 
     const apiKey = map["ai_api_key"];
     const zapierUrl = map["zapier_webhook_url"];
+    const tgToken = map["telegram_bot_token"];
+    const tgChatId = map["telegram_chat_id"];
+    const genericWebhook = map["marketing_webhook_url"];
+    const pinToken = map["pinterest_access_token"];
+    const pinBoardId = map["pinterest_board_id"];
+    
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
 
     // Create a SocialBlast entry
@@ -97,7 +111,7 @@ export async function POST(req: NextRequest) {
               "X-Title": "MetraMart Admin",
             },
             body: JSON.stringify({
-              model: "openai/gpt-4o-mini",
+              model: "google/gemini-2.0-flash-001",
               messages: [
                 { role: "system", content: `You are the Metra AI Marketing Director. Tone: ${tone}. Length: ${length}. Generate JSON ads for: ${Object.keys(requestedPlatforms).join(", ")}. Include {{TRACKING_LINK}}.` },
                 { role: "user", content: `Product: ${product.title}\nDescription: ${product.description}\nPrice: $${Number(product.price).toFixed(2)}` }
@@ -142,7 +156,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Execution (Discord & Zapier)
+    // 5. Execution (Multi-Platform)
     const secret = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
     const bypassHeaders = { 
       "Content-Type": "application/json",
@@ -150,6 +164,7 @@ export async function POST(req: NextRequest) {
     };
     const successDestinations = [];
 
+    // Discord Push
     if (platforms.includes("discord") && finalAds.discord) {
       try {
         const dRes = await fetch(`${origin}/api/admin/discord-push`, {
@@ -159,63 +174,69 @@ export async function POST(req: NextRequest) {
         });
         if (dRes.ok) successDestinations.push("Discord");
       } catch (err) {
-        console.error("Discord Loopback Failed:", err);
+        console.error("Discord Push Failed:", err);
       }
     }
 
-    // 5b. Pinterest Direct Push (if token available)
-    if (platforms.includes("pinterest") && finalAds.pinterest) {
+    // Telegram Push
+    if (platforms.includes("telegram") && finalAds.telegram && tgToken && tgChatId) {
       try {
-        const pinterestRes = await fetch("https://api.pinterest.com/v5/pins", {
+        const { sendToTelegram } = await import("@/lib/social");
+        const ok = await sendToTelegram(tgToken, tgChatId, `🚀 *SOCIAL BLAST* 🚀\n\n${finalAds.telegram}`);
+        if (ok) successDestinations.push("Telegram");
+      } catch (err) {
+        console.error("Telegram Push Failed:", err);
+      }
+    }
+
+    // Pinterest Push
+    if (platforms.includes("pinterest") && finalAds.pinterest && pinToken && pinBoardId) {
+      try {
+        const pRes = await fetch("https://api.pinterest.com/v5/pins", {
           method: "POST",
           headers: {
+            "Authorization": `Bearer ${pinToken}`,
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${process.env.PINTEREST_ACCESS_TOKEN}`,
           },
           body: JSON.stringify({
-            board_id: process.env.PINTEREST_BOARD_ID || "",
+            board_id: pinBoardId,
             title: product.title,
-            description: finalAds.pinterest.substring(0, 500),
+            description: finalAds.pinterest,
             link: `${origin}/api/social/click/${blast.id}/pinterest`,
             media_source: {
               source_type: "image_url",
-              url: product.imageUrl || "https://metramart.xyz/logo-square.png", // Fallback to logo
+              url: product.imageUrl || "https://metramart.xyz/logo.png",
             },
           }),
         });
-        if (pinterestRes.ok) successDestinations.push("Pinterest");
-        else {
-          const errData = await pinterestRes.json();
-          console.error("Pinterest API Error:", errData);
-        }
+        if (pRes.ok) successDestinations.push("Pinterest");
       } catch (err) {
         console.error("Pinterest Push Failed:", err);
       }
     }
-    // 5c. Zapier Webhook (for remaining platforms or multi-chain)
-    if (zapierUrl && platforms.length > 0) {
+
+    // Webhook / Zapier Push
+    const webhookUrl = genericWebhook || zapierUrl;
+    if (webhookUrl) {
       try {
-        const zapRes = await fetch(zapierUrl, {
+        await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            event: "social_blast",
             blastId: blast.id,
-            product: {
-              id: product.id,
-              title: product.title,
-              price: product.price,
-              image: product.imageUrl,
-              url: `${origin}/product/${product.slug || product.id}`
-            },
+            product: product.title,
+            price: Number(product.price).toFixed(2),
+            url: `${appUrl}/checkout/confirm?productId=${product.id}`,
             ads: finalAds,
-            platforms: platforms,
-            tone,
+            imagePrompt: dallePrompt,
+            manualImage: manualImage,
             timestamp: new Date().toISOString()
           }),
         });
-        if (zapRes.ok) successDestinations.push("Zapier");
+        successDestinations.push(genericWebhook ? "Webhook" : "Zapier");
       } catch (err) {
-        console.error("Zapier Webhook Failed:", err);
+        console.error("Webhook Push Failed:", err);
       }
     }
     // 6. Finalize DB Entry

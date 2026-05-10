@@ -162,18 +162,37 @@ function parseToolCalls(reply: string): ToolCall[] {
   const seen = new Set<string>();
 
   // 1. JSON format: {"action": "...", "params": {...}}
-  const jsonRegex = /\{\s*"action"\s*:\s*"([^"]+)"\s*,\s*"params"\s*:\s*(\{[\s\S]*?\})\s*\}/g;
-  let jm: RegExpExecArray | null;
-  while ((jm = jsonRegex.exec(reply)) !== null) {
-    const raw = jm[0];
-    if (seen.has(raw)) continue;
-    try {
-      const parsed = JSON.parse(raw) as { action: string; params: Record<string, unknown> };
-      if (parsed.action && parsed.params !== undefined) {
-        toolCalls.push({ action: parsed.action, params: parsed.params, raw });
-        seen.add(raw);
+  // We look for the pattern and then find the matching closing brace for the whole object
+  const startRegex = /\{\s*"action"\s*:\s*"([^"]+)"/g;
+  let match;
+  while ((match = startRegex.exec(reply)) !== null) {
+    const startIndex = match.index;
+    let braceCount = 0;
+    let foundEnd = false;
+    let endIndex = startIndex;
+
+    for (let i = startIndex; i < reply.length; i++) {
+      if (reply[i] === "{") braceCount++;
+      else if (reply[i] === "}") braceCount--;
+
+      if (braceCount === 0 && i > startIndex) {
+        endIndex = i + 1;
+        foundEnd = true;
+        break;
       }
-    } catch (_) {}
+    }
+
+    if (foundEnd) {
+      const raw = reply.substring(startIndex, endIndex);
+      if (seen.has(raw)) continue;
+      try {
+        const parsed = JSON.parse(raw) as { action: string; params: Record<string, unknown> };
+        if (parsed.action && parsed.params !== undefined) {
+          toolCalls.push({ action: parsed.action, params: parsed.params, raw });
+          seen.add(raw);
+        }
+      } catch (_) {}
+    }
   }
 
   // 2. XML format: <tool_call>action_name<arg_key>k</arg_key><arg_value>v</arg_value>...</tool_call>

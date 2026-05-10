@@ -13,8 +13,8 @@ const PLATFORMS = [
   { id: "instagram", name: "Instagram", icon: Instagram, color: "text-[#E4405F]" },
   { id: "facebook", name: "Facebook", icon: Facebook, color: "text-[#1877F2]" },
   { id: "discord", name: "Discord", icon: MessageSquare, color: "text-[#5865F2]" },
+  { id: "telegram", name: "Telegram", icon: Send, color: "text-[#26A5E4]" },
   { id: "linkedin", name: "LinkedIn", icon: Linkedin, color: "text-[#0A66C2]" },
-  { id: "telegram", name: "Telegram", icon: Globe, color: "text-[#26A5E4]" },
   { id: "pinterest", name: "Pinterest", icon: Layout, color: "text-[#E60023]" },
 ];
 
