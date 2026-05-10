@@ -5,7 +5,7 @@ import {
   Globe, Info, AlertCircle, History, RefreshCw, 
   Clock, Check, TrendingUp, MousePointer2, 
   BarChart3, Eye, Target, Share2, Layers,
-  Twitter, Instagram, Facebook, MessageSquare, Linkedin, Send
+  Twitter, Instagram, Facebook, MessageSquare, Linkedin, Send, Layout
 } from "lucide-react";
 import BlastConfigurator from "./BlastConfigurator";
 
