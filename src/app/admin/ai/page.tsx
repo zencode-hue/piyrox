@@ -12,7 +12,7 @@ interface Message {
 }
 
 const AI_MODELS = [
-  { id: "google/gemma-4-31b-it:free", name: "Gemma 4 (Unified)", tag: "FREE" },
+  { id: "google/gemma-4-31b:free", name: "Gemma 4 (Unified)", tag: "FREE" },
 ];
 
 const QUICK_PROMPTS = [
@@ -69,7 +69,7 @@ export default function AdminAIPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("google/gemma-4-31b-it:free");
+  const [model, setModel] = useState("google/gemma-4-31b:free");
   const [showConfig, setShowConfig] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,11 +93,11 @@ export default function AdminAIPage() {
           if (savedModel && VALID.has(savedModel)) {
             setModel(savedModel);
           } else {
-            setModel("google/gemma-4-31b-it:free");
+            setModel("google/gemma-4-31b:free");
             await fetch("/api/admin/settings", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ai_model: "google/gemma-4-31b-it:free" })
+              body: JSON.stringify({ ai_model: "google/gemma-4-31b:free" })
             });
           }
         }

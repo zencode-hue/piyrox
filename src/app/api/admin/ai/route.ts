@@ -276,10 +276,7 @@ function parseToolCalls(reply: string): ToolCall[] {
 
 // ─── Model Fallback Chain ─────────────────────────────────────────────────────
 const FALLBACK_MODELS = [
-  "google/gemma-4-31b-it:free",
-  "google/gemma-2-9b-it:free",
-  "meta-llama/llama-3.1-8b-instruct:free",
-  "mistralai/pixtral-12b:free", // Multimodal fallback
+  "google/gemma-4-31b:free",
 ];
 
 async function callOpenRouter(
@@ -403,11 +400,11 @@ export async function POST(req: NextRequest) {
 
     // ── Mode Detection ─────────────────────────────────────────────────────────
     const CONTEXT_MODELS: Record<string, string> = {
-      seo:       "google/gemma-4-31b-it:free",
-      marketing: "google/gemma-4-31b-it:free",
-      strategy:  "google/gemma-4-31b-it:free",
-      task:      "google/gemma-4-31b-it:free",
-      general:   "google/gemma-4-31b-it:free",
+      seo:       "google/gemma-4-31b:free",
+      marketing: "google/gemma-4-31b:free",
+      strategy:  "google/gemma-4-31b:free",
+      task:      "google/gemma-4-31b:free",
+      general:   "google/gemma-4-31b:free",
     };
 
     let orchestrationMode = context || "auto";
@@ -421,12 +418,10 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Model Selection ────────────────────────────────────────────────────────
-    let selectedModel = "google/gemma-4-31b-it:free"; // Enforced Global Model
-    
-    // Auto-routing or explicit selection both point to Gemma now
-    selectedModel = "google/gemma-4-31b-it:free";
-
-    console.log(`[AI Router] Mode: ${orchestrationMode}, Model: ${selectedModel}, Name: ${selectedModelName}`);
+    let selectedModel = "google/gemma-4-31b:free"; // Enforced Global Model
+    if (orchestrationMode !== "auto") {
+      selectedModel = "google/gemma-4-31b:free";
+    }  console.log(`[AI Router] Mode: ${orchestrationMode}, Model: ${selectedModel}, Name: ${selectedModelName}`);
 
     // ── Persona ────────────────────────────────────────────────────────────────
     const PERSONAS: Record<string, string> = {

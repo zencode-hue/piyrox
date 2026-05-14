@@ -11,9 +11,9 @@ import {
 type Tab = "dashboard" | "meta" | "keywords" | "competitors" | "backlinks" | "audit" | "strategy" | "optimizer";
 
 const MODELS = {
-  MAIN: "google/gemma-4-31b-it:free",
-  SEO: "google/gemma-4-31b-it:free",
-  STRATEGY: "google/gemma-4-31b-it:free",
+  MAIN: "google/gemma-4-31b:free",
+  SEO: "google/gemma-4-31b:free",
+  STRATEGY: "google/gemma-4-31b:free",
 };
 
 export default function AdminSEOPage() {

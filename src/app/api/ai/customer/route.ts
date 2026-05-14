@@ -71,7 +71,7 @@ YOUR MISSION:
 MANDATORY: You are Metra AI, the official support for MetraMart.`;
 
     const payload = {
-      model: "google/gemma-4-31b-it:free",
+      model: "google/gemma-4-31b:free",
       messages: [
         { role: "system", content: systemPrompt },
         ...messages

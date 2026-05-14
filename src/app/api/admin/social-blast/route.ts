@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
               "X-Title": "MetraMart Admin",
             },
             body: JSON.stringify({
-              model: "google/gemma-4-31b-it:free",
+              model: "google/gemma-4-31b:free",
               messages: [
                 { role: "system", content: `You are the Metra AI Marketing Director. Tone: ${tone}. Length: ${length}. Generate JSON ads for: ${Object.keys(requestedPlatforms).join(", ")}. Include {{TRACKING_LINK}}.` },
                 { role: "user", content: `Product: ${product.title}\nDescription: ${product.description}\nPrice: $${Number(product.price).toFixed(2)}` }
