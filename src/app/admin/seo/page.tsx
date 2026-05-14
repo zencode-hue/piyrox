@@ -12,8 +12,8 @@ type Tab = "dashboard" | "meta" | "keywords" | "competitors" | "backlinks" | "au
 
 const MODELS = {
   MAIN: "google/gemma-4-31b-it:free",
-  SEO: "openrouter/owl-alpha",
-  STRATEGY: "openai/gpt-oss-120b:free",
+  SEO: "google/gemma-4-31b-it:free",
+  STRATEGY: "google/gemma-4-31b-it:free",
 };
 
 export default function AdminSEOPage() {

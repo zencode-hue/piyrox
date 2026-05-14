@@ -277,8 +277,6 @@ function parseToolCalls(reply: string): ToolCall[] {
 // ─── Model Fallback Chain ─────────────────────────────────────────────────────
 const FALLBACK_MODELS = [
   "google/gemma-4-31b-it:free",
-  "openrouter/owl-alpha",
-  "openai/gpt-oss-120b:free",
 ];
 
 async function callOpenRouter(
@@ -389,9 +387,9 @@ export async function POST(req: NextRequest) {
 
     // ── Mode Detection ─────────────────────────────────────────────────────────
     const CONTEXT_MODELS: Record<string, string> = {
-      seo:       "openrouter/owl-alpha",
-      marketing: "openai/gpt-oss-120b:free",
-      strategy:  "openai/gpt-oss-120b:free",
+      seo:       "google/gemma-4-31b-it:free",
+      marketing: "google/gemma-4-31b-it:free",
+      strategy:  "google/gemma-4-31b-it:free",
       task:      "google/gemma-4-31b-it:free",
       general:   "google/gemma-4-31b-it:free",
     };
@@ -407,15 +405,10 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Model Selection ────────────────────────────────────────────────────────
-    let selectedModel = "google/gemma-4-31b-it:free"; // Global default
+    let selectedModel = "google/gemma-4-31b-it:free"; // Enforced Global Model
     
-    if (selectedModelName && selectedModelName !== "auto") {
-      // User explicitly chose a model in the UI (like Gemma in Chat)
-      selectedModel = selectedModelName;
-    } else {
-      // Auto-routing based on message content
-      selectedModel = CONTEXT_MODELS[orchestrationMode] || "google/gemma-4-31b-it:free";
-    }
+    // Auto-routing or explicit selection both point to Gemma now
+    selectedModel = "google/gemma-4-31b-it:free";
 
     console.log(`[AI Router] Mode: ${orchestrationMode}, Model: ${selectedModel}, Name: ${selectedModelName}`);
 

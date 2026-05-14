@@ -11,10 +11,7 @@ interface Message {
 }
 
 const AI_MODELS = [
-  { id: "auto", name: "Auto Routing (Recommended)", tag: "AI Engine" },
-  { id: "google/gemma-4-31b-it:free", name: "Gemma 4 (Main)", tag: "Tasks/Email" },
-  { id: "openrouter/owl-alpha", name: "OWL Alpha", tag: "SEO" },
-  { id: "openai/gpt-oss-120b:free", name: "GPT OSS", tag: "Strategy/Writing" },
+  { id: "google/gemma-4-31b-it:free", name: "Gemma 4 (Unified)", tag: "FREE" },
 ];
 
 const QUICK_PROMPTS = [
@@ -71,7 +68,7 @@ export default function AdminAIPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("auto");
+  const [model, setModel] = useState("google/gemma-4-31b-it:free");
   const [showConfig, setShowConfig] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,12 +89,12 @@ export default function AdminAIPage() {
           const savedModel = json.data.ai_model;
           if (savedModel && VALID.has(savedModel)) {
             setModel(savedModel);
-          } else if (savedModel) {
-            setModel("openrouter/owl-alpha");
+          } else {
+            setModel("google/gemma-4-31b-it:free");
             await fetch("/api/admin/settings", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ai_model: "openrouter/owl-alpha" })
+              body: JSON.stringify({ ai_model: "google/gemma-4-31b-it:free" })
             });
           }
         }
