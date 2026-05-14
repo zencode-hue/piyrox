@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Bot, Send, Loader2, Trash2, Copy, Check, Settings, Zap, ChevronDown } from "lucide-react";
+import { Bot, Send, Loader2, Trash2, Copy, Check, Settings, Zap, ChevronDown, Image as ImageIcon, Paperclip, X, FileVideo } from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
-  content: string;
+  content: string | any[];
   ts: number;
   toolResult?: string | null;
+  files?: string[]; // base64 or URLs
 }
 
 const AI_MODELS = [
@@ -72,6 +73,8 @@ export default function AdminAIPage() {
   const [showConfig, setShowConfig] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<{ name: string; type: string; base64: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -136,15 +139,59 @@ export default function AdminAIPage() {
     }
   }
 
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedFiles(prev => [...prev, {
+          name: file.name,
+          type: file.type,
+          base64: reader.result as string
+        }]);
+      };
+      reader.readAsDataURL(file);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function removeFile(index: number) {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  }
+
   async function send(overrideInput?: string) {
     const text = (overrideInput || input).trim();
-    if (!text || loading) return;
+    if (!text && selectedFiles.length === 0 || loading) return;
     if (!apiKey) { setShowConfig(true); return; }
 
-    const userMsg: Message = { role: "user", content: text, ts: Date.now() };
+    const fileUrls = selectedFiles.map(f => f.base64);
+    
+    // Prepare message content (string or array for multimodal)
+    let messageContent: any = text;
+    if (selectedFiles.length > 0) {
+      messageContent = [
+        { type: "text", text: text || "Analyze this." },
+        ...selectedFiles.map(f => ({
+          type: "image_url",
+          image_url: { url: f.base64 }
+        }))
+      ];
+    }
+
+    const userMsg: Message = { 
+      role: "user", 
+      content: messageContent, 
+      ts: Date.now(),
+      files: fileUrls 
+    };
+    
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput("");
+    setSelectedFiles([]);
     setLoading(true);
     setError(null);
 
@@ -153,7 +200,10 @@ export default function AdminAIPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
+          messages: newMessages.map((m) => ({ 
+            role: m.role, 
+            content: m.content 
+          })),
           model: model
         }),
       });
@@ -175,8 +225,9 @@ export default function AdminAIPage() {
     }
   }
 
-  function copyMsg(content: string, ts: number) {
-    navigator.clipboard.writeText(content);
+  function copyMsg(content: string | any[], ts: number) {
+    const text = typeof content === 'string' ? content : JSON.stringify(content);
+    navigator.clipboard.writeText(text);
     setCopied(ts);
     setTimeout(() => setCopied(null), 2000);
   }
@@ -363,12 +414,24 @@ export default function AdminAIPage() {
                       }
                 }
               >
+                {msg.files && msg.files.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {msg.files.map((f, i) => (
+                      <img key={i} src={f} alt="upload" className="max-w-[200px] max-h-[200px] rounded-lg border border-white/10" />
+                    ))}
+                  </div>
+                )}
                 {msg.role === "user" ? (
-                  <span className="whitespace-pre-wrap">{msg.content}</span>
+                  <span className="whitespace-pre-wrap">
+                    {typeof msg.content === 'string' 
+                      ? msg.content 
+                      : (msg.content as any[]).find(c => c.type === 'text')?.text || ""
+                    }
+                  </span>
                 ) : (
                   <div
                     className="ai-markdown-body"
-                    dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }}
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)) }}
                   />
                 )}
               </div>
@@ -414,31 +477,69 @@ export default function AdminAIPage() {
       </div>
 
       {/* Input */}
-      <div className="flex gap-2 flex-shrink-0">
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              send();
-            }
-          }}
-          placeholder={apiKey ? "Ask Metra AI anything... (Enter to send)" : "Set your API key first →"}
-          rows={1}
-          className="input-field flex-1 text-sm resize-none"
-          style={{ minHeight: "48px", maxHeight: "120px" }}
-          disabled={!apiKey}
-        />
-        <button
-          onClick={() => send()}
-          disabled={loading || !input.trim() || !apiKey}
-          className="px-4 rounded-xl font-semibold text-black disabled:opacity-40 transition-all hover:-translate-y-0.5 flex-shrink-0"
-          style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", minWidth: "48px" }}
-        >
-          {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : <Send size={16} className="mx-auto" />}
-        </button>
+      <div className="space-y-2 flex-shrink-0">
+        {selectedFiles.length > 0 && (
+          <div className="flex flex-wrap gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
+            {selectedFiles.map((f, i) => (
+              <div key={i} className="relative group">
+                {f.type.startsWith("image/") ? (
+                  <img src={f.base64} alt="preview" className="w-16 h-16 rounded-lg object-cover border border-white/10" />
+                ) : (
+                  <div className="w-16 h-16 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
+                    <FileVideo size={20} className="text-gray-500" />
+                  </div>
+                )}
+                <button
+                  onClick={() => removeFile(i)}
+                  className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X size={10} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            className="hidden"
+            multiple
+            accept="image/*,video/*"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="p-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all flex-shrink-0"
+            disabled={loading || !apiKey}
+          >
+            <Paperclip size={18} />
+          </button>
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            placeholder={apiKey ? "Ask Metra AI anything... (Enter to send)" : "Set your API key first →"}
+            rows={1}
+            className="input-field flex-1 text-sm resize-none"
+            style={{ minHeight: "48px", maxHeight: "120px" }}
+            disabled={!apiKey}
+          />
+          <button
+            onClick={() => send()}
+            disabled={loading || (!input.trim() && selectedFiles.length === 0) || !apiKey}
+            className="px-4 rounded-xl font-semibold text-black disabled:opacity-40 transition-all hover:-translate-y-0.5 flex-shrink-0"
+            style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", minWidth: "48px" }}
+          >
+            {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : <Send size={16} className="mx-auto" />}
+          </button>
+        </div>
       </div>
 
       {/* Markdown styles */}

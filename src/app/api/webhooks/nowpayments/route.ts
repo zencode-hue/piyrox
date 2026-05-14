@@ -65,7 +65,9 @@ export async function POST(req: NextRequest) {
 
   const paymentStatus = payload.payment_status as string | undefined;
   const paymentId = payload.payment_id as string | undefined;
-  const orderId = (payload.order_id ?? payload.order_description) as string | undefined;
+  const orderId = (payload.order_id ?? payload.order_description ?? payload.payment_id) as string | undefined;
+
+  console.log(`[NOWPayments Webhook] Received ${paymentStatus} for Order ${orderId} (Payment ID: ${paymentId})`);
 
   let logStatus = "processed";
 
@@ -139,7 +141,9 @@ async function processNowPaymentsEvent(
     return;
   }
 
-  if (paymentStatus === "finished") {
+  const isSuccess = paymentStatus === "finished" || paymentStatus === "confirmed" || paymentStatus === "sending";
+
+  if (isSuccess) {
     await db.order.update({ where: { id: order.id }, data: { status: "PAID" } });
     await deliverOrder(order.id);
   } else if (paymentStatus === "failed" || paymentStatus === "expired") {

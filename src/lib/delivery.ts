@@ -106,7 +106,7 @@ export async function deliverOrder(orderId: string): Promise<void> {
     await creditPartnerCommission(order.userId, Number(order.amount));
   }
 
-  const discordUrl = process.env.DISCORD_WEBHOOK_URL;
+  const discordUrl = process.env.DISCORD_ORDERS_WEBHOOK_URL ?? process.env.DISCORD_WEBHOOK_URL;
   if (discordUrl) {
     await sendDiscordNotification(discordUrl, {
       embeds: [{

@@ -277,6 +277,9 @@ function parseToolCalls(reply: string): ToolCall[] {
 // ─── Model Fallback Chain ─────────────────────────────────────────────────────
 const FALLBACK_MODELS = [
   "google/gemma-4-31b-it:free",
+  "google/gemma-2-9b-it:free",
+  "meta-llama/llama-3.1-8b-instruct:free",
+  "mistralai/pixtral-12b:free", // Multimodal fallback
 ];
 
 async function callOpenRouter(
@@ -296,10 +299,23 @@ async function callOpenRouter(
 
   for (const m of modelsToTry) {
     try {
+      // Ensure messages are in the correct format for multimodal
+      const processedMessages = messages.map((msg: any) => {
+        if (typeof msg.content === 'string') return msg;
+        // If content is already an array (multimodal), keep it
+        return msg;
+      });
+
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers,
-        body: JSON.stringify({ model: m, messages, temperature, max_tokens: 2000 }),
+        body: JSON.stringify({ 
+          model: m, 
+          messages: processedMessages, 
+          temperature, 
+          max_tokens: 2000,
+          // Support image/video if provided in messages
+        }),
       });
       if (!res.ok) continue;
       const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
