@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { 
   User, Globe, DollarSign, ShoppingCart, Mail, ExternalLink, 
-  ArrowLeft, Edit3, ShieldAlert, ShieldCheck, Loader2 
+  ArrowLeft, Edit3, ShieldAlert, ShieldCheck, Loader2, Zap 
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
