@@ -483,3 +483,4 @@ model SocialBlast {
   @@index([createdAt])
   @@index([status])
 }
+
