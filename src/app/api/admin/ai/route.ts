@@ -275,14 +275,18 @@ function parseToolCalls(reply: string): ToolCall[] {
 }
 
 // ─── Model Fallback Chain ─────────────────────────────────────────────────────
+// openrouter/free is placed FIRST — it auto-selects whichever free model is
+// available right now, making it the most reliable option for rate-limited accounts.
 const FALLBACK_MODELS = [
+  "openrouter/auto",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
   "google/gemma-4-31b:free",
   "google/gemma-2-9b-it:free",
   "qwen/qwen-2.5-72b-instruct:free",
   "meta-llama/llama-3.3-70b-instruct:free",
-  "nousresearch/hermes-3-llama-3.1-405b:free",
+  "mistralai/mistral-7b-instruct:free",
+  "deepseek/deepseek-chat:free",
   "openrouter/free",
 ];
 
@@ -299,7 +303,7 @@ async function callOpenRouter(
     "X-Title": "MetraMart Admin AI",
   };
 
-  // Deduplicate starting with 'model', then fallback models
+  // Deduplicate: start with requested model, then run through fallbacks
   const uniqueModels = new Set([model, ...FALLBACK_MODELS]);
   const modelsToTry = Array.from(uniqueModels);
 
@@ -309,46 +313,73 @@ async function callOpenRouter(
     try {
       // Ensure messages are in the correct format for multimodal
       const processedMessages = messages.map((msg: any) => {
-        if (typeof msg.content === 'string') return msg;
-        // If content is already an array (multimodal), keep it
-        return msg;
+        if (typeof msg.content === "string") return msg;
+        return msg; // already an array (multimodal)
       });
+
+      console.log(`[AI Router] Trying model: ${m}`);
 
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers,
-        body: JSON.stringify({ 
-          model: m, 
-          messages: processedMessages, 
-          temperature, 
+        body: JSON.stringify({
+          model: m,
+          messages: processedMessages,
+          temperature,
           max_tokens: 2000,
-          // Support image/video if provided in messages
         }),
       });
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error(`[AI Router] OpenRouter error for model ${m}: Status ${res.status} - ${errorText}`);
-        try {
-          const parsed = JSON.parse(errorText);
-          lastErrorMessage = parsed?.error?.message || errorText;
-        } catch {
-          lastErrorMessage = errorText;
+
+      // Read body once
+      const rawText = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        lastErrorMessage = `Non-JSON response from OpenRouter: ${rawText.slice(0, 200)}`;
+        console.error(`[AI Router] Non-JSON from ${m}:`, rawText.slice(0, 200));
+        continue;
+      }
+
+      // ── Check for error field in the JSON (even on 200 OK) ──
+      if (data?.error) {
+        const errMsg = data.error?.message || JSON.stringify(data.error);
+        lastErrorMessage = errMsg;
+        console.error(`[AI Router] ${m} returned error in body (status ${res.status}): ${errMsg}`);
+        // If it's a provider error, add a small delay before trying next model
+        if (errMsg.toLowerCase().includes("provider") || errMsg.toLowerCase().includes("rate")) {
+          await new Promise((r) => setTimeout(r, 800));
         }
         continue;
       }
-      const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
-      const content = data.choices?.[0]?.message?.content;
-      if (content) return { content, model: m };
+
+      // ── Non-OK HTTP status without error field ──
+      if (!res.ok) {
+        lastErrorMessage = `HTTP ${res.status}: ${rawText.slice(0, 200)}`;
+        console.error(`[AI Router] ${m} returned HTTP ${res.status}: ${rawText.slice(0, 200)}`);
+        continue;
+      }
+
+      // ── Extract content ──
+      const content = data?.choices?.[0]?.message?.content;
+      if (content && typeof content === "string" && content.trim()) {
+        console.log(`[AI Router] Success with model: ${m}`);
+        return { content, model: m };
+      }
+
+      // Empty content is a soft failure
+      lastErrorMessage = `${m} returned empty content`;
+      console.warn(`[AI Router] Empty content from: ${m}`);
+
     } catch (err: any) {
-      console.error(`[AI Router] Exception during OpenRouter call for model ${m}:`, err);
       lastErrorMessage = err?.message || String(err);
-      continue;
+      console.error(`[AI Router] Exception for model ${m}:`, lastErrorMessage);
     }
   }
 
-  const finalError = lastErrorMessage 
-    ? `⚠️ All AI models are currently unavailable.\nLast OpenRouter error: "${lastErrorMessage}"`
-    : "⚠️ All AI models are currently unavailable. Please try again shortly.";
+  const finalError = lastErrorMessage
+    ? `⚠️ All AI models are currently unavailable.\nLast OpenRouter error: "${lastErrorMessage}"\n\n💡 **Fix:** Go to Admin → AI → ⚙️ Settings and verify your OpenRouter API key is valid and has credits at openrouter.ai`
+    : "⚠️ All AI models are currently unavailable. Please check your OpenRouter API key in Admin → AI → Settings.";
 
   return { content: finalError, model: "none" };
 }
@@ -397,8 +428,8 @@ export async function POST(req: NextRequest) {
     };
 
     const keySetting = await db.siteSetting.findUnique({ where: { key: "ai_api_key" } });
-    const apiKey = keySetting?.value;
-    if (!apiKey) return NextResponse.json({ error: "No AI API Key configured." }, { status: 400 });
+    const apiKey = keySetting?.value || process.env.OPENROUTER_API_KEY;
+    if (!apiKey) return NextResponse.json({ error: "No AI API Key configured. Go to Admin → AI → ⚙️ Settings to add your OpenRouter key." }, { status: 400 });
 
     // ── Live Metrics ──────────────────────────────────────────────────────────
     const now = new Date();

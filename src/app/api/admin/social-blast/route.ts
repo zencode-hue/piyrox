@@ -103,13 +103,15 @@ export async function POST(req: NextRequest) {
 
         try {
           const modelsToTry = [
+            "openrouter/auto",
             "google/gemma-4-31b-it:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b:free",
             "google/gemma-2-9b-it:free",
             "qwen/qwen-2.5-72b-instruct:free",
             "meta-llama/llama-3.3-70b-instruct:free",
-            "nousresearch/hermes-3-llama-3.1-405b:free",
+            "mistralai/mistral-7b-instruct:free",
+            "deepseek/deepseek-chat:free",
             "openrouter/free"
           ];
 
@@ -135,22 +137,37 @@ export async function POST(req: NextRequest) {
                 }),
               });
 
-              if (aiRes.ok) {
-                const aiData = await aiRes.json();
-                const ads = JSON.parse(aiData.choices?.[0]?.message?.content || "{}");
+              const rawText = await aiRes.text();
+              let aiData: any;
+              try { aiData = JSON.parse(rawText); } catch { continue; }
+
+              // Handle error in body (even on 200 OK)
+              if (aiData?.error) {
+                const errMsg = aiData.error?.message || "";
+                console.error(`[Social Blast] ${m} error in body: ${errMsg}`);
+                if (errMsg.toLowerCase().includes("provider") || errMsg.toLowerCase().includes("rate")) {
+                  await new Promise((r) => setTimeout(r, 800));
+                }
+                continue;
+              }
+
+              if (!aiRes.ok) {
+                console.error(`[Social Blast] ${m} HTTP ${aiRes.status}: ${rawText.slice(0, 200)}`);
+                continue;
+              }
+
+              const content = aiData?.choices?.[0]?.message?.content;
+              if (content && typeof content === "string" && content.trim()) {
+                const ads = JSON.parse(content || "{}");
                 dallePrompt = ads.dalle_prompt || "";
-                // Merge generated ads
                 for (const p of platforms) {
                   if (ads[p]) finalAds[p] = ads[p];
                 }
                 success = true;
                 break;
-              } else {
-                const errorText = await aiRes.text();
-                console.error(`[Social Blast] OpenRouter error for model ${m}: Status ${aiRes.status} - ${errorText}`);
               }
             } catch (err) {
-              console.error(`[Social Blast] Exception during OpenRouter call for model ${m}:`, err);
+              console.error(`[Social Blast] Exception for model ${m}:`, err);
             }
           }
 
