@@ -301,6 +301,8 @@ async function callOpenRouter(
   const uniqueModels = new Set([model, ...FALLBACK_MODELS]);
   const modelsToTry = Array.from(uniqueModels);
 
+  let lastErrorMessage = "";
+
   for (const m of modelsToTry) {
     try {
       // Ensure messages are in the correct format for multimodal
@@ -324,17 +326,29 @@ async function callOpenRouter(
       if (!res.ok) {
         const errorText = await res.text();
         console.error(`[AI Router] OpenRouter error for model ${m}: Status ${res.status} - ${errorText}`);
+        try {
+          const parsed = JSON.parse(errorText);
+          lastErrorMessage = parsed?.error?.message || errorText;
+        } catch {
+          lastErrorMessage = errorText;
+        }
         continue;
       }
       const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
       const content = data.choices?.[0]?.message?.content;
       if (content) return { content, model: m };
-    } catch (err) {
+    } catch (err: any) {
       console.error(`[AI Router] Exception during OpenRouter call for model ${m}:`, err);
+      lastErrorMessage = err?.message || String(err);
       continue;
     }
   }
-  return { content: "⚠️ All AI models are currently unavailable. Please try again shortly.", model: "none" };
+
+  const finalError = lastErrorMessage 
+    ? `⚠️ All AI models are currently unavailable.\nLast OpenRouter error: "${lastErrorMessage}"`
+    : "⚠️ All AI models are currently unavailable. Please try again shortly.";
+
+  return { content: finalError, model: "none" };
 }
 
 
