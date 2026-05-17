@@ -89,19 +89,56 @@ async function executeTool(
           args: any;
         };
         const { db: prisma } = await import("@/lib/db");
-        
-        // Fix for common AI mistakes
+
+        // ── Auto-fix common AI field name mistakes ──────────────────────────────
+        const fixFields = (obj: any, modelName: string): any => {
+          if (!obj || typeof obj !== "object") return obj;
+          if (Array.isArray(obj)) return obj.map((i: any) => fixFields(i, modelName));
+          const result: any = {};
+          for (const key of Object.keys(obj)) {
+            let newKey = key;
+            // product model: 'name' → 'title'
+            if (modelName === "product" && key === "name") newKey = "title";
+            // order model: 'customerId' → 'userId'
+            if (modelName === "order" && key === "customerId") newKey = "userId";
+            // user model: 'username' → 'name'
+            if (modelName === "user" && key === "username") newKey = "name";
+            result[newKey] = fixFields(obj[key], modelName);
+          }
+          return result;
+        };
+        args = fixFields(args, model);
+
+        // Fix: aggregate count:true shorthand
         if (action === "aggregate" && args?.count === true) {
           action = "count";
           delete args.count;
         }
 
-        // Ensure args are wrapped in 'where' for read actions if they look like filters
+        // Fix: unwrapped filter args for read operations
         const readActions = ["count", "findMany", "findUnique", "findFirst", "aggregate"];
         if (readActions.includes(action)) {
           if (args && !args.where && !args.select && !args.include && !args._count && !args.data) {
-            // If they just passed filters, wrap them
             args = { where: args };
+          }
+        }
+
+        // Fix: updateMany with title filter — find IDs first, then update by id
+        // This avoids Prisma errors when AI tries to filter by title in updateMany
+        if ((action === "update" || action === "updateMany") && args?.where?.title?.contains) {
+          const found = await (prisma as any)[model].findMany({
+            where: { title: { contains: args.where.title.contains, mode: "insensitive" } },
+            select: { id: true, title: true },
+          });
+          if (!found.length) return `❌ No ${model} found matching "${args.where.title.contains}"`;
+          if (found.length === 1) {
+            // Convert to single update by id
+            args.where = { id: found[0].id };
+            action = "update";
+          } else {
+            // Update all matched by id list
+            args.where = { id: { in: found.map((f: any) => f.id) } };
+            action = "updateMany";
           }
         }
 
@@ -111,7 +148,6 @@ async function executeTool(
           const now = new Date();
           const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
-          
           for (const key in obj) {
             if (typeof obj[key] === "string") {
               if (obj[key] === "TODAY_START") obj[key] = startOfToday.toISOString();
@@ -127,11 +163,11 @@ async function executeTool(
 
         const dbModel = (prisma as unknown as Record<string, unknown>)[model] as Record<string, Function> | undefined;
         if (!dbModel || typeof dbModel[action] !== "function") {
-          return `❌ Invalid model/action: ${model}.${action}`;
+          return `❌ Invalid model/action: ${model}.${action}. Valid models: product, user, order, blogPost, discountCode, socialBlast, inventoryItem, affiliate`;
         }
-        
+
         const result = await dbModel[action](args ?? {});
-        return `✅ DB Result (${model}.${action}): ${JSON.stringify(result, null, 2).substring(0, 1500)}`;
+        return `✅ DB Result (${model}.${action}): ${JSON.stringify(result, null, 2).substring(0, 2000)}`;
       }
 
       // ── Inventory ────────────────────────────────────────────────────────────
@@ -387,25 +423,34 @@ async function callOpenRouter(
 
 // ─── Tool Definitions (for system prompt) ─────────────────────────────────────
 const TOOL_DEFINITIONS = `
-AVAILABLE TOOLS — respond with JSON tool call when execution is needed:
+AVAILABLE TOOLS — use JSON tool call format:
 { "action": "create_blog_post", "params": { "title": "str", "excerpt": "str", "content": "html", "category": "str", "emoji": "str", "published": true } }
 { "action": "push_discord_deals", "params": {} }
 { "action": "send_discord_message", "params": { "message": "str" } }
 { "action": "send_email", "params": { "audience": "all|customers|guests|custom", "subject": "str", "message": "str", "customEmail": "str" } }
-{ "action": "run_db_query", "params": { "model": "user|product|order|blogPost|socialBlast|discountCode|pageView", "action": "count|findMany|findUnique|aggregate|create|update|delete|updateMany|deleteMany|upsert", "args": {} } }
+{ "action": "run_db_query", "params": { "model": "product|user|order|blogPost|socialBlast|discountCode|inventoryItem|affiliate", "action": "count|findMany|findUnique|findFirst|aggregate|create|update|updateMany|delete|deleteMany", "args": {} } }
 { "action": "update_inventory_count", "params": { "productId": "str", "count": 10 } }
-{ "action": "social_media_blast", "params": { "productId": "str", "platforms": ["twitter","instagram","facebook","discord","telegram","pinterest"], "tone": "str" } }
+{ "action": "social_media_blast", "params": { "productId": "str", "platforms": ["discord","twitter","instagram","facebook","telegram","pinterest"], "tone": "str" } }
 { "action": "toggle_product", "params": { "productId": "str", "active": true } }
 { "action": "create_discount", "params": { "code": "SALE20", "percent": 20, "maxUses": 100 } }
 
-TOOL RULES:
+━━━ EXACT PRISMA FIELD NAMES (CRITICAL — use these exactly) ━━━
+product:  id, title, description, price (Decimal), category, isActive (bool), stockCount (int), unlimitedStock (bool), imageUrl, slug, createdAt
+user:     id, name, email, role ("USER"|"ADMIN"), createdAt, balance (Decimal)
+order:    id, amount (Decimal), status ("PENDING"|"PAID"|"FAILED"|"PENDING_STOCK"), paymentProvider, userId, createdAt
+blogPost: id, title, slug, excerpt, content, published (bool), category, emoji, createdAt
+discountCode: id, code, type ("PERCENTAGE"|"FIXED"), value (Decimal), usageCount, usageLimit, expiresAt, isActive (bool)
+inventoryItem: id, productId, status ("AVAILABLE"|"DELIVERED"), encryptedData, createdAt
+affiliate: id, userId, code, commissionPct (Decimal), totalEarned (Decimal), pendingPayout (Decimal), status
+
+━━━ DB QUERY RULES ━━━
+- FIELD NAMES: Use "title" NOT "name" for products. Use "amount" NOT "total" for orders.
+- To update a product by name: use { "model": "product", "action": "updateMany", "args": { "where": { "title": { "contains": "Directv", "mode": "insensitive" } }, "data": { "price": 64.99 } } }
+- To find product ID: use findMany with title contains filter, then use the id in subsequent calls.
+- For price updates: pass price as a number (64.99), NOT a string.
 - Use EXACTLY ONE tool call per action.
-- Both JSON and XML formats are supported.
-- JSON format: { "action": "name", "params": { "key": "value" } }
-- XML format: <tool_call>action_name<arg_key>k</arg_key><arg_value>v</arg_value></tool_call>
-- After triggering a tool, confirm it with a human-readable summary.
-- Never show raw code to the admin — wrap it in your narration.
-- For DB dates, you can use: "TODAY_START", "TODAY_END", "YESTERDAY_START", "NOW".
+- After triggering a tool, narrate what happened in plain English.
+- For DB dates: "TODAY_START", "TODAY_END", "YESTERDAY_START", "NOW".
 `;
 
 // ─── Main Route ───────────────────────────────────────────────────────────────
@@ -439,7 +484,7 @@ export async function POST(req: NextRequest) {
     const [
       userCount, orderCount, lowStockCount, activeProducts,
       revenueTotal, revenue24h, revenue7d, lowStockItems, topCustomers,
-      recentOrders, socialBlastCount,
+      recentOrders, socialBlastCount, allProducts,
     ] = await Promise.all([
       db.user.count(),
       db.order.count(),
@@ -452,11 +497,17 @@ export async function POST(req: NextRequest) {
       db.user.findMany({ take: 5, orderBy: { orders: { _count: "desc" } }, select: { email: true, name: true } }),
       db.order.findMany({ take: 5, orderBy: { createdAt: "desc" }, include: { user: { select: { email: true } } } }),
       db.socialBlast.count(),
+      db.product.findMany({ select: { id: true, title: true, price: true, category: true, isActive: true }, orderBy: { title: "asc" } }),
     ]);
 
     const totalRev = Number(revenueTotal._sum?.amount ?? 0).toFixed(2);
     const rev24h   = Number(revenue24h._sum?.amount ?? 0).toFixed(2);
     const rev7d    = Number(revenue7d._sum?.amount ?? 0).toFixed(2);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const productCatalog = (allProducts as any[]).map((p: any) =>
+      `  ${p.isActive ? "✅" : "❌"} [id:${p.id}] ${p.title} (${p.category}) — $${Number(p.price).toFixed(2)}`
+    ).join("\n");
 
     // ── Mode Detection ─────────────────────────────────────────────────────────
     const CONTEXT_MODELS: Record<string, string> = {
@@ -508,6 +559,9 @@ ${TOOL_DEFINITIONS}
 🏆 VIP Customers: ${topCustomers.map((c) => c.email).join(", ") || "None yet"}
 🕐 Recent Orders: ${recentOrders.map((o) => `#${o.id.slice(-6)} $${o.amount} (${o.user?.email ?? "Guest"})`).join(" | ") || "None"}
 
+━━━ PRODUCT CATALOG (use these exact IDs for tool calls) ━━━
+${productCatalog}
+
 ━━━ RULES ━━━
 1. Always open with your persona bracket.
 2. Be decisive — never ask if you should do something, just do it using tools.
@@ -515,8 +569,9 @@ ${TOOL_DEFINITIONS}
 4. In marketing mode: NO **bold**, NO # headers — clean prose only.
 5. After every tool call, narrate what happened in plain English.
 6. You have FULL authority to READ, EDIT, and CREATE data in the database.
-7. Available Models: user, product, order, blogPost, socialBlast, discountCode, pageView, affiliate, referral, inventoryItem, productVariant, staffMember.
-8. If a user asks "how many X" or "list X" or "change X" — use run_db_query immediately.
+7. ALWAYS use exact field names from the schema above. Product field is "title" not "name".
+8. When asked to edit/update a product: look up its id from the PRODUCT CATALOG above, then use run_db_query with that exact id.
+9. If a user asks "how many X" or "list X" or "change X" — use run_db_query immediately.
 `.trim();
 
     // ── Call AI ────────────────────────────────────────────────────────────────
