@@ -276,7 +276,12 @@ function parseToolCalls(reply: string): ToolCall[] {
 
 // ─── Model Fallback Chain ─────────────────────────────────────────────────────
 const FALLBACK_MODELS = [
+  "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
   "google/gemma-4-31b:free",
+  "google/gemma-2-9b-it:free",
+  "qwen/qwen-2.5-72b-instruct:free",
+  "meta-llama/llama-3.1-8b-instruct:free",
 ];
 
 async function callOpenRouter(
@@ -292,7 +297,9 @@ async function callOpenRouter(
     "X-Title": "MetraMart Admin AI",
   };
 
-  const modelsToTry = [model, ...FALLBACK_MODELS.filter((m) => m !== model)];
+  // Deduplicate starting with 'model', then fallback models
+  const uniqueModels = new Set([model, ...FALLBACK_MODELS]);
+  const modelsToTry = Array.from(uniqueModels);
 
   for (const m of modelsToTry) {
     try {
@@ -314,16 +321,22 @@ async function callOpenRouter(
           // Support image/video if provided in messages
         }),
       });
-      if (!res.ok) continue;
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`[AI Router] OpenRouter error for model ${m}: Status ${res.status} - ${errorText}`);
+        continue;
+      }
       const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
       const content = data.choices?.[0]?.message?.content;
       if (content) return { content, model: m };
-    } catch (_) {
+    } catch (err) {
+      console.error(`[AI Router] Exception during OpenRouter call for model ${m}:`, err);
       continue;
     }
   }
   return { content: "⚠️ All AI models are currently unavailable. Please try again shortly.", model: "none" };
 }
+
 
 // ─── Tool Definitions (for system prompt) ─────────────────────────────────────
 const TOOL_DEFINITIONS = `

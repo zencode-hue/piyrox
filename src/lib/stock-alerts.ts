@@ -14,7 +14,8 @@ export async function checkAndSendStockAlerts(productId: string): Promise<void> 
   }
 
   if (product.stockCount <= LOW_STOCK_THRESHOLD) {
-    const discordUrl = process.env.DISCORD_WEBHOOK_URL;
+    const adminSetting = await db.siteSetting.findUnique({ where: { key: "discord_admin_webhook_url" } });
+    const discordUrl = adminSetting?.value || process.env.DISCORD_ADMIN_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
     if (discordUrl) {
       await sendDiscordNotification(discordUrl, {
         content: `⚠️ Low stock alert: **${product.title}** has only ${product.stockCount} item(s) remaining.`,

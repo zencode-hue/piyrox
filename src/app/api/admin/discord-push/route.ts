@@ -38,17 +38,17 @@ export async function POST(req: NextRequest) {
     const settingsMap: Record<string, string> = {};
     for (const s of settings) settingsMap[s.key] = s.value;
 
-    const webhookUrl =
-      settingsMap["discord_deals_webhook_url"] ||
-      process.env.DISCORD_DEALS_WEBHOOK_URL ||
-      process.env.DISCORD_WEBHOOK_URL;
-
-    if (!webhookUrl) return NextResponse.json({ error: "Discord webhook not configured. Save it in Admin → Settings first." }, { status: 503 });
-
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
 
     // Push today's deals
     if (type === "deals") {
+      const webhookUrl =
+        settingsMap["discord_deals_webhook_url"] ||
+        process.env.DISCORD_DEALS_WEBHOOK_URL ||
+        process.env.DISCORD_WEBHOOK_URL;
+
+      if (!webhookUrl) return NextResponse.json({ error: "Discord Deals webhook not configured. Save it in Admin → Settings first." }, { status: 503 });
+
       const { getDealsData } = await import("@/lib/server-data");
       const data = await getDealsData();
       const deals = data.deals.slice(0, DEALS_COUNT);
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       }));
 
       await sendDiscordNotification(webhookUrl, {
-        username: "MetraMart",
+        username: "MetraMart Deals",
         embeds: [{
           title: "DAILY DEAL VAULT — NOW OPEN",
           description: [
@@ -90,14 +90,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, dealsNotified: deals.length });
     }
 
-    // Custom message
+    // Custom message (Admin notifications/logs)
     if (message?.trim()) {
+      const webhookUrl =
+        settingsMap["discord_admin_webhook_url"] ||
+        process.env.DISCORD_ADMIN_WEBHOOK_URL ||
+        process.env.DISCORD_WEBHOOK_URL;
+
+      if (!webhookUrl) return NextResponse.json({ error: "Discord Admin & Logs webhook not configured. Save it in Admin → Settings first." }, { status: 503 });
+
       await sendDiscordNotification(webhookUrl, {
-        username: "MetraMart",
+        username: "MetraMart Admin Logs",
         embeds: [{
           description: message,
-          color: 0xea580c,
-          footer: { text: "MetraMart Admin Announcement" },
+          color: 0x3b82f6,
+          footer: { text: "MetraMart Admin Information" },
           timestamp: new Date().toISOString(),
           author: { name: "MetraMart", url: appUrl },
         }],

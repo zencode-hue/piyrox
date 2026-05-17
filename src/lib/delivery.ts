@@ -51,7 +51,8 @@ export async function deliverOrder(orderId: string): Promise<void> {
         message: `Your order is awaiting stock. Join our Discord and use your reference ${formatOrderId(orderId)} to claim your product.`,
       });
       // Notify Discord with the pending stock order so admin can fulfill manually
-      const discordUrl = process.env.DISCORD_WEBHOOK_URL;
+      const adminSetting = await tx.siteSetting.findUnique({ where: { key: "discord_admin_webhook_url" } });
+      const discordUrl = adminSetting?.value || process.env.DISCORD_ADMIN_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
       if (discordUrl) {
         await sendDiscordNotification(discordUrl, {
           embeds: [{
@@ -106,7 +107,8 @@ export async function deliverOrder(orderId: string): Promise<void> {
     await creditPartnerCommission(order.userId, Number(order.amount));
   }
 
-  const discordUrl = process.env.DISCORD_ORDERS_WEBHOOK_URL ?? process.env.DISCORD_WEBHOOK_URL;
+  const adminSetting = await db.siteSetting.findUnique({ where: { key: "discord_admin_webhook_url" } });
+  const discordUrl = adminSetting?.value || process.env.DISCORD_ADMIN_WEBHOOK_URL || process.env.DISCORD_ORDERS_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
   if (discordUrl) {
     await sendDiscordNotification(discordUrl, {
       embeds: [{

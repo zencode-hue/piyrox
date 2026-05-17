@@ -70,33 +70,60 @@ YOUR MISSION:
 
 MANDATORY: You are Metra AI, the official support for MetraMart.`;
 
-    const payload = {
-      model: "google/gemma-4-31b:free",
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messages
-      ],
-      temperature: 0.7,
-      max_tokens: 500
-    };
+    const modelsToTry = [
+      "google/gemma-4-31b-it:free",
+      "google/gemma-4-26b-a4b-it:free",
+      "google/gemma-4-31b:free",
+      "google/gemma-2-9b-it:free",
+      "qwen/qwen-2.5-72b-instruct:free",
+      "meta-llama/llama-3.1-8b-instruct:free"
+    ];
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://metramart.xyz",
-        "X-Title": "MetraMart Customer AI",
-      },
-      body: JSON.stringify(payload),
-    });
+    let reply = "";
+    for (const m of modelsToTry) {
+      try {
+        const payload = {
+          model: m,
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...messages
+          ],
+          temperature: 0.7,
+          max_tokens: 500
+        };
 
-    if (!res.ok) {
-      return NextResponse.json({ reply: "I'm having a bit of trouble connecting. Please try again in a moment! 🤖" });
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://metramart.xyz",
+            "X-Title": "MetraMart Customer AI",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error(`[Customer AI] OpenRouter error for model ${m}: Status ${res.status} - ${errorText}`);
+          continue;
+        }
+
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) {
+          reply = content;
+          break;
+        }
+      } catch (err) {
+        console.error(`[Customer AI] Exception during OpenRouter call for model ${m}:`, err);
+        continue;
+      }
     }
 
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content || "How can I help you today? 😊";
+    if (!reply) {
+      return NextResponse.json({ reply: "I'm having a bit of trouble connecting. Please try again in a moment! 🤖" });
+    }
 
     return NextResponse.json({ reply });
   } catch (error) {

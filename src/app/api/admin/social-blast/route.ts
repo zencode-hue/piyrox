@@ -102,36 +102,58 @@ export async function POST(req: NextRequest) {
         }, {});
 
         try {
-          const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-              "HTTP-Referer": "https://metramart.xyz",
-              "X-Title": "MetraMart Admin",
-            },
-            body: JSON.stringify({
-              model: "google/gemma-4-31b:free",
-              messages: [
-                { role: "system", content: `You are the Metra AI Marketing Director. Tone: ${tone}. Length: ${length}. Generate JSON ads for: ${Object.keys(requestedPlatforms).join(", ")}. Include {{TRACKING_LINK}}.` },
-                { role: "user", content: `Product: ${product.title}\nDescription: ${product.description}\nPrice: $${Number(product.price).toFixed(2)}` }
-              ],
-              temperature: 0.8,
-              response_format: { type: "json_object" }
-            }),
-          });
+          const modelsToTry = [
+            "google/gemma-4-31b-it:free",
+            "google/gemma-4-26b-a4b-it:free",
+            "google/gemma-4-31b:free",
+            "google/gemma-2-9b-it:free",
+            "qwen/qwen-2.5-72b-instruct:free",
+            "meta-llama/llama-3.1-8b-instruct:free"
+          ];
 
-          if (aiRes.ok) {
-            const aiData = await aiRes.json();
-            const ads = JSON.parse(aiData.choices?.[0]?.message?.content || "{}");
-            dallePrompt = ads.dalle_prompt || "";
-            // Merge generated ads
-            for (const p of platforms) {
-              if (ads[p]) finalAds[p] = ads[p];
+          let success = false;
+          for (const m of modelsToTry) {
+            try {
+              const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${apiKey}`,
+                  "Content-Type": "application/json",
+                  "HTTP-Referer": "https://metramart.xyz",
+                  "X-Title": "MetraMart Admin",
+                },
+                body: JSON.stringify({
+                  model: m,
+                  messages: [
+                    { role: "system", content: `You are the Metra AI Marketing Director. Tone: ${tone}. Length: ${length}. Generate JSON ads for: ${Object.keys(requestedPlatforms).join(", ")}. Include {{TRACKING_LINK}}.` },
+                    { role: "user", content: `Product: ${product.title}\nDescription: ${product.description}\nPrice: $${Number(product.price).toFixed(2)}` }
+                  ],
+                  temperature: 0.8,
+                  response_format: { type: "json_object" }
+                }),
+              });
+
+              if (aiRes.ok) {
+                const aiData = await aiRes.json();
+                const ads = JSON.parse(aiData.choices?.[0]?.message?.content || "{}");
+                dallePrompt = ads.dalle_prompt || "";
+                // Merge generated ads
+                for (const p of platforms) {
+                  if (ads[p]) finalAds[p] = ads[p];
+                }
+                success = true;
+                break;
+              } else {
+                const errorText = await aiRes.text();
+                console.error(`[Social Blast] OpenRouter error for model ${m}: Status ${aiRes.status} - ${errorText}`);
+              }
+            } catch (err) {
+              console.error(`[Social Blast] Exception during OpenRouter call for model ${m}:`, err);
             }
-          } else {
-            console.error("OpenRouter Error:", await aiRes.text());
-            throw new Error("AI Service Unavailable");
+          }
+
+          if (!success) {
+            throw new Error("AI Service Unavailable on all fallback models");
           }
         } catch (e) {
           console.error("AI Generation Failed, using fallback:", e);

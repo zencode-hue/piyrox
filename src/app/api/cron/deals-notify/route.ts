@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const webhookUrl = process.env.DISCORD_DEALS_WEBHOOK_URL ?? process.env.DISCORD_WEBHOOK_URL;
+    const dealsSetting = await db.siteSetting.findUnique({ where: { key: "discord_deals_webhook_url" } });
+    const webhookUrl = dealsSetting?.value || process.env.DISCORD_DEALS_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) {
       return NextResponse.json({ error: "No webhook configured" }, { status: 503 });
     }

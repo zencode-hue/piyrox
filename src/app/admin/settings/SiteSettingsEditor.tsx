@@ -16,6 +16,7 @@ const SECTIONS = [
       { key: "discord_url", label: "Discord Server URL", placeholder: "https://discord.gg/...", hint: "Shown on homepage community section" },
       { key: "discord_members", label: "Discord Member Count", placeholder: "1,000+", hint: "Displayed on the community section (e.g. 1,000+)" },
       { key: "discord_deals_webhook_url", label: "Discord Deals Webhook URL", placeholder: "https://discord.com/api/webhooks/...", hint: "Used to push daily deals to Discord" },
+      { key: "discord_admin_webhook_url", label: "Discord Admin & Logs Webhook URL", placeholder: "https://discord.com/api/webhooks/...", hint: "Used to send sales notifications, low stock alerts, and logs to Discord" },
       { key: "telegram_url", label: "Telegram Channel URL", placeholder: "https://t.me/...", hint: "Shown on homepage community section" },
       { key: "telegram_members", label: "Telegram Member Count", placeholder: "500+", hint: "Displayed on the community section" },
       { key: "support_discord_url", label: "Support Discord URL", placeholder: "https://discord.gg/...", hint: "Used for support buttons (defaults to Discord URL)" },
