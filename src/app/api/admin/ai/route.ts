@@ -311,10 +311,10 @@ function parseToolCalls(reply: string): ToolCall[] {
 }
 
 // ─── Model Fallback Chain ─────────────────────────────────────────────────────
-// openrouter/free is placed FIRST — it auto-selects whichever free model is
-// available right now, making it the most reliable option for rate-limited accounts.
+// openrouter/free is FIRST — strictly routes to free-tier models only.
+// Never uses paid models regardless of availability.
 const FALLBACK_MODELS = [
-  "openrouter/auto",
+  "openrouter/free",
   "google/gemma-4-31b-it:free",
   "google/gemma-4-26b-a4b-it:free",
   "google/gemma-4-31b:free",

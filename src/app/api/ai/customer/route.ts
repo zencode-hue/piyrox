@@ -64,9 +64,9 @@ YOUR MISSION:
 
 MANDATORY: You are Metra AI, the official support for MetraMart.`;
 
-    // openrouter/auto first — lets OpenRouter pick the best available free model automatically
+    // openrouter/free first — strictly routes to free-tier models only, never paid
     const modelsToTry = [
-      "openrouter/auto",
+      "openrouter/free",
       "google/gemma-4-31b-it:free",
       "google/gemma-4-26b-a4b-it:free",
       "google/gemma-4-31b:free",

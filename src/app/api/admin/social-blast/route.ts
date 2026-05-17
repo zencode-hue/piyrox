@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
         try {
           const modelsToTry = [
-            "openrouter/auto",
+            "openrouter/free",
             "google/gemma-4-31b-it:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b:free",
