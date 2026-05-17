@@ -10,7 +10,7 @@ import {
   TrendingUp, ExternalLink, FileText, BarChart2,
   AlertTriangle, Webhook, ClipboardList, Mail, Search,
   Bot, Shield, Globe, Zap, Star, MessageSquare,
-  ChevronDown, ChevronRight, Megaphone,
+  ChevronDown, ChevronRight, Megaphone, Share2,
 } from "lucide-react";
 
 const navGroups = [
@@ -19,7 +19,7 @@ const navGroups = [
     items: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/analytics", label: "Analytics", icon: BarChart2 },
-      { href: "/admin/social", label: "Social Automation", icon: Globe },
+      { href: "/admin/social", label: "Social Automation", icon: Share2 },
       { href: "/admin/seo", label: "SEO Tools", icon: Globe },
     ],
   },
