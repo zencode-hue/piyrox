@@ -85,7 +85,7 @@ export default function ${componentName}() {
     }
     fs.writeFileSync(path.join(routeDir, 'page.tsx'), reactCode);
   }
-  console.log(\`Ported \${file}\`);
+  console.log(`Ported ${file}`);
 });
 
 // Copy public directory (assets, images, zip files)
