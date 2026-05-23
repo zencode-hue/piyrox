@@ -298,11 +298,11 @@ function ChatPageContent() {
         </header>
 
         {/* Messages area */}
-        <div className="flex-1 overflow-y-auto bg-gray-950">
+        <div className="flex-1 overflow-y-auto bg-gray-950 pb-40">
           {messages.length === 0 ? (
             <WelcomeScreen model={selectedModel} onPrompt={sendMessage} />
           ) : (
-            <div className="pb-40 max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto">
               {messages.map((msg) => (
                 <ChatMessage key={msg.id} message={msg} />
               ))}
@@ -324,10 +324,10 @@ function ChatPageContent() {
             </div>
           )}
         </div>
-
-        {/* Input */}
-        <ChatInput onSend={sendMessage} disabled={isTyping} />
       </div>
+
+      {/* Fixed input at bottom */}
+      <ChatInput onSend={sendMessage} disabled={isTyping} />
     </div>
   );
 }

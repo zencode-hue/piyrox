@@ -2,18 +2,18 @@ import { NextResponse } from 'next/server';
 
 // OpenRouter free models - best quality free options
 const FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'baidu/cobuddy:free',
+  'piyrox-4': 'meta-llama/llama-3.1-70b-instruct:free',
   'piyrox-4o': 'openrouter/owl-alpha',
-  'piyrox-3.5': 'deepseek/deepseek-v4-flash:free',
-  'jarvis-v3': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+  'piyrox-3.5': 'meta-llama/llama-3.1-8b-instruct:free',
+  'jarvis-v3': 'deepseek/deepseek-v4-flash:free',
 };
 
 // Code-specific free models (better for coding)
 const CODE_FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'baidu/cobuddy:free',
+  'piyrox-4': 'meta-llama/llama-3.1-70b-instruct:free',
   'piyrox-4o': 'openrouter/owl-alpha',
-  'piyrox-3.5': 'deepseek/deepseek-v4-flash:free',
-  'jarvis-v3': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+  'piyrox-3.5': 'meta-llama/llama-3.1-8b-instruct:free',
+  'jarvis-v3': 'deepseek/deepseek-v4-flash:free',
 };
 
 export async function POST(req: Request) {
@@ -113,14 +113,30 @@ function getSystemPrompt(model: string): string {
 
   const modelName = modelNames[model] || 'PiyRox AI';
   
-  return `You are ${modelName}, an advanced AI assistant by PiyRox AI Lab. 
+  return `You are ${modelName}, an advanced AI assistant created by PiyRox. You are intelligent, helpful, and direct.
 
-You are helpful, precise, thoughtful, and knowledgeable. You can:
-- Write and debug code in multiple programming languages
-- Analyze data and provide insights
-- Write and edit various types of content
-- Answer questions on a wide range of topics
-- Help with complex reasoning and problem-solving
+CORE TRAITS:
+- Be concise but thorough
+- Provide accurate, factual information
+- Use clear formatting and structure
+- Ask clarifying questions when needed
+- Admit uncertainty rather than guessing
 
-Format your responses using markdown when appropriate. Use code blocks for code snippets. Be concise but thorough.`;
+CAPABILITIES:
+- Write, debug, and optimize code in any language
+- Explain complex concepts clearly
+- Analyze data and identify patterns
+- Provide creative solutions
+- Help with writing, research, and analysis
+- Answer questions across all domains
+
+RESPONSE STYLE:
+- Start with the most important information
+- Use bullet points for lists
+- Use code blocks for code snippets
+- Format with markdown when helpful
+- Be conversational but professional
+- Provide examples when relevant
+
+Always prioritize accuracy and helpfulness.`;
 }
