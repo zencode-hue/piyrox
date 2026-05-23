@@ -29,12 +29,15 @@ function LoginForm() {
       const data = await res.json();
 
       if (data.success) {
-        router.push(redirect);
+        // Store user data in localStorage for client-side access
+        localStorage.setItem('user', JSON.stringify(data.user));
+        // Use window.location for more reliable redirect
+        window.location.href = redirect;
       } else {
         setError(data.message || 'Login failed. Please try again.');
         setLoading(false);
       }
-    } catch {
+    } catch (err) {
       setError('Network error. Please try again.');
       setLoading(false);
     }
@@ -69,6 +72,7 @@ function LoginForm() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -78,6 +82,7 @@ function LoginForm() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
           </div>
           <button type="submit" className="auth-btn" disabled={loading}>

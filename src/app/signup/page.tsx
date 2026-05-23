@@ -9,6 +9,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +27,9 @@ export default function Signup() {
 
       if (data.success) {
         setSuccess('Account created! Please check your email to verify your account.');
+        setName('');
+        setEmail('');
+        setPassword('');
       } else {
         setError(data.message || 'Signup failed. Please try again.');
       }
@@ -33,6 +37,35 @@ export default function Signup() {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    setResendLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/auth/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setSuccess('Verification email sent! Check your inbox.');
+      } else {
+        setError(data.message || 'Failed to resend email. Please try again.');
+      }
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -53,6 +86,7 @@ export default function Signup() {
               <input
                 type="text" id="name" required placeholder="John Doe"
                 value={name} onChange={(e) => setName(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="form-group">
@@ -60,6 +94,7 @@ export default function Signup() {
               <input
                 type="email" id="email" required placeholder="you@example.com"
                 value={email} onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="form-group">
@@ -68,12 +103,35 @@ export default function Signup() {
                 type="password" id="password" required
                 placeholder="Min. 8 characters" minLength={8}
                 value={password} onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
             <button type="submit" className="auth-btn" disabled={loading}>
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
+        )}
+
+        {success && (
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+            <p style={{ marginBottom: '15px', color: 'var(--text-secondary)' }}>
+              Didn't receive the email?
+            </p>
+            <button 
+              onClick={handleResend}
+              disabled={resendLoading}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#007bff',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                fontSize: '14px'
+              }}
+            >
+              {resendLoading ? 'Sending...' : 'Resend verification email'}
+            </button>
+          </div>
         )}
 
         <div className="auth-links">

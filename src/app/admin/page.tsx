@@ -1,164 +1,228 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import styles from './admin.module.css';
 
-type AdminTab = 'analytics' | 'database' | 'settings';
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  plan: string;
+  is_verified: boolean;
+  created_at: string;
+}
 
-export default function Admin() {
-  const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
+interface Stats {
+  totalUsers: number;
+  verifiedUsers: number;
+  totalDownloads: number;
+  activeUsers: number;
+}
+
+export default function AdminDashboard() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    totalUsers: 0,
+    verifiedUsers: 0,
+    totalDownloads: 0,
+    activeUsers: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    // Check if admin is authenticated
+    const adminAuth = localStorage.getItem('admin_auth');
+    if (adminAuth) {
+      setAuthenticated(true);
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simple password check (in production, use proper auth)
+    if (password === 'admin123') {
+      localStorage.setItem('admin_auth', 'true');
+      setAuthenticated(true);
+      setPassword('');
+      fetchData();
+    } else {
+      setError('Invalid password');
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      // Fetch users
+      const usersRes = await fetch('/api/admin/users');
+      const usersData = await usersRes.json();
+      
+      if (usersData.success) {
+        setUsers(usersData.users);
+        
+        // Calculate stats
+        const verified = usersData.users.filter((u: User) => u.is_verified).length;
+        setStats({
+          totalUsers: usersData.users.length,
+          verifiedUsers: verified,
+          totalDownloads: Math.floor(Math.random() * 1000) + 100, // Mock data
+          activeUsers: Math.floor(verified * 0.7)
+        });
+      }
+    } catch (err) {
+      setError('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_auth');
+    setAuthenticated(false);
+    setUsers([]);
+  };
+
+  if (!authenticated) {
+    return (
+      <div className={styles.loginContainer}>
+        <div className={styles.loginCard}>
+          <h1>Admin Dashboard</h1>
+          <p>Enter password to continue</p>
+          
+          {error && <div className={styles.error}>{error}</div>}
+          
+          <form onSubmit={handleAdminLogin}>
+            <div className={styles.formGroup}>
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter admin password"
+                autoFocus
+              />
+            </div>
+            <button type="submit" className={styles.loginBtn}>
+              Login
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-layout">
-      <aside className="admin-sidebar">
-        <div className="admin-brand">PiyRox Admin</div>
-        <nav className="admin-nav">
-          <div
-            className={`admin-link${activeTab === 'analytics' ? ' active' : ''}`}
-            onClick={() => setActiveTab('analytics')}
-          >
-            📊 Analytics
-          </div>
-          <div
-            className={`admin-link${activeTab === 'database' ? ' active' : ''}`}
-            onClick={() => setActiveTab('database')}
-          >
-            🗄️ Database
-          </div>
-          <div
-            className={`admin-link${activeTab === 'settings' ? ' active' : ''}`}
-            onClick={() => setActiveTab('settings')}
-          >
-            ⚙️ AI API Settings
-          </div>
-          <Link href="/" className="admin-link" style={{ marginTop: 'auto' }}>
-            🚪 Exit Admin
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <div>
+          <h1>Admin Dashboard</h1>
+          <p>Manage users and monitor platform activity</p>
+        </div>
+        <button onClick={handleLogout} className={styles.logoutBtn}>
+          Logout
+        </button>
+      </div>
+
+      {error && <div className={styles.error}>{error}</div>}
+
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>Total Users</div>
+          <div className={styles.statValue}>{stats.totalUsers}</div>
+          <div className={styles.statChange}>+12% this month</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>Verified Users</div>
+          <div className={styles.statValue}>{stats.verifiedUsers}</div>
+          <div className={styles.statChange}>{Math.round((stats.verifiedUsers / stats.totalUsers) * 100)}% verified</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>Total Downloads</div>
+          <div className={styles.statValue}>{stats.totalDownloads}</div>
+          <div className={styles.statChange}>+8% this week</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>Active Users</div>
+          <div className={styles.statValue}>{stats.activeUsers}</div>
+          <div className={styles.statChange}>Last 30 days</div>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2>Recent Users</h2>
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.slice(0, 10).map((user) => (
+                <tr key={user.id}>
+                  <td>{user.name}</td>
+                  <td>{user.email}</td>
+                  <td>
+                    <span className={`${styles.badge} ${styles[user.plan]}`}>
+                      {user.plan}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`${styles.badge} ${user.is_verified ? styles.verified : styles.pending}`}>
+                      {user.is_verified ? 'Verified' : 'Pending'}
+                    </span>
+                  </td>
+                  <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2>Quick Actions</h2>
+        <div className={styles.actionsGrid}>
+          <Link href="/products" className={styles.actionCard}>
+            <div className={styles.actionIcon}>📦</div>
+            <div className={styles.actionTitle}>Manage Products</div>
+            <div className={styles.actionDesc}>View and update product listings</div>
           </Link>
-        </nav>
-      </aside>
-
-      <main className="admin-main">
-        {/* Analytics Tab */}
-        <div className={`tab-content${activeTab === 'analytics' ? ' active' : ''}`}>
-          <div className="admin-header">
-            <h1>Platform Analytics</h1>
-            <button className="btn btn-secondary">Export Report</button>
-          </div>
-          <div className="metrics-grid">
-            <div className="metric-card">
-              <h3>Total Users</h3>
-              <div className="value">14,205</div>
-              <div className="trend">+124 this week</div>
-            </div>
-            <div className="metric-card">
-              <h3>Pro Subscribers</h3>
-              <div className="value">2,840</div>
-              <div className="trend">+45 this week</div>
-            </div>
-            <div className="metric-card">
-              <h3>API Calls (24h)</h3>
-              <div className="value">1.2M</div>
-              <div className="trend">+8.4% today</div>
-            </div>
-            <div className="metric-card">
-              <h3>MRR</h3>
-              <div className="value">$56.8k</div>
-              <div className="trend">+1.2% this month</div>
-            </div>
-          </div>
-          <div className="chart-placeholder">
-            <span>Live token usage chart rendering engine...</span>
-          </div>
+          <Link href="/admin/settings" className={styles.actionCard}>
+            <div className={styles.actionIcon}>⚙️</div>
+            <div className={styles.actionTitle}>Settings</div>
+            <div className={styles.actionDesc}>Configure platform settings</div>
+          </Link>
+          <Link href="/admin/analytics" className={styles.actionCard}>
+            <div className={styles.actionIcon}>📊</div>
+            <div className={styles.actionTitle}>Analytics</div>
+            <div className={styles.actionDesc}>View detailed analytics and reports</div>
+          </Link>
+          <Link href="/" className={styles.actionCard}>
+            <div className={styles.actionIcon}>🏠</div>
+            <div className={styles.actionTitle}>Back to Home</div>
+            <div className={styles.actionDesc}>Return to main website</div>
+          </Link>
         </div>
-
-        {/* Database Tab */}
-        <div className={`tab-content${activeTab === 'database' ? ' active' : ''}`}>
-          <div className="admin-header">
-            <h1>Users Database</h1>
-          </div>
-          <div className="table-container">
-            <table className="db-table">
-              <thead>
-                <tr>
-                  <th>ID</th><th>Name</th><th>Email</th><th>Plan</th><th>Joined</th><th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>10492</td><td>Sarah Connor</td><td>sarah@cyberdyne.com</td>
-                  <td><span className="badge pro">Pro</span></td>
-                  <td>Oct 24, 2026</td>
-                  <td><button style={{ background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>Edit</button></td>
-                </tr>
-                <tr>
-                  <td>10491</td><td>John Doe</td><td>john.doe@example.com</td>
-                  <td><span className="badge free">Free</span></td>
-                  <td>Oct 23, 2026</td>
-                  <td><button style={{ background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>Edit</button></td>
-                </tr>
-                <tr>
-                  <td>10490</td><td>Alice Vance</td><td>alice@vance.io</td>
-                  <td><span className="badge pro">Pro</span></td>
-                  <td>Oct 23, 2026</td>
-                  <td><button style={{ background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>Edit</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Settings Tab */}
-        <div className={`tab-content${activeTab === 'settings' ? ' active' : ''}`}>
-          <div className="admin-header">
-            <h1>Lab Settings</h1>
-            <button className="btn btn-primary" onClick={() => alert('API Keys saved securely.')}>
-              Save Changes
-            </button>
-          </div>
-          <div className="settings-card">
-            <h2>Frontier Model API Keys</h2>
-            <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '24px' }}>
-              Manage the upstream API keys used by the PiyRox Lab ecosystem.
-            </p>
-            <div className="setting-group">
-              <label>OpenAI API Key (GPT-4o routing)</label>
-              <input type="password" defaultValue="sk-proj-................................" />
-            </div>
-            <div className="setting-group">
-              <label>Anthropic API Key (Claude 3.5 routing)</label>
-              <input type="password" defaultValue="sk-ant-................................" />
-            </div>
-            <div className="setting-group">
-              <label>Google Gemini API Key</label>
-              <input type="password" defaultValue="AIzaSy................................" />
-            </div>
-            <div className="setting-group">
-              <label>Together AI Key (Open-source fallback)</label>
-              <input type="password" placeholder="Enter key..." />
-            </div>
-          </div>
-          <div className="settings-card">
-            <h2>System Toggles</h2>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div>
-                <div style={{ fontWeight: 500 }}>Allow New Registrations</div>
-                <div style={{ fontSize: '0.85rem', color: '#a1a1aa' }}>Users can sign up via the homepage</div>
-              </div>
-              <div style={{ background: '#ededed', width: '40px', height: '22px', borderRadius: '11px', position: 'relative', cursor: 'pointer' }}>
-                <div style={{ width: '18px', height: '18px', background: '#000', borderRadius: '50%', position: 'absolute', top: '2px', right: '2px' }} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
-              <div>
-                <div style={{ fontWeight: 500 }}>Maintenance Mode</div>
-                <div style={{ fontSize: '0.85rem', color: '#a1a1aa' }}>Display maintenance page to all non-admins</div>
-              </div>
-              <div style={{ background: '#27272a', width: '40px', height: '22px', borderRadius: '11px', position: 'relative', cursor: 'pointer' }}>
-                <div style={{ width: '18px', height: '18px', background: '#a1a1aa', borderRadius: '50%', position: 'absolute', top: '2px', left: '2px' }} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

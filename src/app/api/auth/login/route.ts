@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     const client = await pool.connect();
     try {
       const result = await client.query(
-        'SELECT id, name, email, plan FROM users WHERE email = $1 AND password = $2',
+        'SELECT id, name, email, plan, is_verified FROM users WHERE email = $1 AND password = $2',
         [email, hashedPassword]
       );
 
@@ -70,7 +70,16 @@ export async function POST(req: Request) {
 
       const user = result.rows[0];
 
-      return NextResponse.json({
+      // Check if email is verified
+      if (!user.is_verified) {
+        return NextResponse.json(
+          { success: false, message: 'Please verify your email before logging in', verified: false },
+          { status: 403 }
+        );
+      }
+
+      // Create response with user data
+      const response = NextResponse.json({
         success: true,
         message: 'Login successful!',
         user: {
@@ -80,6 +89,16 @@ export async function POST(req: Request) {
           plan: user.plan
         }
       });
+
+      // Set auth cookie
+      response.cookies.set('auth_token', JSON.stringify(user), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 // 7 days
+      });
+
+      return response;
     } finally {
       client.release();
     }

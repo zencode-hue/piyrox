@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import crypto from 'crypto';
+import { Resend } from 'resend';
 
 const pool = new Pool({
   connectionString: process.env.SUPABASE_DB_URL,
@@ -8,6 +9,8 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Initialize database tables
 async function initDb() {
@@ -27,6 +30,38 @@ async function initDb() {
     `);
   } finally {
     client.release();
+  }
+}
+
+// Send verification email
+async function sendVerificationEmail(name: string, email: string, token: string) {
+  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/verify?token=${token}&email=${encodeURIComponent(email)}`;
+  
+  try {
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'support@piyrox.sbs',
+      to: email,
+      subject: 'Verify your PiyRox account',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Welcome to PiyRox, ${name}!</h2>
+          <p>Thank you for signing up. Please verify your email address to activate your account.</p>
+          <p>
+            <a href="${verificationUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Verify Email
+            </a>
+          </p>
+          <p>Or copy this link: <code>${verificationUrl}</code></p>
+          <p>This link expires in 24 hours.</p>
+          <hr />
+          <p style="color: #666; font-size: 12px;">If you didn't create this account, please ignore this email.</p>
+        </div>
+      `
+    });
+    return true;
+  } catch (error) {
+    console.error('Failed to send verification email:', error);
+    return false;
   }
 }
 
@@ -82,10 +117,16 @@ export async function POST(req: Request) {
       client.release();
     }
 
+    // Send verification email
+    const emailSent = await sendVerificationEmail(name, email, verificationToken);
+
     return NextResponse.json({
       success: true,
-      message: 'Account created successfully! You can now log in.',
-      user: { name, email }
+      message: emailSent 
+        ? 'Account created! Check your email to verify your account.' 
+        : 'Account created! Please check your email (or spam folder) to verify.',
+      user: { name, email },
+      emailSent
     });
   } catch (error: any) {
     console.error('Signup error:', error);
