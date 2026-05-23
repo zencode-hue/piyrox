@@ -32,12 +32,15 @@ function LoginForm() {
         // Store user data in localStorage for client-side access
         localStorage.setItem('user', JSON.stringify(data.user));
         // Use window.location for more reliable redirect
-        window.location.href = redirect;
+        setTimeout(() => {
+          window.location.href = redirect;
+        }, 100);
       } else {
         setError(data.message || 'Login failed. Please try again.');
         setLoading(false);
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError('Network error. Please try again.');
       setLoading(false);
     }

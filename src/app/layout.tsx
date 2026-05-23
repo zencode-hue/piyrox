@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description:
     'We build agentic environments. From the world\'s first AI-native OS to IDEs that write their own code, PiyRox is the ultimate platform for creators.',
   icons: { 
-    icon: '/favicon-new.svg',
+    icon: '/favicon.svg',
     apple: '/logo.svg'
   },
 };
