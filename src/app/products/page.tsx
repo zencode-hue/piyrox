@@ -1,117 +1,78 @@
-
-"use client";
 import React from 'react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function Products() {
   return (
     <>
-      
-    <nav className="navbar">
-      <div className="nav-container">
-        <a href="/index.html" className="logo">PiyRox</a>
-        <div className="nav-links">
-          <a href="/products.html" className="active">Products</a>
-          <a href="/research.html">Research</a>
-          <a href="/pricing.html">Pricing</a>
-          <a href="/download.html">Download</a>
+      <Navbar activePage="products" />
+
+      <div className="page-header">
+        <h1>The PiyRox Platform</h1>
+        <p>Three products. One unified AI ecosystem built for the modern era.</p>
+      </div>
+
+      <section id="jarvis" style={{ borderTop: 'none', paddingTop: '0' }}>
+        <div className="section-header">
+          <h2>🤖 Jarvis OS</h2>
+          <p>
+            Your ambient AI assistant. Always available, securely integrated with your local filesystem,
+            and capable of executing complex multi-step workflows directly on your machine. Jarvis OS
+            is the first AI that truly lives on your computer — not in a browser tab.
+          </p>
         </div>
-        <div className="nav-actions">
-          <a href="/login.html" className="btn btn-secondary">Log in</a>
-          <a href="/signup.html" className="btn btn-primary">Sign up</a>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '48px' }}>
+          {['Local filesystem access', 'Multi-step workflow execution', 'Voice command support', 'Offline capability', 'System automation', 'Secure sandboxed environment'].map((f) => (
+            <div key={f} style={{ padding: '20px 24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              ✓ {f}
+            </div>
+          ))}
         </div>
-      </div>
-    </nav>
+        <Link href="/download" className="btn btn-primary btn-large">Download Jarvis OS</Link>
+      </section>
 
-    <div className="product-hero">
-      <h1>Three products.<br />One platform.</h1>
-      <p>The PiyRox ecosystem brings voice AI, an intelligent code editor, and conversational AI together — built for developers and teams who ship fast.</p>
-    </div>
-
-    <div className="product-section" id="jarvis">
-      <div className="product-text">
-        <h2>🤖 Jarvis OS</h2>
-        <p>Jarvis is not a chatbot. It is an ambient intelligence layer that lives on your operating system. It sees your screen, listens for your voice, and acts on your behalf — securely and locally.</p>
-        <ul className="feature-bullets">
-          <li>Voice-activated natural language commands</li>
-          <li>Real-time screen awareness and context reading</li>
-          <li>Local filesystem access and task automation</li>
-          <li>Multi-step workflow execution</li>
-          <li>Desktop overlay UI with pulsating voice orb</li>
-          <li>Runs entirely on your machine — no cloud required</li>
-        </ul>
-        <a href="/download.html" className="btn btn-primary btn-large">Download Jarvis OS</a>
-      </div>
-      <div className="product-visual">🤖</div>
-    </div>
-
-    <hr className="section-divider" />
-
-    <div className="product-section reverse" id="ide">
-      <div className="product-text">
-        <h2>💻 PiyRox IDE</h2>
-        <p>The first IDE built entirely around agentic AI. PiyRox IDE doesn't just autocomplete — it reads your entire codebase, plans architectural changes, and writes production-ready code across multiple files.</p>
-        <ul className="feature-bullets">
-          <li>Full codebase context awareness (128k+ tokens)</li>
-          <li>Multi-file agentic code generation</li>
-          <li>Automatic bug detection and fixing</li>
-          <li>Integrated terminal with AI command suggestions</li>
-          <li>Seamless Jarvis OS integration</li>
-          <li>Built-in version control and deployment tools</li>
-        </ul>
-        <a href="/download.html" className="btn btn-primary btn-large">Download PiyRox IDE</a>
-      </div>
-      <div className="product-visual">💻</div>
-    </div>
-
-    <hr className="section-divider" />
-
-    <div className="product-section" id="chat">
-      <div className="product-text">
-        <h2>💬 PiyRox Chat</h2>
-        <p>Our flagship conversational AI — powered by PiyRox-4, our proprietary frontier model. Optimized for complex reasoning, deep analysis, creative generation, and code writing.</p>
-        <ul className="feature-bullets">
-          <li>128k token context window for long conversations</li>
-          <li>Multi-model selection (PiyRox-4, PiyRox-3.5, Jarvis V3)</li>
-          <li>Web browsing and real-time data access</li>
-          <li>File upload and data analysis</li>
-          <li>Code execution in sandboxed environment</li>
-          <li>Available on the web at chat.piyrox.sbs</li>
-        </ul>
-        <a href="https://chat.piyrox.sbs" className="btn btn-primary btn-large">Launch PiyRox Chat</a>
-      </div>
-      <div className="product-visual">💬</div>
-    </div>
-
-    <footer className="footer">
-      <div className="footer-content">
-        <div className="footer-brand">
-          <h2>PiyRox</h2>
-          <p>Advancing artificial intelligence for humanity.</p>
+      <section id="ide">
+        <div className="section-header">
+          <h2>💻 PiyRox IDE</h2>
+          <p>
+            The first IDE built entirely around agentic capabilities. It doesn&apos;t just autocomplete;
+            it reads your entire codebase, plans massive architectural features, and writes the code.
+            PiyRox IDE is what coding looks like in 2026.
+          </p>
         </div>
-        <div className="footer-links">
-          <div className="link-column">
-            <h4>Products</h4>
-            <a href="/products.html#jarvis">Jarvis OS</a>
-            <a href="/products.html#ide">PiyRox IDE</a>
-            <a href="https://chat.piyrox.sbs">PiyRox Chat</a>
-          </div>
-          <div className="link-column">
-            <h4>Company</h4>
-            <a href="/research.html">Research</a>
-            <a href="/pricing.html">Pricing</a>
-            <a href="/about.html">About</a>
-            <a href="/contact.html">Contact</a>
-          </div>
-          <div className="link-column">
-            <h4>Legal</h4>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '48px' }}>
+          {['Full codebase context (128k tokens)', 'Agentic multi-file editing', 'Architectural planning', 'Automated testing', 'Git integration', 'All languages supported'].map((f) => (
+            <div key={f} style={{ padding: '20px 24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              ✓ {f}
+            </div>
+          ))}
         </div>
-      </div>
-    </footer>
-  
+        <Link href="/download" className="btn btn-primary btn-large">Download PiyRox IDE</Link>
+      </section>
+
+      <section id="chat">
+        <div className="section-header">
+          <h2>💬 PiyRox Chat</h2>
+          <p>
+            The conversational powerhouse. Powered by our proprietary frontier models, optimized for
+            deep reasoning, long-context analysis, and creative generation. Access PiyRox Chat from
+            any browser, anywhere.
+          </p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '48px' }}>
+          {['PiyRox-4 frontier model', 'Jarvis V3 reasoning model', '200k token context window', 'Code execution sandbox', 'Image & file analysis', 'API access'].map((f) => (
+            <div key={f} style={{ padding: '20px 24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              ✓ {f}
+            </div>
+          ))}
+        </div>
+        <a href="https://chat.piyrox.sbs" className="btn btn-primary btn-large" target="_blank" rel="noopener noreferrer">
+          Open PiyRox Chat
+        </a>
+      </section>
+
+      <Footer />
     </>
   );
 }

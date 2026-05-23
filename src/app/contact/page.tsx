@@ -1,144 +1,114 @@
-
 "use client";
-import React from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+
+type Status = 'idle' | 'loading' | 'success' | 'error';
 
 export default function Contact() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('general');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<Status>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('success');
+        setName(''); setEmail(''); setSubject('general'); setMessage('');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
+  };
+
   return (
     <>
-      
-    <nav className="navbar">
-      <div className="nav-container">
-        <a href="/index.html" className="logo">PiyRox</a>
-        <div className="nav-links">
-          <a href="/products.html">Products</a>
-          <a href="/research.html">Research</a>
-          <a href="/pricing.html">Pricing</a>
-          <a href="/download.html">Download</a>
-        </div>
-        <div className="nav-actions">
-          <a href="/login.html" className="btn btn-secondary">Log in</a>
-          <a href="/signup.html" className="btn btn-primary">Sign up</a>
-        </div>
+      <Navbar activePage="contact" />
+
+      <div className="page-header">
+        <h1>Get in touch</h1>
+        <p>Have questions about our products, billing, or research? We&apos;d love to hear from you.</p>
       </div>
-    </nav>
 
-    <div className="page-header">
-      <h1>Get in touch</h1>
-      <p>Have questions about our products, billing, or research? We'd love to hear from you.</p>
-    </div>
-
-    <section style={{borderTop: 'none', paddingTop: '0'}}>
-      <div className="contact-grid">
-        <div>
-          <div className="success-message" id="successMsg">
-            ✓ Your message has been sent successfully. We'll get back to you within 24 hours.
+      <section style={{ borderTop: 'none', paddingTop: '0' }}>
+        <div className="contact-grid">
+          <div>
+            {status === 'success' && (
+              <div className="success-message" style={{ display: 'block' }}>
+                ✓ Your message has been sent. We&apos;ll get back to you within 24 hours.
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="error-msg" style={{ display: 'block' }}>
+                Failed to send message. Please try again or email us directly.
+              </div>
+            )}
+            <form className="contact-form" onSubmit={handleSubmit}>
+              <div>
+                <label htmlFor="contactName">Full Name</label>
+                <input type="text" id="contactName" placeholder="Your name" required
+                  value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="contactEmail">Email</label>
+                <input type="email" id="contactEmail" placeholder="you@example.com" required
+                  value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="contactSubject">Subject</label>
+                <select id="contactSubject" value={subject} onChange={(e) => setSubject(e.target.value)}>
+                  <option value="general">General Inquiry</option>
+                  <option value="billing">Billing &amp; Payments</option>
+                  <option value="technical">Technical Support</option>
+                  <option value="enterprise">Enterprise Sales</option>
+                  <option value="partnership">Partnership</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="contactMessage">Message</label>
+                <textarea id="contactMessage" placeholder="Describe your question or issue..." required
+                  value={message} onChange={(e) => setMessage(e.target.value)} />
+              </div>
+              <button type="submit" className="btn btn-primary btn-large" disabled={status === 'loading'}>
+                {status === 'loading' ? 'Sending...' : 'Send Message'}
+              </button>
+            </form>
           </div>
-          <form className="contact-form" id="contactForm">
-            <label htmlFor="contactName">Full Name</label>
-            <input type="text" id="contactName" placeholder="Your name" required />
 
-            <label htmlFor="contactEmail">Email</label>
-            <input type="email" id="contactEmail" placeholder="you@example.com" required />
-
-            <label htmlFor="contactSubject">Subject</label>
-            <select id="contactSubject">
-              <option value="general">General Inquiry</option>
-              <option value="billing">Billing & Payments</option>
-              <option value="technical">Technical Support</option>
-              <option value="enterprise">Enterprise Sales</option>
-              <option value="partnership">Partnership</option>
-            </select>
-
-            <label htmlFor="contactMessage">Message</label>
-            <textarea id="contactMessage" placeholder="Describe your question or issue..." required></textarea>
-
-            <button type="submit" className="btn btn-primary btn-large">Send Message</button>
-          </form>
-        </div>
-
-        <div className="contact-info-cards">
-          <div className="info-card">
-            <h4>📧 Email Support</h4>
-            <p>For all inquiries, reach us directly at<br /><a href="mailto:support@piyrox.sbs">support@piyrox.sbs</a></p>
-          </div>
-          <div className="info-card">
-            <h4>💬 Live Chat</h4>
-            <p>Pro and Enterprise users get access to priority live chat support during business hours.</p>
-          </div>
-          <div className="info-card">
-            <h4>📚 Documentation</h4>
-            <p>Browse our docs for guides, API references, and tutorials.<br /><a href="#">docs.piyrox.sbs</a></p>
-          </div>
-          <div className="info-card">
-            <h4>🐛 Bug Reports</h4>
-            <p>Found a bug? Report it on our public issue tracker.<br /><a href="#">github.com/piyrox</a></p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer className="footer">
-      <div className="footer-content">
-        <div className="footer-brand">
-          <h2>PiyRox</h2>
-          <p>Advancing artificial intelligence for humanity.</p>
-        </div>
-        <div className="footer-links">
-          <div className="link-column">
-            <h4>Products</h4>
-            <a href="/products.html#jarvis">Jarvis OS</a>
-            <a href="/products.html#ide">PiyRox IDE</a>
-            <a href="/products.html#chat">PiyRox Chat</a>
-          </div>
-          <div className="link-column">
-            <h4>Company</h4>
-            <a href="/research.html">Research</a>
-            <a href="/pricing.html">Pricing</a>
-            <a href="/about.html">About</a>
-            <a href="/contact.html">Contact</a>
+          <div className="contact-info-cards">
+            <div className="info-card">
+              <h4>📧 Email Support</h4>
+              <p>For all inquiries, reach us directly at<br /><a href="mailto:support@piyrox.sbs">support@piyrox.sbs</a></p>
+            </div>
+            <div className="info-card">
+              <h4>💬 Live Chat</h4>
+              <p>Pro and Enterprise users get access to priority live chat support during business hours.</p>
+            </div>
+            <div className="info-card">
+              <h4>📚 Documentation</h4>
+              <p>Browse our docs for guides, API references, and tutorials.<br /><a href="https://docs.piyrox.sbs">docs.piyrox.sbs</a></p>
+            </div>
+            <div className="info-card">
+              <h4>🐛 Bug Reports</h4>
+              <p>Found a bug? Report it on our public issue tracker.<br /><a href="https://github.com/piyrox">github.com/piyrox</a></p>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
+      </section>
 
-    <script>
-      document.getElementById('contactForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = this.querySelector('button');
-        btn.textContent = 'Sending...';
-        btn.disabled = true;
-
-        const formData = {
-          name: document.getElementById('contactName').value,
-          email: document.getElementById('contactEmail').value,
-          subject: document.getElementById('contactSubject').value,
-          message: document.getElementById('contactMessage').value
-        };
-
-        try {
-          const response = await fetch('/backend/api/contact.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-          });
-          const result = await response.json();
-          if (result.success) {
-            document.getElementById('successMsg').style.display = 'block';
-            this.reset();
-          } else {
-            alert(result.message || 'Failed to send message.');
-          }
-        } catch(err) {
-          // Fallback: still show success for demo purposes
-          document.getElementById('successMsg').style.display = 'block';
-          this.reset();
-        }
-        btn.textContent = 'Send Message';
-        btn.disabled = false;
-      });
-    </script>
-  
+      <Footer />
     </>
   );
 }

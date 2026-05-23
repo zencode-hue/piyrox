@@ -1,6 +1,6 @@
 {
   "name": "piyrox-next",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,13 +8,17 @@
     "start": "next start",
     "lint": "eslint"
   },
-  "dependencies": { "pg": "^8.11.3",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
     "next": "16.2.6",
+    "pg": "^8.11.3",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
-  "devDependencies": { "@types/pg": "^8.11.0",
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
+    "@types/pg": "^8.11.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

@@ -1,76 +1,59 @@
-
-"use client";
 import React from 'react';
-import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function About() {
   return (
     <>
-      
-    <nav className="navbar">
-      <div className="nav-container">
-        <a href="/index.html" className="logo">PiyRox</a>
-        <div className="nav-links">
-          <a href="/products.html">Products</a>
-          <a href="/research.html">Research</a>
-          <a href="/pricing.html">Pricing</a>
-          <a href="/download.html">Download</a>
-        </div>
-        <div className="nav-actions">
-          <a href="/login.html" className="btn btn-secondary">Log in</a>
-          <a href="/signup.html" className="btn btn-primary">Sign up</a>
-        </div>
+      <Navbar activePage="about" />
+
+      <div className="page-header">
+        <h1>About PiyRox</h1>
+        <p>We are building the infrastructure for the agentic era of computing.</p>
       </div>
-    </nav>
 
-    <div className="page-header">
-      <h1>About PiyRox</h1>
-      <p>We are a dedicated AI lab focused on bringing frontier intelligence to everyone's local machine safely and securely.</p>
-    </div>
-
-    <section style={{borderTop: 'none', paddingTop: '0', maxWidth: '800px'}}>
-      <div className="content-text">
-        <h3 style={{marginBottom: '24px'}}>Our Mission</h3>
-        <p style={{marginBottom: '24px', color: 'var(--text-secondary)', fontSize: '1.125rem'}}>
-          PiyRox was founded with a singular vision: to bridge the gap between complex AI models and everyday workflows.
-          We believe that artificial intelligence should not just be a chatbot in a browser, but an ambient operating layer
-          that assists you proactively.
-        </p>
-        <p style={{color: 'var(--text-secondary)', fontSize: '1.125rem'}}>
-          From our flagship Jarvis OS integration to the PiyRox IDE, we are redefining human-computer interaction
-          to be agentic, conversational, and highly context-aware.
-        </p>
-      </div>
-    </section>
-
-    <footer className="footer">
-      <div className="footer-content">
-        <div className="footer-brand">
-          <h2>PiyRox</h2>
-          <p>Advancing artificial intelligence for humanity.</p>
-        </div>
-        <div className="footer-links">
-          <div className="link-column">
-            <h4>Products</h4>
-            <a href="/products.html#jarvis">Jarvis</a>
-            <a href="/products.html#ide">IDE</a>
-            <a href="/products.html#chat">Chat</a>
+      <section style={{ borderTop: 'none', paddingTop: '0' }}>
+        <div style={{ maxWidth: '760px' }}>
+          <div style={{ marginBottom: '64px' }}>
+            <h2 style={{ fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '24px' }}>Our Mission</h2>
+            <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '20px' }}>
+              PiyRox AI Lab was founded on a single conviction: the next era of computing is agentic.
+              AI won&apos;t just answer questions — it will take actions, write code, manage systems,
+              and operate autonomously on behalf of humans.
+            </p>
+            <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+              We build the tools that make this possible. From Jarvis OS — an AI that lives on your
+              machine — to PiyRox IDE, which doesn&apos;t just suggest code but architects entire systems,
+              every product we ship is designed to give humans more leverage over their digital world.
+            </p>
           </div>
-          <div className="link-column">
-            <h4>Company</h4>
-            <a href="/research.html">Research</a>
-            <a href="/pricing.html">Pricing</a>
-            <a href="/about.html">About</a>
-            <a href="/download.html">Download</a>
+
+          <div style={{ marginBottom: '64px' }}>
+            <h2 style={{ fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '24px' }}>Our Values</h2>
+            {[
+              { title: 'Safety First', desc: 'Every model we ship is evaluated for safety before release. We believe powerful AI and responsible AI are not in conflict.' },
+              { title: 'Radical Transparency', desc: 'We publish our research, document our limitations, and are honest about what our models can and cannot do.' },
+              { title: 'Builder-Focused', desc: 'We build for creators, developers, and makers. Our products are designed to give builders superpowers, not replace them.' },
+              { title: 'Long-Term Thinking', desc: 'We optimize for the long-term benefit of humanity, not short-term metrics. We are building for the next 50 years.' },
+            ].map((v) => (
+              <div key={v.title} style={{ padding: '28px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '10px' }}>{v.title}</h3>
+                <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>{v.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <h2 style={{ fontSize: '2rem', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: '24px' }}>Contact</h2>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '24px' }}>
+              For press inquiries, partnerships, or general questions, reach us at{' '}
+              <a href="mailto:support@piyrox.sbs" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>support@piyrox.sbs</a>.
+            </p>
           </div>
         </div>
-      </div>
-      <div className="footer-bottom">
-        <p>&copy; 2026 PiyRox AI Lab. All rights reserved.</p>
-      </div>
-    </footer>
-    <script type="module" src="./main.js"></script>
-  
+      </section>
+
+      <Footer />
     </>
   );
 }

@@ -1,98 +1,91 @@
-
-"use client";
 import React from 'react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function Download() {
   return (
     <>
-      
-    <nav className="navbar">
-      <div className="nav-container">
-        <a href="/index.html" className="logo">PiyRox</a>
-        <div className="nav-links">
-          <a href="/products.html">Products</a>
-          <a href="/research.html">Research</a>
-          <a href="/pricing.html">Pricing</a>
-          <a href="/download.html" className="active">Download</a>
-        </div>
-        <div className="nav-actions">
-          <a href="/login.html" className="btn btn-secondary">Log in</a>
-          <a href="/signup.html" className="btn btn-primary">Sign up</a>
-        </div>
-      </div>
-    </nav>
+      <Navbar activePage="download" />
 
-    <div className="download-hero">
-      <h1>Download PiyRox</h1>
-      <p>Get the desktop applications and start building with agentic AI on your local machine.</p>
-    </div>
-
-    <div className="download-grid">
-      <div className="download-card">
-        <div className="dl-icon">🤖</div>
-        <h3>Jarvis Ultimate</h3>
-        <div className="dl-version">v2.0.0 · Windows</div>
-        <p>The ambient AI assistant that runs locally on your system. Voice commands, screen awareness, and task automation.</p>
-        <a href="/downloads/JarvisUltimate.zip" className="dl-btn" download>⬇ Download .exe</a>
-        <div className="dl-meta">~85 MB · Requires Windows 10+</div>
+      <div className="page-header">
+        <h1>Download PiyRox</h1>
+        <p>Get the desktop apps. Windows support available now. macOS and Linux coming soon.</p>
       </div>
 
-      <div className="download-card">
-        <div className="dl-icon">💻</div>
-        <h3>PiyRox IDE</h3>
-        <div className="dl-version">v1.0.0 · Windows</div>
-        <p>The AI-native code editor with full codebase context, multi-file editing, and agentic code generation.</p>
-        <a href="/downloads/PiyRoxIDE.zip" className="dl-btn" download>⬇ Download .exe</a>
-        <div className="dl-meta">~120 MB · Requires Windows 10+</div>
-      </div>
-    </div>
-
-    <div className="sys-req">
-      <h3>System Requirements</h3>
-      <div className="req-grid">
-        <div className="req-item">
-          <h4>Operating System</h4>
-          <p>Windows 10 or later (64-bit)</p>
-        </div>
-        <div className="req-item">
-          <h4>RAM</h4>
-          <p>8 GB minimum, 16 GB recommended</p>
-        </div>
-        <div className="req-item">
-          <h4>Disk Space</h4>
-          <p>500 MB free space per application</p>
-        </div>
-        <div className="req-item">
-          <h4>Internet</h4>
-          <p>Required for AI model access & updates</p>
-        </div>
-      </div>
-    </div>
-
-    <footer className="footer">
-      <div className="footer-content">
-        <div className="footer-brand">
-          <h2>PiyRox</h2>
-          <p>Advancing artificial intelligence for humanity.</p>
-        </div>
-        <div className="footer-links">
-          <div className="link-column">
-            <h4>Products</h4>
-            <a href="/products.html#jarvis">Jarvis OS</a>
-            <a href="/products.html#ide">PiyRox IDE</a>
-            <a href="https://chat.piyrox.sbs">PiyRox Chat</a>
+      <section style={{ borderTop: 'none', paddingTop: '0' }}>
+        <div className="premium-grid">
+          <div className="premium-card" style={{ animationDelay: '0ms' }}>
+            <div className="card-icon">🤖</div>
+            <h3>Jarvis OS</h3>
+            <p>
+              Your ambient AI assistant for Windows. Integrates with your filesystem, runs
+              multi-step workflows, and is always one keystroke away.
+            </p>
+            <div style={{ marginBottom: '16px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              Version 2.0.1 · Windows 10/11 · 64-bit
+            </div>
+            <a
+              href="/downloads/JarvisUltimate.zip"
+              className="btn btn-primary"
+              download
+            >
+              ⬇ Download EXE (Windows)
+            </a>
           </div>
-          <div className="link-column">
-            <h4>Company</h4>
-            <a href="/research.html">Research</a>
-            <a href="/about.html">About</a>
-            <a href="/contact.html">Contact</a>
+
+          <div className="premium-card" style={{ animationDelay: '100ms' }}>
+            <div className="card-icon">💻</div>
+            <h3>PiyRox IDE</h3>
+            <p>
+              The agentic IDE. Reads your entire codebase, plans architectural changes,
+              and writes production-ready code across multiple files.
+            </p>
+            <div style={{ marginBottom: '16px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              Version 1.4.0 · Windows 10/11 · 64-bit
+            </div>
+            <a
+              href="/downloads/PiyRoxIDE.zip"
+              className="btn btn-primary"
+              download
+            >
+              ⬇ Download EXE (Windows)
+            </a>
+          </div>
+
+          <div className="premium-card" style={{ animationDelay: '200ms' }}>
+            <div className="card-icon">💬</div>
+            <h3>PiyRox Chat</h3>
+            <p>
+              No download needed. PiyRox Chat runs entirely in your browser. Access it
+              from any device, anywhere in the world.
+            </p>
+            <div style={{ marginBottom: '16px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              Web App · No installation required
+            </div>
+            <a
+              href="https://chat.piyrox.sbs"
+              className="btn btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in Browser →
+            </a>
           </div>
         </div>
-      </div>
-    </footer>
-  
+
+        <div style={{ marginTop: '80px', padding: '40px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '12px' }}>System Requirements</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+            <div><strong style={{ color: 'var(--text-primary)', display: 'block', marginBottom: '8px' }}>OS</strong>Windows 10 or 11 (64-bit)</div>
+            <div><strong style={{ color: 'var(--text-primary)', display: 'block', marginBottom: '8px' }}>RAM</strong>8 GB minimum, 16 GB recommended</div>
+            <div><strong style={{ color: 'var(--text-primary)', display: 'block', marginBottom: '8px' }}>Storage</strong>500 MB free disk space</div>
+            <div><strong style={{ color: 'var(--text-primary)', display: 'block', marginBottom: '8px' }}>Internet</strong>Required for AI features</div>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </>
   );
 }

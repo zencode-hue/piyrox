@@ -1,26 +1,44 @@
-
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
+type AdminTab = 'analytics' | 'database' | 'settings';
+
 export default function Admin() {
+  const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
+
   return (
-    <>
-      
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-brand">PiyRox Admin</div>
         <nav className="admin-nav">
-          <div className="admin-link active" onClick="switchTab('analytics')">📊 Analytics</div>
-          <div className="admin-link" onClick="switchTab('database')">🗄️ Database</div>
-          <div className="admin-link" onClick="switchTab('settings')">⚙️ AI API Settings</div>
-          <a href="/index.html" className="admin-link" style={{marginTop: 'auto'}}>🚪 Exit Admin</a>
+          <div
+            className={`admin-link${activeTab === 'analytics' ? ' active' : ''}`}
+            onClick={() => setActiveTab('analytics')}
+          >
+            📊 Analytics
+          </div>
+          <div
+            className={`admin-link${activeTab === 'database' ? ' active' : ''}`}
+            onClick={() => setActiveTab('database')}
+          >
+            🗄️ Database
+          </div>
+          <div
+            className={`admin-link${activeTab === 'settings' ? ' active' : ''}`}
+            onClick={() => setActiveTab('settings')}
+          >
+            ⚙️ AI API Settings
+          </div>
+          <Link href="/" className="admin-link" style={{ marginTop: 'auto' }}>
+            🚪 Exit Admin
+          </Link>
         </nav>
       </aside>
 
       <main className="admin-main">
-        {/*  Analytics Tab  */}
-        <div id="analytics" className="tab-content active">
+        {/* Analytics Tab */}
+        <div className={`tab-content${activeTab === 'analytics' ? ' active' : ''}`}>
           <div className="admin-header">
             <h1>Platform Analytics</h1>
             <button className="btn btn-secondary">Export Report</button>
@@ -52,8 +70,8 @@ export default function Admin() {
           </div>
         </div>
 
-        {/*  Database Tab  */}
-        <div id="database" className="tab-content">
+        {/* Database Tab */}
+        <div className={`tab-content${activeTab === 'database' ? ' active' : ''}`}>
           <div className="admin-header">
             <h1>Users Database</h1>
           </div>
@@ -61,107 +79,86 @@ export default function Admin() {
             <table className="db-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Plan</th>
-                  <th>Joined</th>
-                  <th>Action</th>
+                  <th>ID</th><th>Name</th><th>Email</th><th>Plan</th><th>Joined</th><th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>10492</td>
-                  <td>Sarah Connor</td>
-                  <td>sarah@cyberdyne.com</td>
+                  <td>10492</td><td>Sarah Connor</td><td>sarah@cyberdyne.com</td>
                   <td><span className="badge pro">Pro</span></td>
                   <td>Oct 24, 2026</td>
-                  <td><button style={{background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer'}}>Edit</button></td>
+                  <td><button style={{ background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>Edit</button></td>
                 </tr>
                 <tr>
-                  <td>10491</td>
-                  <td>John Doe</td>
-                  <td>john.doe@example.com</td>
+                  <td>10491</td><td>John Doe</td><td>john.doe@example.com</td>
                   <td><span className="badge free">Free</span></td>
                   <td>Oct 23, 2026</td>
-                  <td><button style={{background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer'}}>Edit</button></td>
+                  <td><button style={{ background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>Edit</button></td>
                 </tr>
                 <tr>
-                  <td>10490</td>
-                  <td>Alice Vance</td>
-                  <td>alice@vance.io</td>
+                  <td>10490</td><td>Alice Vance</td><td>alice@vance.io</td>
                   <td><span className="badge pro">Pro</span></td>
                   <td>Oct 23, 2026</td>
-                  <td><button style={{background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer'}}>Edit</button></td>
+                  <td><button style={{ background: 'none', border: 'none', color: '#a1a1aa', cursor: 'pointer' }}>Edit</button></td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        {/*  Settings Tab  */}
-        <div id="settings" className="tab-content">
+        {/* Settings Tab */}
+        <div className={`tab-content${activeTab === 'settings' ? ' active' : ''}`}>
           <div className="admin-header">
             <h1>Lab Settings</h1>
-            <button className="btn btn-primary" onClick="alert('API Keys saved securely to Supabase Vault.')">Save Changes</button>
+            <button className="btn btn-primary" onClick={() => alert('API Keys saved securely.')}>
+              Save Changes
+            </button>
           </div>
-          
           <div className="settings-card">
             <h2>Frontier Model API Keys</h2>
-            <p style={{color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '24px'}}>Manage the upstream API keys used by the PiyRox Lab ecosystem (Jarvis OS, IDE, and Chat).</p>
-            
+            <p style={{ color: '#a1a1aa', fontSize: '0.9rem', marginBottom: '24px' }}>
+              Manage the upstream API keys used by the PiyRox Lab ecosystem.
+            </p>
             <div className="setting-group">
               <label>OpenAI API Key (GPT-4o routing)</label>
-              <input type="password" value="sk-proj-................................" />
+              <input type="password" defaultValue="sk-proj-................................" />
             </div>
             <div className="setting-group">
               <label>Anthropic API Key (Claude 3.5 routing)</label>
-              <input type="password" value="sk-ant-................................" />
+              <input type="password" defaultValue="sk-ant-................................" />
             </div>
             <div className="setting-group">
               <label>Google Gemini API Key</label>
-              <input type="password" value="AIzaSy................................" />
+              <input type="password" defaultValue="AIzaSy................................" />
             </div>
             <div className="setting-group">
               <label>Together AI Key (Open-source fallback)</label>
               <input type="password" placeholder="Enter key..." />
             </div>
           </div>
-
           <div className="settings-card">
             <h2>System Toggles</h2>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.05)'}}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
               <div>
-                <div style={{fontWeight: '500'}}>Allow New Registrations</div>
-                <div style={{fontSize: '0.85rem', color: '#a1a1aa'}}>Users can sign up via the homepage</div>
+                <div style={{ fontWeight: 500 }}>Allow New Registrations</div>
+                <div style={{ fontSize: '0.85rem', color: '#a1a1aa' }}>Users can sign up via the homepage</div>
               </div>
-              <div className="toggle-switch active" style={{background: '#ededed', width: '40px', height: '22px', borderRadius: '11px', position: 'relative', cursor: 'pointer'}}>
-                <div style={{width: '18px', height: '18px', background: '#000', borderRadius: '50%', position: 'absolute', top: '2px', right: '2px'}}></div>
+              <div style={{ background: '#ededed', width: '40px', height: '22px', borderRadius: '11px', position: 'relative', cursor: 'pointer' }}>
+                <div style={{ width: '18px', height: '18px', background: '#000', borderRadius: '50%', position: 'absolute', top: '2px', right: '2px' }} />
               </div>
             </div>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0'}}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
               <div>
-                <div style={{fontWeight: '500'}}>Maintenance Mode</div>
-                <div style={{fontSize: '0.85rem', color: '#a1a1aa'}}>Display maintenance page to all non-admins</div>
+                <div style={{ fontWeight: 500 }}>Maintenance Mode</div>
+                <div style={{ fontSize: '0.85rem', color: '#a1a1aa' }}>Display maintenance page to all non-admins</div>
               </div>
-              <div className="toggle-switch" style={{background: '#27272a', width: '40px', height: '22px', borderRadius: '11px', position: 'relative', cursor: 'pointer'}}>
-                <div style={{width: '18px', height: '18px', background: '#a1a1aa', borderRadius: '50%', position: 'absolute', top: '2px', left: '2px'}}></div>
+              <div style={{ background: '#27272a', width: '40px', height: '22px', borderRadius: '11px', position: 'relative', cursor: 'pointer' }}>
+                <div style={{ width: '18px', height: '18px', background: '#a1a1aa', borderRadius: '50%', position: 'absolute', top: '2px', left: '2px' }} />
               </div>
             </div>
           </div>
         </div>
       </main>
     </div>
-
-    <script>
-      function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.admin-link').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
-      }
-    </script>
-  
-    </>
   );
 }

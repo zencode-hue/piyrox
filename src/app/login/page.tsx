@@ -1,74 +1,102 @@
-
 "use client";
-import React from 'react';
+import React, { Suspense, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function Login() {
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/dashboard';
+  const expired = searchParams.get('expired');
+  const verified = searchParams.get('verified');
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        router.push(redirect);
+      } else {
+        setError(data.message || 'Login failed. Please try again.');
+        setLoading(false);
+      }
+    } catch {
+      setError('Network error. Please try again.');
+      setLoading(false);
+    }
+  };
+
   return (
-    <>
-      
     <div className="auth-container">
       <div className="auth-card">
-        <a href="/index.html" className="auth-logo">PiyRox</a>
+        <Link href="/" className="auth-logo">PiyRox</Link>
         <h2>Welcome back</h2>
         <p>Log in to access your PiyRox dashboard.</p>
 
-        <div className="error-msg" id="errorMsg"></div>
+        {expired && (
+          <div className="error-msg" style={{ display: 'block' }}>
+            Your session expired. Please log in again.
+          </div>
+        )}
+        {verified && (
+          <div className="success-msg" style={{ display: 'block' }}>
+            ✓ Email verified! You can now log in.
+          </div>
+        )}
+        {error && (
+          <div className="error-msg" style={{ display: 'block' }}>{error}</div>
+        )}
 
-        <form id="loginForm">
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email address</label>
-            <input type="email" id="email" required placeholder="you@example.com" />
+            <input
+              type="email" id="email" required
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input type="password" id="password" required placeholder="••••••••" />
+            <input
+              type="password" id="password" required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
-          <button type="submit" className="auth-btn" id="submitBtn">Log in</button>
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? 'Logging in...' : 'Log in'}
+          </button>
         </form>
 
         <div className="auth-links">
-          Don't have an account? <a href="/signup.html">Sign up</a>
+          Don&apos;t have an account? <Link href="/signup">Sign up</Link>
         </div>
       </div>
     </div>
+  );
+}
 
-    <script>
-      document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        const errorEl = document.getElementById('errorMsg');
-        errorEl.style.display = 'none';
-        btn.textContent = 'Logging in...';
-        btn.disabled = true;
-
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        try {
-          const response = await fetch('/backend/api/login.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          });
-          const result = await response.json();
-          if (result.success) {
-            localStorage.setItem('piyrox_user', JSON.stringify(result.user));
-            window.location.href = '/dashboard.html';
-          } else {
-            errorEl.textContent = result.message;
-            errorEl.style.display = 'block';
-            btn.textContent = 'Log in';
-            btn.disabled = false;
-          }
-        } catch (err) {
-          // Demo fallback: log in anyway
-          localStorage.setItem('piyrox_user', JSON.stringify({ name: email.split('@')[0], email: email }));
-          window.location.href = '/dashboard.html';
-        }
-      });
-    </script>
-  
-    </>
+export default function Login() {
+  return (
+    <Suspense fallback={<div className="auth-container"><div className="auth-card"><p style={{ color: 'var(--text-secondary)' }}>Loading...</p></div></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
