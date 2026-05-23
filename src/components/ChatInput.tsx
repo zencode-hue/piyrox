@@ -57,18 +57,18 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const canSend = (input.trim().length > 0 || files.length > 0) && !disabled;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pt-8 pb-4 px-4">
-      <div className="max-w-3xl mx-auto">
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-950 via-gray-950 to-transparent pt-8 pb-6 px-4">
+      <div className="max-w-4xl mx-auto">
         {/* File previews */}
         {files.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {files.map((f, i) => (
-              <div key={i} className="flex items-center gap-2 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs text-gray-700 group">
+              <div key={i} className="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-xs text-gray-300 group">
                 <span>{f.type.startsWith('image/') ? '🖼️' : '📎'}</span>
                 <span className="truncate max-w-[120px]">{f.name}</span>
                 <button
                   onClick={() => removeFile(i)}
-                  className="text-gray-500 hover:text-gray-900 transition-colors ml-1"
+                  className="text-gray-500 hover:text-gray-300 transition-colors ml-1"
                   aria-label="Remove file"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -82,8 +82,8 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
 
         {/* Input box */}
         <div
-          className={`relative flex flex-col bg-white border rounded-2xl shadow-sm transition-colors ${
-            dragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+          className={`relative flex flex-col bg-gray-900 border rounded-2xl shadow-lg transition-colors ${
+            dragOver ? 'border-indigo-500 bg-indigo-950/20' : 'border-gray-800 hover:border-gray-700'
           }`}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
@@ -98,7 +98,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
             placeholder="Message PiyRox..."
             disabled={disabled}
             rows={1}
-            className="w-full bg-transparent text-gray-900 placeholder-gray-500 text-sm resize-none outline-none px-4 pt-4 pb-2 max-h-[200px] leading-6 disabled:opacity-50"
+            className="w-full bg-transparent text-gray-100 placeholder-gray-600 text-sm resize-none outline-none px-4 pt-4 pb-2 max-h-[200px] leading-6 disabled:opacity-50"
             style={{ minHeight: '52px' }}
           />
 
@@ -117,7 +117,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-gray-300 transition-colors"
                 title="Attach files"
                 disabled={disabled}
               >
@@ -134,8 +134,8 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
               disabled={!canSend}
               className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                 canSend
-                  ? 'bg-gray-900 text-white hover:bg-gray-800 shadow-sm'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20'
+                  : 'bg-gray-800 text-gray-600 cursor-not-allowed'
               }`}
               aria-label="Send message"
             >
@@ -146,7 +146,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-2">
+        <p className="text-center text-xs text-gray-600 mt-2">
           PiyRox can make mistakes. Verify important information.
         </p>
       </div>

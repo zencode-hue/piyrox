@@ -3,17 +3,17 @@ import { NextResponse } from 'next/server';
 // OpenRouter free models - best quality free options
 const FREE_MODELS: Record<string, string> = {
   'piyrox-4': 'baidu/cobuddy:free',
-  'piyrox-4o': 'openrouter/owl-alphanvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
-  'piyrox-3.5': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
-  'jarvis-v3': 'deepseek/deepseek-v4-flash:free',
+  'piyrox-4o': 'openrouter/owl-alpha',
+  'piyrox-3.5': 'deepseek/deepseek-v4-flash:free',
+  'jarvis-v3': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
 };
 
 // Code-specific free models (better for coding)
 const CODE_FREE_MODELS: Record<string, string> = {
   'piyrox-4': 'baidu/cobuddy:free',
-  'piyrox-4o': 'openrouter/owl-alphanvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
-  'piyrox-3.5': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
-  'jarvis-v3': 'deepseek/deepseek-v4-flash:free',
+  'piyrox-4o': 'openrouter/owl-alpha',
+  'piyrox-3.5': 'deepseek/deepseek-v4-flash:free',
+  'jarvis-v3': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
 };
 
 export async function POST(req: Request) {
