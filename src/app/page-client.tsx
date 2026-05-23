@@ -21,8 +21,16 @@ function generateId() {
 }
 
 export default function ChatPageClient() {
-  const themeContext = useTheme();
-  const { theme, toggleTheme } = themeContext;
+  const [mounted, setMounted] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
   const [chats, setChats] = useState<Chat[]>([
     { id: 'default', title: 'New chat', messages: [], createdAt: Date.now() },
   ]);

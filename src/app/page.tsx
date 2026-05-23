@@ -1,6 +1,11 @@
-import ChatPageClient from './page-client';
+'use client';
 
-export const dynamic = 'force-dynamic';
+import dynamic from 'next/dynamic';
+
+const ChatPageClient = dynamic(() => import('./page-client'), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function ChatPage() {
   return <ChatPageClient />;
