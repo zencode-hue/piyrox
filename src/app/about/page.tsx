@@ -10,6 +10,9 @@ export default function About() {
       <div className="page-header">
         <h1>About PiyRox</h1>
         <p>We are building the infrastructure for the agentic era of computing.</p>
+        <p style={{ marginTop: '20px', fontSize: '1.1rem' }}>
+          <a href="/docs" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>View Documentation →</a>
+        </p>
       </div>
 
       <section style={{ borderTop: 'none', paddingTop: '0' }}>

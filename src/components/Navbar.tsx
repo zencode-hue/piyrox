@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 
 interface NavbarProps {
-  activePage?: 'products' | 'research' | 'pricing' | 'download' | 'dashboard' | 'about' | 'contact';
+  activePage?: 'products' | 'research' | 'pricing' | 'download' | 'dashboard' | 'about' | 'contact' | 'docs';
 }
 
 export default function Navbar({ activePage }: NavbarProps) {
@@ -21,6 +21,7 @@ export default function Navbar({ activePage }: NavbarProps) {
           <Link href="/research" className={activePage === 'research' ? 'active' : ''}>Research</Link>
           <Link href="/pricing" className={activePage === 'pricing' ? 'active' : ''}>Pricing</Link>
           <Link href="/download" className={activePage === 'download' ? 'active' : ''}>Download</Link>
+          <Link href="/docs" className={activePage === 'docs' ? 'active' : ''}>Docs</Link>
           <a href="https://chat.piyrox.sbs" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)' }}>Chat ↗</a>
         </div>
 

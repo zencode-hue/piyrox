@@ -32,7 +32,11 @@ export default function PremiumCard({ icon, title, description, ctaLabel, ctaHre
       onMouseMove={handleMouseMove}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className="card-icon">{icon}</div>
+      <div className="card-icon">
+        {title === 'Jarvis OS' && <span>🤖</span>}
+        {title === 'PiyRox IDE' && <span>💻</span>}
+        {title === 'PiyRox Chat' && <span>💬</span>}
+      </div>
       <h3>{title}</h3>
       <p>{description}</p>
       {isExternal ? (

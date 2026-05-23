@@ -22,6 +22,7 @@ export default function Home() {
         <div className="hero-buttons">
           <Link href="/download" className="btn btn-primary btn-large">Download PiyRox OS</Link>
           <Link href="/products" className="btn btn-secondary btn-large">Explore Platform</Link>
+          <Link href="/docs" className="btn btn-secondary btn-large">Documentation</Link>
         </div>
       </header>
 
