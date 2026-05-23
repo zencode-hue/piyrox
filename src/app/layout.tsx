@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -24,8 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="PiyRox" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body className="bg-white text-gray-900 antialiased">
-        {children}
+      <body className="bg-white text-gray-900 antialiased dark:bg-[#0d0d0d] dark:text-white">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         <script dangerouslySetInnerHTML={{
           __html: `
             if ('serviceWorker' in navigator) {

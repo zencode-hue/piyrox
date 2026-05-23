@@ -24,9 +24,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'Invalid request' }, { status: 400 });
     }
 
-    const openrouterKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+    // Try both env var names for compatibility
+    const openrouterKey = process.env.OPENROUTER_API_KEY || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+    
     if (!openrouterKey) {
-      return NextResponse.json({ success: false, message: 'OpenRouter API key not configured' }, { status: 500 });
+      console.error('OpenRouter API key not found in environment variables');
+      return NextResponse.json({ 
+        success: false, 
+        message: 'OpenRouter API key not configured. Please set OPENROUTER_API_KEY environment variable.' 
+      }, { status: 500 });
     }
 
     // Detect if this is a coding-related request

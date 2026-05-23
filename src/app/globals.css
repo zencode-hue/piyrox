@@ -12,6 +12,15 @@
   --border-color: #d1d5db;
 }
 
+html.dark {
+  --bg-primary: #0d0d0d;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #b4b4b4;
+  --border-color: #404040;
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -19,6 +28,7 @@ body {
   overflow: hidden;
   background: var(--bg-primary);
   color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 /* Custom scrollbar */
@@ -26,6 +36,9 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
+
+html.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+html.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
 /* Prose styles for AI responses */
 .prose-chat p { margin-bottom: 0.75rem; line-height: 1.75; }
@@ -37,6 +50,8 @@ body {
   font-size: 0.875em;
   color: #d63384;
 }
+html.dark .prose-chat code { color: #ff7eb6; }
+
 .prose-chat pre {
   background: var(--bg-secondary); border: 1px solid var(--border-color);
   border-radius: 8px; padding: 16px; overflow-x: auto;
@@ -52,6 +67,8 @@ body {
 .prose-chat h3 { font-size: 1.05rem; }
 .prose-chat strong { font-weight: 600; color: var(--text-primary); }
 .prose-chat a { color: #0066cc; text-decoration: underline; }
+html.dark .prose-chat a { color: #66b3ff; }
+
 .prose-chat blockquote { border-left: 3px solid var(--border-color); padding-left: 1rem; color: var(--text-secondary); margin: 0.75rem 0; }
 .prose-chat table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.9rem; }
 .prose-chat th { background: var(--bg-secondary); padding: 8px 12px; text-align: left; border: 1px solid var(--border-color); }
