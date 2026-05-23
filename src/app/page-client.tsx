@@ -21,7 +21,8 @@ function generateId() {
 }
 
 export default function ChatPageClient() {
-  const { theme, toggleTheme } = useTheme();
+  const themeContext = useTheme();
+  const { theme, toggleTheme } = themeContext;
   const [chats, setChats] = useState<Chat[]>([
     { id: 'default', title: 'New chat', messages: [], createdAt: Date.now() },
   ]);
@@ -48,6 +49,7 @@ export default function ChatPageClient() {
         }
       } catch (e) {
         console.error('Failed to load user:', e);
+        // User not logged in, that's ok
       } finally {
         setLoadingUser(false);
       }
