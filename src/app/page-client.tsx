@@ -37,30 +37,37 @@ function ChatPageContent() {
   const activeChat = chats.find((c) => c.id === activeChatId)!;
   const messages = activeChat?.messages ?? [];
 
-  // Initialize theme
+  // Apply theme to DOM
+  const applyTheme = useCallback((t: 'light' | 'dark') => {
+    const root = document.documentElement;
+    const body = document.body;
+    if (t === 'dark') {
+      root.classList.add('dark');
+      body.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+      body.classList.remove('dark');
+    }
+  }, []);
+
+  // Initialize theme on mount
   useEffect(() => {
     const stored = localStorage.getItem('theme') as 'light' | 'dark' | null;
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const initialTheme = stored || systemTheme;
     setTheme(initialTheme);
     applyTheme(initialTheme);
-  }, []);
+  }, [applyTheme]);
 
-  const applyTheme = (t: 'light' | 'dark') => {
-    const root = document.documentElement;
-    if (t === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  };
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    applyTheme(newTheme);
-  };
+  // Toggle theme
+  const toggleTheme = useCallback(() => {
+    setTheme((prevTheme) => {
+      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', newTheme);
+      applyTheme(newTheme);
+      return newTheme;
+    });
+  }, [applyTheme]);
 
   // Load user
   useEffect(() => {

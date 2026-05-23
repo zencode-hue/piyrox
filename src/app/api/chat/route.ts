@@ -2,18 +2,18 @@ import { NextResponse } from 'next/server';
 
 // OpenRouter free models - best quality free options
 const FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'meta-llama/llama-3.1-70b-instruct:free',
-  'piyrox-4o': 'meta-llama/llama-3.1-8b-instruct:free',
-  'piyrox-3.5': 'mistralai/mistral-7b-instruct:free',
-  'jarvis-v3': 'meta-llama/llama-3.1-70b-instruct:free',
+  'piyrox-4': 'baidu/cobuddy:free',
+  'piyrox-4o': 'openrouter/owl-alphanvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+  'piyrox-3.5': 'deepseek/deepseek-v4-flash:free',
+  'jarvis-v3': 'google/gemma-4-31b-it:free',
 };
 
 // Code-specific free models (better for coding)
 const CODE_FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'meta-llama/llama-3.1-70b-instruct:free',
-  'piyrox-4o': 'meta-llama/llama-3.1-70b-instruct:free',
-  'piyrox-3.5': 'meta-llama/llama-3.1-8b-instruct:free',
-  'jarvis-v3': 'meta-llama/llama-3.1-70b-instruct:free',
+  'piyrox-4': 'baidu/cobuddy:free',
+  'piyrox-4o': 'openrouter/owl-alphanvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+  'piyrox-3.5': 'deepseek/deepseek-v4-flash:free',
+  'jarvis-v3': 'google/gemma-4-31b-it:free',
 };
 
 export async function POST(req: Request) {
