@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { ThemeProvider } from '@/components/ThemeProvider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -29,9 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body className="bg-white text-gray-900 antialiased dark:bg-[#0d0d0d] dark:text-white">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        {children}
         <script dangerouslySetInnerHTML={{
           __html: `
             if ('serviceWorker' in navigator) {

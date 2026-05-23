@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, Suspense } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
 import WelcomeScreen from '@/components/WelcomeScreen';
 import ModelSelector from '@/components/ModelSelector';
-import { useTheme } from '@/components/ThemeProvider';
 import { Message, Chat, Model } from '@/types';
 
 const MODELS: Model[] = [
@@ -20,17 +19,8 @@ function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export default function ChatPageClient() {
-  const [mounted, setMounted] = useState(false);
-  const { theme, toggleTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
+function ChatPageContent() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [chats, setChats] = useState<Chat[]>([
     { id: 'default', title: 'New chat', messages: [], createdAt: Date.now() },
   ]);
@@ -47,6 +37,32 @@ export default function ChatPageClient() {
   const activeChat = chats.find((c) => c.id === activeChatId)!;
   const messages = activeChat?.messages ?? [];
 
+  // Initialize theme
+  useEffect(() => {
+    const stored = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const initialTheme = stored || systemTheme;
+    setTheme(initialTheme);
+    applyTheme(initialTheme);
+  }, []);
+
+  const applyTheme = (t: 'light' | 'dark') => {
+    const root = document.documentElement;
+    if (t === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  };
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
+  };
+
+  // Load user
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -57,7 +73,6 @@ export default function ChatPageClient() {
         }
       } catch (e) {
         console.error('Failed to load user:', e);
-        // User not logged in, that's ok
       } finally {
         setLoadingUser(false);
       }
@@ -176,8 +191,8 @@ export default function ChatPageClient() {
 
   if (loadingUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0d0d0d]">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -342,5 +357,17 @@ export default function ChatPageClient() {
         <ChatInput onSend={sendMessage} disabled={isTyping} />
       </div>
     </div>
+  );
+}
+
+export default function ChatPageClient() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0d0d0d]">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      </div>
+    }>
+      <ChatPageContent />
+    </Suspense>
   );
 }
