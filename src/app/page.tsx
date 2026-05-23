@@ -1,139 +1,240 @@
 "use client";
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import Sidebar from '@/components/Sidebar';
+import ChatMessage from '@/components/ChatMessage';
+import ChatInput from '@/components/ChatInput';
+import ModelSelector from '@/components/ModelSelector';
+import WelcomeScreen from '@/components/WelcomeScreen';
+import { Message, Chat, Model } from '@/types';
 
-import React, { useState, useRef, useEffect } from 'react';
+const MODELS: Model[] = [
+  { id: 'piyrox-4', name: 'PiyRox-4', desc: 'Most capable. Best for complex tasks.', badge: 'Pro' },
+  { id: 'piyrox-4o', name: 'PiyRox-4o', desc: 'Fast and intelligent. Great for most tasks.', badge: null },
+  { id: 'jarvis-v3', name: 'Jarvis V3', desc: 'Advanced reasoning and analysis.', badge: 'Pro' },
+  { id: 'piyrox-3.5', name: 'PiyRox-3.5', desc: 'Fast responses for everyday tasks.', badge: null },
+];
 
-type Message = {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-};
+function generateId() {
+  return Math.random().toString(36).slice(2, 10);
+}
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'assistant', content: 'Hello! I am PiyRox-4. How can I help you today?' }
+  const [chats, setChats] = useState<Chat[]>([
+    { id: 'default', title: 'New chat', messages: [], createdAt: Date.now() },
   ]);
-  const [input, setInput] = useState('');
+  const [activeChatId, setActiveChatId] = useState('default');
+  const [selectedModel, setSelectedModel] = useState<Model>(MODELS[1]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const activeChat = chats.find((c) => c.id === activeChatId)!;
+  const messages = activeChat?.messages ?? [];
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const updateChat = useCallback((chatId: string, updater: (c: Chat) => Chat) => {
+    setChats((prev) => prev.map((c) => (c.id === chatId ? updater(c) : c)));
+  }, []);
 
-    const newUserMsg: Message = { id: Date.now().toString(), role: 'user', content: input };
-    setMessages(prev => [...prev, newUserMsg]);
-    setInput('');
+  const sendMessage = useCallback(
+    async (content: string, files?: File[]) => {
+      if (!content.trim() && (!files || files.length === 0)) return;
 
-    // Simulate AI typing delay
-    setTimeout(() => {
-      const newAiMsg: Message = { 
-        id: (Date.now() + 1).toString(), 
-        role: 'assistant', 
-        content: "I am a frontend simulation of PiyRox-4. The backend integration with OpenAI/Anthropic will replace this response soon." 
+      const userMsg: Message = {
+        id: generateId(),
+        role: 'user',
+        content,
+        files: files?.map((f) => ({ name: f.name, type: f.type, size: f.size })),
+        timestamp: Date.now(),
       };
-      setMessages(prev => [...prev, newAiMsg]);
-    }, 1000);
+
+      // Auto-title the chat from first message
+      const isFirst = messages.length === 0;
+      const newTitle = isFirst
+        ? content.slice(0, 40) + (content.length > 40 ? '...' : '')
+        : activeChat.title;
+
+      updateChat(activeChatId, (c) => ({
+        ...c,
+        title: newTitle,
+        messages: [...c.messages, userMsg],
+      }));
+
+      setIsTyping(true);
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
+            model: selectedModel.id,
+          }),
+        });
+
+        const data = await res.json();
+        const assistantMsg: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: data.content || data.message || 'Sorry, I could not generate a response.',
+          timestamp: Date.now(),
+          model: selectedModel.id,
+        };
+
+        updateChat(activeChatId, (c) => ({
+          ...c,
+          messages: [...c.messages, assistantMsg],
+        }));
+      } catch {
+        const errMsg: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: "I'm having trouble connecting right now. Please check your API configuration or try again.",
+          timestamp: Date.now(),
+          model: selectedModel.id,
+        };
+        updateChat(activeChatId, (c) => ({
+          ...c,
+          messages: [...c.messages, errMsg],
+        }));
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [activeChatId, messages, selectedModel, activeChat, updateChat]
+  );
+
+  const newChat = () => {
+    const id = generateId();
+    setChats((prev) => [
+      { id, title: 'New chat', messages: [], createdAt: Date.now() },
+      ...prev,
+    ]);
+    setActiveChatId(id);
+  };
+
+  const deleteChat = (id: string) => {
+    setChats((prev) => {
+      const remaining = prev.filter((c) => c.id !== id);
+      if (remaining.length === 0) {
+        const newId = generateId();
+        setActiveChatId(newId);
+        return [{ id: newId, title: 'New chat', messages: [], createdAt: Date.now() }];
+      }
+      if (activeChatId === id) setActiveChatId(remaining[0].id);
+      return remaining;
+    });
   };
 
   return (
-    <div className="flex h-screen bg-[#212121] text-gray-100 font-sans">
-      
-      {/* Sidebar - ChatGPT Style */}
-      <aside className="w-[260px] bg-[#171717] flex-shrink-0 flex flex-col justify-between hidden md:flex border-r border-gray-800">
-        <div className="p-3">
-          <button className="flex items-center gap-3 w-full hover:bg-gray-800 p-3 rounded-lg transition-colors border border-gray-700 bg-transparent text-sm">
-            <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            New chat
-          </button>
-          
-          <div className="mt-6 text-xs font-semibold text-gray-500 px-3 mb-3">Today</div>
-          <div className="flex flex-col gap-1 overflow-y-auto">
-            <button className="text-left truncate text-sm px-3 py-2 rounded-lg bg-gray-800 text-gray-200">
-              PiyRox Chat Setup
-            </button>
-            <button className="text-left truncate text-sm px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-400">
-              React Framework Comparison
+    <div className="flex h-screen overflow-hidden bg-[#212121]">
+      {/* Sidebar */}
+      <Sidebar
+        open={sidebarOpen}
+        chats={chats}
+        activeChatId={activeChatId}
+        onSelectChat={setActiveChatId}
+        onNewChat={newChat}
+        onDeleteChat={deleteChat}
+        onClose={() => setSidebarOpen(false)}
+      />
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main */}
+      <div className="flex flex-col flex-1 min-w-0 h-full">
+        {/* Top bar */}
+        <header className="flex items-center justify-between h-14 px-4 border-b border-white/[0.06] bg-[#212121]/90 backdrop-blur-md flex-shrink-0 z-10">
+          <div className="flex items-center gap-3">
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 rounded-lg hover:bg-white/[0.06] transition-colors text-gray-400 hover:text-white"
+                aria-label="Open sidebar"
+              >
+                <IconMenu />
+              </button>
+            )}
+            <ModelSelector
+              models={MODELS}
+              selected={selectedModel}
+              open={modelMenuOpen}
+              onToggle={() => setModelMenuOpen((v) => !v)}
+              onSelect={(m) => { setSelectedModel(m); setModelMenuOpen(false); }}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://piyrox.sbs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-500 hover:text-gray-300 transition-colors hidden sm:block"
+            >
+              piyrox.sbs ↗
+            </a>
+            <button className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              P
             </button>
           </div>
-        </div>
-        
-        <div className="p-3 border-t border-gray-800">
-          <button className="flex items-center gap-3 w-full hover:bg-gray-800 p-3 rounded-lg transition-colors text-sm">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">P</div>
-            Precious
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col relative h-full">
-        {/* Header */}
-        <header className="h-14 flex items-center justify-center border-b border-gray-800 text-sm font-medium sticky top-0 bg-[#212121]/90 backdrop-blur-md z-10">
-          PiyRox-4 <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-xs">Beta</span>
         </header>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto scroll-smooth pb-32">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`w-full ${msg.role === 'assistant' ? 'bg-[#212121]' : 'bg-[#212121]'}`}>
-              <div className="max-w-3xl mx-auto flex gap-4 text-base md:gap-6 py-6 px-4 md:px-0">
-                <div className="flex-shrink-0 flex flex-col relative items-end">
-                  {msg.role === 'assistant' ? (
-                    <div className="w-8 h-8 rounded-full bg-[#10a37f] flex items-center justify-center text-white">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="currentColor"/></svg>
+        {/* Messages area */}
+        <div className="flex-1 overflow-y-auto">
+          {messages.length === 0 ? (
+            <WelcomeScreen model={selectedModel} onPrompt={sendMessage} />
+          ) : (
+            <div className="pb-36">
+              {messages.map((msg) => (
+                <ChatMessage key={msg.id} message={msg} />
+              ))}
+              {isTyping && (
+                <div className="py-6 px-4">
+                  <div className="max-w-3xl mx-auto flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-[#10a37f] flex items-center justify-center flex-shrink-0">
+                      <IconPiyRox />
                     </div>
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white">P</div>
-                  )}
-                </div>
-                <div className="relative flex w-[calc(100%-50px)] flex-col gap-1 md:gap-3 lg:w-[calc(100%-115px)]">
-                  <div className="flex flex-grow flex-col gap-3">
-                    <div className="min-h-[20px] flex flex-col items-start gap-4 whitespace-pre-wrap">
-                      {msg.content}
+                    <div className="flex items-center gap-1 pt-2">
+                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full inline-block" />
+                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full inline-block" />
+                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full inline-block" />
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
-          ))}
-          <div ref={messagesEndRef} />
+          )}
         </div>
 
-        {/* Input Area */}
-        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#212121] via-[#212121] to-transparent pt-6 pb-6">
-          <form onSubmit={handleSubmit} className="stretch mx-2 flex flex-row gap-3 last:mb-2 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-3xl">
-            <div className="relative flex h-full flex-1 flex-col">
-              <div className="flex flex-col w-full py-3 flex-grow md:py-4 md:pl-4 relative border border-gray-600/50 text-white bg-[#2f2f2f] rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.1)]">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Message PiyRox-4..."
-                  className="m-0 w-full resize-none border-0 bg-transparent p-0 pl-3 pr-10 focus:ring-0 focus-visible:ring-0 md:pr-12 bg-transparent outline-none"
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  disabled={!input.trim()}
-                  className="absolute p-1 rounded-md text-white bottom-2.5 right-2 md:bottom-3 md:right-3 hover:bg-gray-700 disabled:opacity-40 disabled:hover:bg-transparent transition-colors bg-white/10"
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="w-5 h-5 text-white"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path></svg>
-                </button>
-              </div>
-              <div className="text-center text-xs text-gray-500 mt-3">
-                PiyRox can make mistakes. Consider verifying important information.
-              </div>
-            </div>
-          </form>
-        </div>
-      </main>
+        {/* Input */}
+        <ChatInput onSend={sendMessage} disabled={isTyping} />
+      </div>
     </div>
+  );
+}
+
+function IconMenu() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  );
+}
+
+function IconPiyRox() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
