@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import Sidebar from '@/components/Sidebar';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
