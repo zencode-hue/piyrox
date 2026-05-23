@@ -3,8 +3,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
-import ModelSelector from '@/components/ModelSelector';
 import WelcomeScreen from '@/components/WelcomeScreen';
+import ModelSelector from '@/components/ModelSelector';
 import { Message, Chat, Model } from '@/types';
 
 const MODELS: Model[] = [
@@ -27,10 +27,31 @@ export default function ChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
+  const [user, setUser] = useState<{ id: number; name: string; email: string; plan: string } | null>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [showProfile, setShowProfile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeChat = chats.find((c) => c.id === activeChatId)!;
   const messages = activeChat?.messages ?? [];
+
+  // Load user on mount
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const res = await fetch('/api/auth/profile');
+        const data = await res.json();
+        if (data.success) {
+          setUser(data.user);
+        }
+      } catch (e) {
+        console.error('Failed to load user:', e);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+    loadUser();
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,7 +73,6 @@ export default function ChatPage() {
         timestamp: Date.now(),
       };
 
-      // Auto-title the chat from first message
       const isFirst = messages.length === 0;
       const newTitle = isFirst
         ? content.slice(0, 40) + (content.length > 40 ? '...' : '')
@@ -73,6 +93,7 @@ export default function ChatPage() {
           body: JSON.stringify({
             messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
             model: selectedModel.id,
+            prompt: content,
           }),
         });
 
@@ -93,7 +114,7 @@ export default function ChatPage() {
         const errMsg: Message = {
           id: generateId(),
           role: 'assistant',
-          content: "I'm having trouble connecting right now. Please check your API configuration or try again.",
+          content: "I'm having trouble connecting right now. Please check your connection or try again.",
           timestamp: Date.now(),
           model: selectedModel.id,
         };
@@ -130,6 +151,25 @@ export default function ChatPage() {
     });
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setUser(null);
+      setChats([{ id: 'default', title: 'New chat', messages: [], createdAt: Date.now() }]);
+      setActiveChatId('default');
+    } catch (e) {
+      console.error('Logout failed:', e);
+    }
+  };
+
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#212121]">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#212121]">
       {/* Sidebar */}
@@ -152,7 +192,7 @@ export default function ChatPage() {
       )}
 
       {/* Main */}
-      <div className="flex flex-col flex-1 min-w-0 h-full">
+      <div className="flex flex-col flex-1 min-w-0 h-full relative">
         {/* Top bar */}
         <header className="flex items-center justify-between h-14 px-4 border-b border-white/[0.06] bg-[#212121]/90 backdrop-blur-md flex-shrink-0 z-10">
           <div className="flex items-center gap-3">
@@ -173,18 +213,92 @@ export default function ChatPage() {
               onSelect={(m) => { setSelectedModel(m); setModelMenuOpen(false); }}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <a
-              href="https://piyrox.sbs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors hidden sm:block"
-            >
-              piyrox.sbs ↗
-            </a>
-            <button className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-              P
-            </button>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfile(!showProfile)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/[0.06] transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm text-gray-300 hidden sm:block">{user.name}</span>
+                </button>
+                
+                {showProfile && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowProfile(false)} />
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-[#1a1a1a] border border-white/[0.1] rounded-2xl shadow-2xl z-50 overflow-hidden">
+                      <div className="p-4 border-b border-white/[0.06]">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                            {user.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold text-white">{user.name}</div>
+                            <div className="text-xs text-gray-500">{user.email}</div>
+                            <div className="text-xs text-blue-400 mt-1">{user.plan === 'free' ? 'Free Plan' : 'Pro Plan'}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-2">
+                        <a
+                          href="https://piyrox.sbs/dashboard"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.05] transition-colors text-sm text-gray-300 hover:text-white"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                          </svg>
+                          Dashboard
+                        </a>
+                        <a
+                          href="https://piyrox.sbs/settings"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.05] transition-colors text-sm text-gray-300 hover:text-white"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                          </svg>
+                          Settings
+                        </a>
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors text-sm text-gray-300 w-full text-left"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                          </svg>
+                          Log out
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <a
+                  href="/login"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-white/[0.06] transition-colors"
+                >
+                  Log in
+                </a>
+                <a
+                  href="/signup"
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white transition-colors"
+                >
+                  Sign up
+                </a>
+              </div>
+            )}
           </div>
         </header>
 
