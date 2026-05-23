@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: piyrox-next
+    env: node
+    plan: free
+    
+    # Build configuration
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    
+    # Environment variables
+    envVars:
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://piyrox-next.onrender.com
+        
+      - key: SUPABASE_DB_URL
+        fromDatabase:
+          name: piyrox-db
+          property: connectionString
+          
+      - key: RESEND_API_KEY
+        sync: false
+        
+      - key: RESEND_FROM_EMAIL
+        value: support@piyrox.sbs
+        
+      - key: JWT_SECRET
+        sync: false
+        
+      - key: NODE_ENV
+        value: production
+    
+    # Health check
+    healthCheckPath: /
+    
+    # Disk size
+    disk:
+      name: piyrox-data
+      mountPath: /var/data
+      sizeGB: 1
+
+databases:
+  - name: piyrox-db
+    databaseName: piyrox
+    user: piyrox_user
+    plan: free
