@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import './globals.css';
@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: 'The conversational powerhouse. Powered by PiyRox frontier models.',
   icons: { icon: '/favicon.ico' },
   manifest: '/manifest.json',
+};
+
+export const viewport: Viewport = {
   themeColor: '#ffffff',
 };
 

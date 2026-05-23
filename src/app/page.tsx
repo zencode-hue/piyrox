@@ -1,5 +1,7 @@
 "use client";
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Sidebar from '@/components/Sidebar';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
@@ -7,6 +9,9 @@ import WelcomeScreen from '@/components/WelcomeScreen';
 import ModelSelector from '@/components/ModelSelector';
 import { useTheme } from '@/components/ThemeProvider';
 import { Message, Chat, Model } from '@/types';
+
+// Prevent static generation for this page
+export const dynamic = 'force-dynamic';
 
 const MODELS: Model[] = [
   { id: 'piyrox-4', name: 'PiyRox-4', desc: 'Most capable. Best for complex tasks.', badge: null },
