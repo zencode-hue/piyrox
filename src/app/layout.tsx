@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="PiyRox" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body className="bg-gray-950 text-gray-100 antialiased">
+      <body className="bg-black text-gray-100 antialiased">
         {children}
         <script dangerouslySetInnerHTML={{
           __html: `
