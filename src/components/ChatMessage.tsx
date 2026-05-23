@@ -7,7 +7,6 @@ interface ChatMessageProps {
 }
 
 function formatContent(content: string) {
-  // Basic markdown-like rendering
   return content
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
@@ -34,17 +33,17 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   };
 
   return (
-    <div className={`py-6 px-4 msg-animate ${isUser ? '' : 'bg-[#212121]'}`}>
+    <div className={`py-6 px-4 msg-animate ${isUser ? 'bg-white' : 'bg-gray-50'}`}>
       <div className="max-w-3xl mx-auto flex gap-4">
         {/* Avatar */}
         <div className="flex-shrink-0 mt-0.5">
           {isUser ? (
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-              P
+              U
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-full bg-[#10a37f] flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
             </div>
@@ -54,7 +53,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-semibold text-white">
+            <span className="text-sm font-semibold text-gray-900">
               {isUser ? 'You' : 'PiyRox'}
             </span>
             {!isUser && message.model && (
@@ -66,7 +65,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           {message.files && message.files.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {message.files.map((f, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-2 bg-white/[0.06] border border-white/[0.08] rounded-lg text-xs text-gray-300">
+                <div key={i} className="flex items-center gap-2 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs text-gray-700">
                   <FileIcon type={f.type} />
                   <span className="truncate max-w-[160px]">{f.name}</span>
                   <span className="text-gray-500">{formatSize(f.size)}</span>
@@ -77,20 +76,20 @@ export default function ChatMessage({ message }: ChatMessageProps) {
 
           {/* Message text */}
           {isUser ? (
-            <div className="text-gray-100 text-sm leading-7 whitespace-pre-wrap">{message.content}</div>
+            <div className="text-gray-800 text-sm leading-7 whitespace-pre-wrap">{message.content}</div>
           ) : (
             <div
-              className="prose-chat text-gray-200 text-sm"
+              className="prose-chat text-gray-800 text-sm"
               dangerouslySetInnerHTML={{ __html: `<p>${formatContent(message.content)}</p>` }}
             />
           )}
 
           {/* Actions (assistant only) */}
           {!isUser && (
-            <div className="flex items-center gap-1 mt-3 opacity-0 hover:opacity-100 transition-opacity group-hover:opacity-100">
+            <div className="flex items-center gap-1 mt-3 opacity-0 hover:opacity-100 transition-opacity">
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/[0.06] text-gray-500 hover:text-gray-300 transition-colors text-xs"
+                className="flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors text-xs"
                 title="Copy"
               >
                 {copied ? (

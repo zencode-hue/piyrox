@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
 
-// OpenRouter model mapping based on task type
-const MODEL_MAP: Record<string, string> = {
-  'piyrox-4': 'openai/gpt-4o-2024-11-20',
-  'piyrox-4o': 'openai/gpt-4o-mini',
-  'piyrox-3.5': 'openai/gpt-3.5-turbo',
-  'jarvis-v3': 'anthropic/claude-3-5-sonnet-20241022',
+// OpenRouter free models - best quality free options
+const FREE_MODELS: Record<string, string> = {
+  'piyrox-4': 'meta-llama/llama-3.1-70b-instruct:free',
+  'piyrox-4o': 'meta-llama/llama-3.1-8b-instruct:free',
+  'piyrox-3.5': 'mistralai/mistral-7b-instruct:free',
+  'jarvis-v3': 'meta-llama/llama-3.1-70b-instruct:free',
 };
 
-// Code-specific models (higher quality for coding)
-const CODE_MODELS: Record<string, string> = {
-  'piyrox-4': 'openai/gpt-4o-2024-11-20',
-  'piyrox-4o': 'openai/gpt-4o-2024-11-20',
-  'piyrox-3.5': 'openai/gpt-4o-mini',
-  'jarvis-v3': 'anthropic/claude-3-5-sonnet-20241022',
+// Code-specific free models (better for coding)
+const CODE_FREE_MODELS: Record<string, string> = {
+  'piyrox-4': 'meta-llama/llama-3.1-70b-instruct:free',
+  'piyrox-4o': 'meta-llama/llama-3.1-70b-instruct:free',
+  'piyrox-3.5': 'meta-llama/llama-3.1-8b-instruct:free',
+  'jarvis-v3': 'meta-llama/llama-3.1-70b-instruct:free',
 };
 
 export async function POST(req: Request) {
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'Invalid request' }, { status: 400 });
     }
 
-    const openrouterKey = process.env.OPENROUTER_API_KEY;
+    const openrouterKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
     if (!openrouterKey) {
       return NextResponse.json({ success: false, message: 'OpenRouter API key not configured' }, { status: 500 });
     }
@@ -32,12 +32,12 @@ export async function POST(req: Request) {
     // Detect if this is a coding-related request
     const isCodingRequest = isCodingPrompt(prompt || messages[0]?.content || '');
 
-    // Select appropriate model based on user selection and request type
-    let selectedModel = MODEL_MAP[model] || MODEL_MAP['piyrox-4o'];
+    // Select appropriate free model based on user selection and request type
+    let selectedModel = FREE_MODELS[model] || FREE_MODELS['piyrox-4o'];
     
-    // If coding request and user selected a lower-tier model, upgrade to better model
-    if (isCodingRequest && (model === 'piyrox-3.5' || model === 'piyrox-4o')) {
-      selectedModel = CODE_MODELS[model] || CODE_MODELS['piyrox-4o'];
+    // If coding request, use better free model
+    if (isCodingRequest) {
+      selectedModel = CODE_FREE_MODELS[model] || CODE_FREE_MODELS['piyrox-4o'];
     }
 
     // Build system prompt based on model
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
           { role: 'system', content: systemPrompt },
           ...messages.filter((m: { role: string }) => m.role !== 'system'),
         ],
-        max_tokens: 4096,
+        max_tokens: 2048,
         temperature: 0.7,
       }),
     });
@@ -65,7 +65,8 @@ export async function POST(req: Request) {
     const data = await res.json();
 
     if (data.error) {
-      return NextResponse.json({ success: false, message: data.error.message }, { status: 400 });
+      console.error('OpenRouter error:', data.error);
+      return NextResponse.json({ success: false, message: data.error.message || 'API error' }, { status: 400 });
     }
 
     if (data.choices?.[0]?.message?.content) {

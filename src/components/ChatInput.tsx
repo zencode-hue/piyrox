@@ -7,7 +7,7 @@ interface ChatInputProps {
 }
 
 const MAX_FILES = 5;
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
 export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [input, setInput] = useState('');
@@ -34,7 +34,6 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
-    // Auto-resize
     const ta = e.target;
     ta.style.height = 'auto';
     ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
@@ -58,18 +57,18 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const canSend = (input.trim().length > 0 || files.length > 0) && !disabled;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#212121] via-[#212121]/95 to-transparent pt-8 pb-4 px-4">
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pt-8 pb-4 px-4">
       <div className="max-w-3xl mx-auto">
         {/* File previews */}
         {files.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {files.map((f, i) => (
-              <div key={i} className="flex items-center gap-2 px-3 py-2 bg-[#2f2f2f] border border-white/[0.08] rounded-xl text-xs text-gray-300 group">
+              <div key={i} className="flex items-center gap-2 px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs text-gray-700 group">
                 <span>{f.type.startsWith('image/') ? '🖼️' : '📎'}</span>
                 <span className="truncate max-w-[120px]">{f.name}</span>
                 <button
                   onClick={() => removeFile(i)}
-                  className="text-gray-500 hover:text-gray-200 transition-colors ml-1"
+                  className="text-gray-500 hover:text-gray-900 transition-colors ml-1"
                   aria-label="Remove file"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -83,8 +82,8 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
 
         {/* Input box */}
         <div
-          className={`relative flex flex-col bg-[#2f2f2f] border rounded-2xl shadow-lg transition-colors ${
-            dragOver ? 'border-blue-500 bg-blue-500/5' : 'border-white/[0.1] hover:border-white/[0.15]'
+          className={`relative flex flex-col bg-white border rounded-2xl shadow-sm transition-colors ${
+            dragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
           }`}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
@@ -99,7 +98,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
             placeholder="Message PiyRox..."
             disabled={disabled}
             rows={1}
-            className="w-full bg-transparent text-gray-100 placeholder-gray-500 text-sm resize-none outline-none px-4 pt-4 pb-2 max-h-[200px] leading-6 disabled:opacity-50"
+            className="w-full bg-transparent text-gray-900 placeholder-gray-500 text-sm resize-none outline-none px-4 pt-4 pb-2 max-h-[200px] leading-6 disabled:opacity-50"
             style={{ minHeight: '52px' }}
           />
 
@@ -118,31 +117,12 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="p-2 rounded-lg hover:bg-white/[0.06] text-gray-500 hover:text-gray-300 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
                 title="Attach files"
                 disabled={disabled}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
-                </svg>
-              </button>
-
-              {/* Image upload shortcut */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (fileInputRef.current) {
-                    fileInputRef.current.accept = 'image/*';
-                    fileInputRef.current.click();
-                    fileInputRef.current.accept = 'image/*,.pdf,.doc,.docx,.txt,.csv,.xlsx,.xls,.json,.md';
-                  }
-                }}
-                className="p-2 rounded-lg hover:bg-white/[0.06] text-gray-500 hover:text-gray-300 transition-colors"
-                title="Upload image"
-                disabled={disabled}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
                 </svg>
               </button>
             </div>
@@ -152,10 +132,10 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
               type="button"
               onClick={() => handleSubmit()}
               disabled={!canSend}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+              className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                 canSend
-                  ? 'bg-white text-black hover:bg-gray-200 shadow-sm'
-                  : 'bg-white/[0.08] text-gray-600 cursor-not-allowed'
+                  ? 'bg-gray-900 text-white hover:bg-gray-800 shadow-sm'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
               aria-label="Send message"
             >
@@ -166,8 +146,8 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-600 mt-2">
-          PiyRox can make mistakes. Verify important information. · <a href="https://piyrox.sbs" className="hover:text-gray-400 transition-colors" target="_blank" rel="noopener noreferrer">piyrox.sbs</a>
+        <p className="text-center text-xs text-gray-500 mt-2">
+          PiyRox can make mistakes. Verify important information.
         </p>
       </div>
     </div>

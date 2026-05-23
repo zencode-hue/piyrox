@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: 'The conversational powerhouse. Powered by PiyRox frontier models.',
   icons: { icon: '/favicon.ico' },
   manifest: '/manifest.json',
-  themeColor: '#212121',
+  themeColor: '#ffffff',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -17,14 +17,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={inter.variable}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#212121" />
+        <meta name="theme-color" content="#ffffff" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="PiyRox" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body className="bg-[#212121] text-gray-100 antialiased">
+      <body className="bg-white text-gray-900 antialiased">
         {children}
         <script dangerouslySetInnerHTML={{
           __html: `
