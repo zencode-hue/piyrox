@@ -9,10 +9,10 @@ import ModelSelector from '@/components/ModelSelector';
 import { Message, Chat, Model } from '@/types';
 
 const MODELS: Model[] = [
-  { id: 'piyrox-4', name: 'PiyRox-4', desc: 'Most capable. Best for complex tasks.', badge: null },
-  { id: 'piyrox-4o', name: 'PiyRox-4o', desc: 'Fast and intelligent. Great for most tasks.', badge: null },
-  { id: 'jarvis-v3', name: 'Jarvis V3', desc: 'Advanced reasoning and analysis.', badge: null },
-  { id: 'piyrox-3.5', name: 'PiyRox-3.5', desc: 'Fast responses for everyday tasks.', badge: null },
+  { id: 'piyrox-4', name: 'PiyRox-4', desc: 'Most capable. Best for complex tasks.', badge: 'Best' },
+  { id: 'piyrox-4o', name: 'PiyRox-4o', desc: 'Fast and intelligent. Supports images & files.', badge: 'Vision' },
+  { id: 'piyrox-3.5', name: 'PiyRox-3.5', desc: 'Advanced reasoning and analysis.', badge: 'Reasoning' },
+  { id: 'jarvis-v3', name: 'Jarvis V3', desc: 'Fast responses for everyday tasks.', badge: 'Fast' },
 ];
 
 function generateId() {
@@ -20,7 +20,6 @@ function generateId() {
 }
 
 function ChatPageContent() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [chats, setChats] = useState<Chat[]>([
     { id: 'default', title: 'New chat', messages: [], createdAt: Date.now() },
   ]);
@@ -32,42 +31,11 @@ function ChatPageContent() {
   const [user, setUser] = useState<{ id: number; name: string; email: string; plan: string } | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeChat = chats.find((c) => c.id === activeChatId)!;
   const messages = activeChat?.messages ?? [];
-
-  // Apply theme to DOM
-  const applyTheme = useCallback((t: 'light' | 'dark') => {
-    const root = document.documentElement;
-    const body = document.body;
-    if (t === 'dark') {
-      root.classList.add('dark');
-      body.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-      body.classList.remove('dark');
-    }
-  }, []);
-
-  // Initialize theme on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    const initialTheme = stored || systemTheme;
-    setTheme(initialTheme);
-    applyTheme(initialTheme);
-  }, [applyTheme]);
-
-  // Toggle theme
-  const toggleTheme = useCallback(() => {
-    setTheme((prevTheme) => {
-      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme', newTheme);
-      applyTheme(newTheme);
-      return newTheme;
-    });
-  }, [applyTheme]);
 
   // Load user
   useEffect(() => {
@@ -198,14 +166,17 @@ function ChatPageContent() {
 
   if (loadingUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0d0d0d]">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin mx-auto mb-4" />
+          <div className="text-gray-400">Loading...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white dark:bg-[#0d0d0d]">
+    <div className="flex h-screen overflow-hidden bg-gray-950">
       {/* Sidebar */}
       <Sidebar
         open={sidebarOpen}
@@ -220,7 +191,7 @@ function ChatPageContent() {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-20 md:hidden"
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -228,19 +199,28 @@ function ChatPageContent() {
       {/* Main */}
       <div className="flex flex-col flex-1 min-w-0 h-full">
         {/* Top bar */}
-        <header className="flex items-center justify-between h-14 px-4 border-b border-gray-200 bg-white flex-shrink-0 z-10 dark:bg-[#1a1a1a] dark:border-gray-700">
-          <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between h-16 px-6 border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm flex-shrink-0 z-10">
+          <div className="flex items-center gap-4">
             {!sidebarOpen && (
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-900 dark:hover:bg-gray-800 dark:text-gray-400 dark:hover:text-white"
+                className="p-2 rounded-lg hover:bg-gray-800 transition-colors text-gray-400 hover:text-gray-200"
                 aria-label="Open sidebar"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
                 </svg>
               </button>
             )}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">P</span>
+              </div>
+              <span className="font-semibold text-gray-100">PiyRox Chat</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
             <ModelSelector
               models={MODELS}
               selected={selectedModel}
@@ -248,56 +228,39 @@ function ChatPageContent() {
               onToggle={() => setModelMenuOpen((v) => !v)}
               onSelect={(m) => { setSelectedModel(m); setModelMenuOpen(false); }}
             />
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-900 dark:hover:bg-gray-800 dark:text-gray-400 dark:hover:text-white"
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-            >
-              {theme === 'light' ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                </svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                </svg>
-              )}
-            </button>
-            <a href="https://piyrox.sbs" target="_blank" rel="noopener noreferrer" className="text-xs text-gray-500 hover:text-gray-700 transition-colors dark:text-gray-400 dark:hover:text-gray-200">
-              piyrox.sbs
-            </a>
+
             {user ? (
               <div className="relative">
                 <button
                   onClick={() => setShowProfile(!showProfile)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors dark:hover:bg-gray-800"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
+                  <span className="text-sm text-gray-300 hidden sm:inline">{user.name}</span>
                 </button>
                 
                 {showProfile && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowProfile(false)} />
-                    <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden dark:bg-[#1a1a1a] dark:border-gray-700">
-                      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <div className="absolute right-0 top-full mt-2 w-72 bg-gray-900 border border-gray-800 rounded-lg shadow-xl z-50 overflow-hidden">
+                      <div className="p-4 border-b border-gray-800 bg-gray-800/50">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
                             {user.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">{user.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">{user.email}</div>
+                            <div className="font-semibold text-gray-100">{user.name}</div>
+                            <div className="text-xs text-gray-400">{user.email}</div>
+                            <div className="text-xs text-indigo-400 mt-1">{user.plan}</div>
                           </div>
                         </div>
                       </div>
                       <div className="p-2">
                         <button
                           onClick={handleLogout}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700 hover:text-gray-900 w-full text-left dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                          className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-800 transition-colors text-sm text-gray-300 hover:text-gray-100 w-full text-left"
                         >
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -315,42 +278,44 @@ function ChatPageContent() {
               <div className="flex items-center gap-2">
                 <a
                   href="/login"
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-800 transition-colors"
                 >
                   Log in
                 </a>
                 <a
                   href="/signup"
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
                 >
                   Sign up
                 </a>
               </div>
             )}
+
+            <a href="https://piyrox.sbs" target="_blank" rel="noopener noreferrer" className="text-xs text-gray-500 hover:text-gray-400 transition-colors">
+              piyrox.sbs
+            </a>
           </div>
         </header>
 
         {/* Messages area */}
-        <div className="flex-1 overflow-y-auto bg-white dark:bg-[#0d0d0d]">
+        <div className="flex-1 overflow-y-auto bg-gray-950">
           {messages.length === 0 ? (
             <WelcomeScreen model={selectedModel} onPrompt={sendMessage} />
           ) : (
-            <div className="pb-36">
+            <div className="pb-40 max-w-4xl mx-auto">
               {messages.map((msg) => (
                 <ChatMessage key={msg.id} message={msg} />
               ))}
               {isTyping && (
-                <div className="py-6 px-4">
-                  <div className="max-w-3xl mx-auto flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                      </svg>
+                <div className="py-8 px-6 animate-fadeIn">
+                  <div className="flex gap-4 items-start">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-xs font-bold">P</span>
                     </div>
                     <div className="flex items-center gap-1 pt-2">
-                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full inline-block" />
-                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full inline-block" />
-                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full inline-block" />
+                      <span className="typing-dot w-2 h-2 bg-gray-500 rounded-full inline-block" />
+                      <span className="typing-dot w-2 h-2 bg-gray-500 rounded-full inline-block" />
+                      <span className="typing-dot w-2 h-2 bg-gray-500 rounded-full inline-block" />
                     </div>
                   </div>
                 </div>
@@ -370,8 +335,11 @@ function ChatPageContent() {
 export default function ChatPageClient() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0d0d0d]">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin mx-auto mb-4" />
+          <div className="text-gray-400">Loading...</div>
+        </div>
       </div>
     }>
       <ChatPageContent />

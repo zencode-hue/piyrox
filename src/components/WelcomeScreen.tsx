@@ -20,30 +20,30 @@ export default function WelcomeScreen({ model, onPrompt }: WelcomeScreenProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-full px-4 py-16">
       {/* Logo */}
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center mb-6 shadow-lg">
+      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center mb-8 shadow-lg shadow-indigo-600/20">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
         </svg>
       </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
+      <h1 className="text-4xl font-bold text-gray-100 mb-2 tracking-tight">
         How can I help you today?
       </h1>
-      <p className="text-gray-600 text-sm mb-10">
-        You&apos;re chatting with <span className="text-gray-900 font-medium">{model.name}</span>
+      <p className="text-gray-400 text-sm mb-12">
+        You&apos;re chatting with <span className="text-indigo-400 font-medium">{model.name}</span>
       </p>
 
       {/* Suggestion grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-3xl">
         {SUGGESTIONS.map((s) => (
           <button
             key={s.label}
             onClick={() => onPrompt(s.prompt)}
-            className="flex items-start gap-3 p-4 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg text-left transition-all group"
+            className="flex items-start gap-3 p-4 bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-indigo-600/50 rounded-lg text-left transition-all group"
           >
             <span className="text-xl flex-shrink-0">{s.icon}</span>
             <div>
-              <div className="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors">{s.label}</div>
+              <div className="text-sm font-medium text-gray-200 group-hover:text-indigo-300 transition-colors">{s.label}</div>
               <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{s.prompt}</div>
             </div>
           </button>
@@ -51,16 +51,16 @@ export default function WelcomeScreen({ model, onPrompt }: WelcomeScreenProps) {
       </div>
 
       {/* Footer links */}
-      <div className="mt-12 flex items-center gap-4 text-xs text-gray-500">
-        <a href="https://piyrox.sbs" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 transition-colors">
+      <div className="mt-16 flex items-center gap-4 text-xs text-gray-500">
+        <a href="https://piyrox.sbs" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">
           piyrox.sbs
         </a>
         <span>·</span>
-        <a href="https://piyrox.sbs/pricing" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 transition-colors">
+        <a href="https://piyrox.sbs/pricing" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">
           Upgrade to Pro
         </a>
         <span>·</span>
-        <a href="https://piyrox.sbs/products" target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 transition-colors">
+        <a href="https://piyrox.sbs/products" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 transition-colors">
           All Products
         </a>
       </div>
