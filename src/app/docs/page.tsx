@@ -94,7 +94,7 @@ export default function Docs() {
               
               <div className="docs-grid">
                 <div className="docs-card">
-                  <div className="docs-icon">🚀</div>
+                  <div className="docs-icon">⚡</div>
                   <h3>Agentic Computing</h3>
                   <p>Our platform goes beyond chatbots. We build AI agents that can take actions, write code, manage systems, and operate autonomously on your behalf.</p>
                 </div>
