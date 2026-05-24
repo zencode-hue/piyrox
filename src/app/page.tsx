@@ -9,7 +9,7 @@ import TerminalMockup from '@/components/TerminalMockup';
 export default function Home() {
   return (
     <>
-      <div className="ambient-light" />
+      <div className="ambient-light" style={{ background: 'radial-gradient(circle at top, rgba(42,138,246,0.15) 0%, rgba(168,83,186,0.1) 40%, transparent 70%)', filter: 'blur(40px)' }} />
       <Navbar />
 
       <header className="hero">
@@ -20,9 +20,9 @@ export default function Home() {
           to IDEs that write their own code, PiyRox is the ultimate platform for creators.
         </p>
         <div className="hero-buttons">
-          <Link href="/download" className="btn btn-primary btn-large">Download PiyRox OS</Link>
-          <Link href="/products" className="btn btn-secondary btn-large">Explore Platform</Link>
-          <Link href="/docs" className="btn btn-secondary btn-large">Documentation</Link>
+          <Link href="/download" className="btn btn-primary btn-large" style={{boxShadow: '0 0 20px rgba(255,255,255,0.2)'}}>Download Desktop IDE</Link>
+          <Link href="http://localhost:3001" className="btn btn-gradient btn-large">Open Web Chat App</Link>
+          <Link href="/docs" className="btn btn-secondary btn-large">Explore Documentation</Link>
         </div>
       </header>
 
@@ -58,7 +58,7 @@ export default function Home() {
             title="PiyRox Chat"
             description="The conversational powerhouse. Powered by our proprietary frontier models, optimized for deep reasoning, long-context analysis, and creative generation."
             ctaLabel="Open Chat"
-            ctaHref="https://chat.piyrox.sbs"
+            ctaHref="http://localhost:3001"
             delay={200}
           />
         </div>
@@ -109,37 +109,37 @@ export default function Home() {
           </p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-          <div style={{ padding: '32px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px' }}>
-            <h3 style={{ marginBottom: '12px' }}>Startups</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+          <div style={{ padding: '32px', background: 'rgba(20,20,25,0.4)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+            <h3 style={{ marginBottom: '12px', fontSize: '1.5rem', fontWeight: 600, background: 'linear-gradient(90deg, #fff, #aaa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Startups</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
               Move faster with AI-assisted development. PiyRox IDE helps small teams ship features in days instead of weeks.
             </p>
-            <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', listStyle: 'none', padding: 0 }}>
-              <li style={{ marginBottom: '8px' }}>Rapid prototyping and iteration</li>
-              <li style={{ marginBottom: '8px' }}>Automated code reviews and testing</li>
-              <li style={{ marginBottom: '8px' }}>Reduced time-to-market</li>
+            <ul style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', listStyle: 'none', padding: 0 }}>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-blue)' }}>✦</span> Rapid prototyping and iteration</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-blue)' }}>✦</span> Automated code reviews and testing</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-blue)' }}>✦</span> Reduced time-to-market</li>
             </ul>
           </div>
-          <div style={{ padding: '32px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px' }}>
-            <h3 style={{ marginBottom: '12px' }}>Enterprise Teams</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+          <div style={{ padding: '32px', background: 'rgba(20,20,25,0.4)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+            <h3 style={{ marginBottom: '12px', fontSize: '1.5rem', fontWeight: 600, background: 'linear-gradient(90deg, #fff, #aaa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Enterprise Teams</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
               Scale development without scaling headcount. Jarvis OS handles routine tasks, freeing your team for strategic work.
             </p>
-            <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', listStyle: 'none', padding: 0 }}>
-              <li style={{ marginBottom: '8px' }}>System automation and monitoring</li>
-              <li style={{ marginBottom: '8px' }}>Compliance and audit automation</li>
-              <li style={{ marginBottom: '8px' }}>Enterprise security and governance</li>
+            <ul style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', listStyle: 'none', padding: 0 }}>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-purple)' }}>✦</span> System automation and monitoring</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-purple)' }}>✦</span> Compliance and audit automation</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-purple)' }}>✦</span> Enterprise security and governance</li>
             </ul>
           </div>
-          <div style={{ padding: '32px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px' }}>
-            <h3 style={{ marginBottom: '12px' }}>Researchers</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
+          <div style={{ padding: '32px', background: 'rgba(20,20,25,0.4)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+            <h3 style={{ marginBottom: '12px', fontSize: '1.5rem', fontWeight: 600, background: 'linear-gradient(90deg, #fff, #aaa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Researchers</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
               Accelerate your research with AI-powered analysis and experimentation. PiyRox Chat handles complex reasoning tasks.
             </p>
-            <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', listStyle: 'none', padding: 0 }}>
-              <li style={{ marginBottom: '8px' }}>Long-context document analysis</li>
-              <li style={{ marginBottom: '8px' }}>Data processing and visualization</li>
-              <li style={{ marginBottom: '8px' }}>Hypothesis generation and testing</li>
+            <ul style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', listStyle: 'none', padding: 0 }}>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-pink)' }}>✦</span> Long-context document analysis</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-pink)' }}>✦</span> Data processing and visualization</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-pink)' }}>✦</span> Hypothesis generation and testing</li>
             </ul>
           </div>
         </div>
