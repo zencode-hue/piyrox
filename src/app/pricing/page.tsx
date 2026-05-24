@@ -40,7 +40,7 @@ export default function Pricing() {
               <li>Community support</li>
               <li>1 project workspace</li>
             </ul>
-            <Link href="http://localhost:3001" className="price-btn price-btn-secondary" style={{ borderRadius: '12px' }}>Open Web Chat</Link>
+            <Link href="https://chat.piyrox.sbs" className="price-btn price-btn-secondary" style={{ borderRadius: '12px' }}>Open Web Chat</Link>
           </div>
 
           <div className="price-card featured" style={{ background: 'rgba(42,138,246,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(42,138,246,0.5)', boxShadow: '0 0 40px rgba(42,138,246,0.2)', borderRadius: '20px', transform: 'scale(1.05)' }}>

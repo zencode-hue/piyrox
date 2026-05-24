@@ -18,7 +18,7 @@ export default function DashboardPage() {
               <span className="text-gray-500 text-sm border-l border-gray-700 pl-4">Dashboard</span>
             </div>
             <div className="flex items-center gap-4">
-              <Link href="http://localhost:3001" className="text-sm text-gray-300 hover:text-white transition-colors">
+              <Link href="https://chat.piyrox.sbs" className="text-sm text-gray-300 hover:text-white transition-colors">
                 Launch Chat App
               </Link>
               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-bold">

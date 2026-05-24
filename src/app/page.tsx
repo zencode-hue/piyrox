@@ -21,7 +21,7 @@ export default function Home() {
         </p>
         <div className="hero-buttons">
           <Link href="/download" className="btn btn-primary btn-large" style={{boxShadow: '0 0 20px rgba(255,255,255,0.2)'}}>Download Desktop IDE</Link>
-          <Link href="http://localhost:3001" className="btn btn-gradient btn-large">Open Web Chat App</Link>
+          <Link href="https://chat.piyrox.sbs" className="btn btn-gradient btn-large">Open Web Chat App</Link>
           <Link href="/docs" className="btn btn-secondary btn-large">Explore Documentation</Link>
         </div>
       </header>
@@ -38,7 +38,7 @@ export default function Home() {
         </div>
         <div className="premium-grid">
           <PremiumCard
-            icon="🤖"
+            icon={<svg className="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
             title="Jarvis OS"
             description="Your ambient AI assistant. Always available, securely integrated with your local filesystem, and capable of executing complex multi-step workflows directly on your machine."
             ctaLabel="Download EXE"
@@ -46,7 +46,7 @@ export default function Home() {
             delay={0}
           />
           <PremiumCard
-            icon="💻"
+            icon={<svg className="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
             title="PiyRox IDE"
             description="The first IDE built entirely around agentic capabilities. It doesn't just autocomplete; it reads your entire codebase, plans massive architectural features, and writes the code."
             ctaLabel="Download EXE"
@@ -54,11 +54,11 @@ export default function Home() {
             delay={100}
           />
           <PremiumCard
-            icon="💬"
+            icon={<svg className="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
             title="PiyRox Chat"
             description="The conversational powerhouse. Powered by our proprietary frontier models, optimized for deep reasoning, long-context analysis, and creative generation."
             ctaLabel="Open Chat"
-            ctaHref="http://localhost:3001"
+            ctaHref="https://chat.piyrox.sbs"
             delay={200}
           />
         </div>
@@ -115,9 +115,9 @@ export default function Home() {
               Move faster with AI-assisted development. PiyRox IDE helps small teams ship features in days instead of weeks.
             </p>
             <ul style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', listStyle: 'none', padding: 0 }}>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-blue)' }}>✦</span> Rapid prototyping and iteration</li>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-blue)' }}>✦</span> Automated code reviews and testing</li>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-blue)' }}>✦</span> Reduced time-to-market</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> Rapid prototyping and iteration</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> Automated code reviews and testing</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> Reduced time-to-market</li>
             </ul>
           </div>
           <div style={{ padding: '32px', background: 'rgba(20,20,25,0.4)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
@@ -126,9 +126,9 @@ export default function Home() {
               Scale development without scaling headcount. Jarvis OS handles routine tasks, freeing your team for strategic work.
             </p>
             <ul style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', listStyle: 'none', padding: 0 }}>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-purple)' }}>✦</span> System automation and monitoring</li>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-purple)' }}>✦</span> Compliance and audit automation</li>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-purple)' }}>✦</span> Enterprise security and governance</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> System automation and monitoring</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> Compliance and audit automation</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> Enterprise security and governance</li>
             </ul>
           </div>
           <div style={{ padding: '32px', background: 'rgba(20,20,25,0.4)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
@@ -137,9 +137,9 @@ export default function Home() {
               Accelerate your research with AI-powered analysis and experimentation. PiyRox Chat handles complex reasoning tasks.
             </p>
             <ul style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', listStyle: 'none', padding: 0 }}>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-pink)' }}>✦</span> Long-context document analysis</li>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-pink)' }}>✦</span> Data processing and visualization</li>
-              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span style={{ color: 'var(--accent-pink)' }}>✦</span> Hypothesis generation and testing</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> Long-context document analysis</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> Data processing and visualization</li>
+              <li style={{ marginBottom: '10px', display: 'flex', gap: '8px', alignItems: 'center' }}><span className="mr-2 text-current"><svg className="w-5 h-5 text-current shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg></span> Hypothesis generation and testing</li>
             </ul>
           </div>
         </div>
