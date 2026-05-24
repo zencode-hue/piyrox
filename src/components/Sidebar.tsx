@@ -81,7 +81,7 @@ export default function Sidebar({
         {/* Navigation */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
           <a
-            href="http://localhost:3000"
+            href="https://piyrox.sbs"
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm text-gray-700 dark:text-gray-300"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -1,19 +1,18 @@
 import { NextResponse } from 'next/server';
 
-// OpenRouter free models - best quality free options
 const FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'meta-llama/llama-3.3-70b-instruct:free',
-  'piyrox-4o': 'google/gemini-2.0-flash-lite-preview-02-05:free',
-  'piyrox-3.5': 'meta-llama/llama-3.1-8b-instruct:free',
-  'jarvis-v3': 'deepseek/deepseek-r1-distill-llama-70b:free',
+  'piyrox-4': 'google/gemma-2-9b-it:free',
+  'piyrox-4o': 'meta-llama/llama-3.1-8b-instruct:free',
+  'piyrox-3.5': 'mistralai/mistral-7b-instruct:free',
+  'jarvis-v3': 'qwen/qwen-2.5-coder-32b-instruct:free',
 };
 
 // Code-specific free models (better for coding)
 const CODE_FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'meta-llama/llama-3.3-70b-instruct:free',
-  'piyrox-4o': 'google/gemini-2.0-pro-exp-02-05:free',
-  'piyrox-3.5': 'meta-llama/llama-3.1-8b-instruct:free',
-  'jarvis-v3': 'deepseek/deepseek-r1:free',
+  'piyrox-4': 'qwen/qwen-2.5-coder-32b-instruct:free',
+  'piyrox-4o': 'meta-llama/llama-3.1-8b-instruct:free',
+  'piyrox-3.5': 'mistralai/mistral-7b-instruct:free',
+  'jarvis-v3': 'qwen/qwen-2.5-coder-32b-instruct:free',
 };
 
 export async function POST(req: Request) {
@@ -49,12 +48,12 @@ export async function POST(req: Request) {
     // Build system prompt based on model
     const systemPrompt = getSystemPrompt(model);
 
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    let res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openrouterKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://piyrox.sbs',
+        'HTTP-Referer': 'https://chat.piyrox.sbs',
         'X-Title': 'PiyRox Chat',
       },
       body: JSON.stringify({
@@ -68,6 +67,28 @@ export async function POST(req: Request) {
       }),
     });
 
+    // Fallback if the provider fails
+    if (!res.ok) {
+      console.error(`Primary model failed, falling back to backup model...`);
+      res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openrouterKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://chat.piyrox.sbs',
+          'X-Title': 'PiyRox Chat',
+        },
+        body: JSON.stringify({
+          model: 'mistralai/mistral-7b-instruct:free',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages.filter((m: { role: string }) => m.role !== 'system'),
+          ],
+          max_tokens: 1024,
+        }),
+      });
+    }
+
     if (!res.ok) {
       console.error(`OpenRouter API responded with status: ${res.status}`);
       let errorText = await res.text();
@@ -77,7 +98,7 @@ export async function POST(req: Request) {
       } catch (e) {
         // Not JSON
       }
-      return NextResponse.json({ success: false, message: `API error: ${errorText}` }, { status: res.status });
+      return NextResponse.json({ success: false, message: `Our AI servers are currently overloaded. Please try again in a few moments.` }, { status: 503 });
     }
 
     let data;

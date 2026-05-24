@@ -63,14 +63,16 @@ export default function HelpPage() {
         {/* Quick Links */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {[
-            { title: 'Getting Started', desc: 'Learn the basics of Piyrox', icon: '🚀', color: 'from-blue-500/20 to-cyan-500/5' },
-            { title: 'Using the IDE', desc: 'Desktop app and workspace tools', icon: '💻', color: 'from-purple-500/20 to-indigo-500/5' },
-            { title: 'Billing & Plans', desc: 'Manage your subscription', icon: '💳', color: 'from-green-500/20 to-emerald-500/5' },
+            { title: 'Getting Started', desc: 'Learn the basics of Piyrox', icon: <svg className="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>, color: 'from-blue-500/20 to-cyan-500/5' },
+            { title: 'Using the IDE', desc: 'Desktop app and workspace tools', icon: <svg className="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>, color: 'from-purple-500/20 to-indigo-500/5' },
+            { title: 'Billing & Plans', desc: 'Manage your subscription', icon: <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>, color: 'from-green-500/20 to-emerald-500/5' },
           ].map((item, i) => (
             <div key={i} className="group relative bg-[#111]/80 backdrop-blur-md rounded-3xl p-8 border border-white/[0.05] hover:border-white/[0.1] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer overflow-hidden">
               <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className="relative z-10">
-                <div className="text-3xl mb-4">{item.icon}</div>
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-black/30 border border-white/10 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  {item.icon}
+                </div>
                 <h3 className="text-lg font-bold mb-1">{item.title}</h3>
                 <p className="text-sm text-gray-400">{item.desc}</p>
               </div>

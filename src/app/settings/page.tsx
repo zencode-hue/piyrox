@@ -24,9 +24,10 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-purple-500/30">
-      <div className="fixed inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none mix-blend-overlay z-0"></div>
-      <div className="fixed top-[-20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/10 blur-[150px] pointer-events-none z-0"></div>
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-purple-500/30 overflow-hidden relative">
+      <div className="fixed inset-0 bg-[url('/noise.png')] opacity-[0.04] pointer-events-none mix-blend-overlay z-0"></div>
+      <div className="fixed top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/10 blur-[120px] pointer-events-none z-0 animate-pulse" style={{ animationDuration: '8s' }}></div>
+      <div className="fixed bottom-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px] pointer-events-none z-0 animate-pulse" style={{ animationDuration: '12s' }}></div>
 
       {/* Navbar */}
       <nav className="sticky top-0 z-50 border-b border-white/[0.05] bg-[#050505]/80 backdrop-blur-xl">
@@ -53,12 +54,13 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-300 relative overflow-hidden group ${
                     activeTab === tab.id
-                      ? 'bg-white/10 text-white shadow-sm border border-white/[0.05]'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-white/10 to-white/5 text-white shadow-lg border border-white/10'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/5'
                   }`}
                 >
+                  {activeTab === tab.id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-purple-500 rounded-l-2xl"></div>}
                   {tab.icon}
                   {tab.label}
                 </button>
@@ -69,10 +71,14 @@ export default function SettingsPage() {
           {/* Content Area */}
           <div className="flex-1 min-w-0">
             {activeTab === 'profile' && (
-              <div className="bg-[#111]/80 backdrop-blur-md rounded-3xl p-8 border border-white/[0.05] shadow-xl">
-                <h2 className="text-xl font-bold mb-8">Profile Information</h2>
-                <div className="flex items-center gap-6 mb-10">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold border-4 border-[#111] shadow-lg shadow-purple-500/20">
+              <div className="bg-[#0a0a0c]/80 backdrop-blur-2xl rounded-[2rem] p-8 md:p-10 border border-white/[0.08] shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px] -z-10 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
+                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                  <span className="bg-white/10 p-2 rounded-xl border border-white/5">👤</span>
+                  Profile Information
+                </h2>
+                <div className="flex items-center gap-6 mb-12">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center text-4xl font-bold border-4 border-[#111] shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:scale-105 transition-transform duration-300">
                     P
                   </div>
                   <div>
@@ -90,7 +96,7 @@ export default function SettingsPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Your name"
-                      className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      className="w-full bg-[#111] border border-gray-800 rounded-2xl px-5 py-4 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all hover:bg-[#151515] shadow-inner"
                     />
                   </div>
                   <div>
@@ -98,17 +104,17 @@ export default function SettingsPage() {
                     <input
                       type="email"
                       defaultValue="user@piyrox.sbs"
-                      className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-gray-500 cursor-not-allowed"
+                      className="w-full bg-[#111]/50 border border-gray-800/50 rounded-2xl px-5 py-4 text-gray-500 cursor-not-allowed shadow-inner"
                       disabled
                     />
-                    <p className="text-xs text-gray-600 mt-1">Email cannot be changed.</p>
+                    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Email cannot be changed.</p>
                   </div>
                   <button
                     onClick={handleSave}
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold transition-all hover:shadow-lg hover:shadow-purple-500/25 flex items-center gap-2"
+                    className="mt-4 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold transition-all hover:shadow-[0_0_30px_rgba(79,70,229,0.4)] hover:-translate-y-0.5 flex items-center gap-2"
                   >
                     {saved ? (
-                      <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg> Saved!</>
+                      <><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg> Saved Successfully!</>
                     ) : (
                       'Save Changes'
                     )}
@@ -118,25 +124,29 @@ export default function SettingsPage() {
             )}
 
             {activeTab === 'appearance' && (
-              <div className="bg-[#111]/80 backdrop-blur-md rounded-3xl p-8 border border-white/[0.05] shadow-xl">
-                <h2 className="text-xl font-bold mb-8">Appearance</h2>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between py-5 border-b border-gray-800/50">
+              <div className="bg-[#0a0a0c]/80 backdrop-blur-2xl rounded-[2rem] p-8 md:p-10 border border-white/[0.08] shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] -z-10 group-hover:bg-purple-500/10 transition-colors duration-500"></div>
+                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                  <span className="bg-white/10 p-2 rounded-xl border border-white/5">✨</span>
+                  Appearance
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-5 rounded-2xl border border-white/5 hover:border-white/10 hover:bg-white/[0.02] transition-colors">
                     <div>
-                      <h3 className="font-medium">Dark Mode</h3>
-                      <p className="text-sm text-gray-500 mt-0.5">Use dark theme across the interface.</p>
+                      <h3 className="font-medium text-white">Dark Mode</h3>
+                      <p className="text-sm text-gray-500 mt-1">Use dark theme across the interface.</p>
                     </div>
-                    <button onClick={() => setDarkMode(!darkMode)} className={`w-12 h-7 rounded-full transition-colors duration-200 relative ${darkMode ? 'bg-purple-500' : 'bg-gray-700'}`}>
-                      <span className={`block w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 absolute top-1 ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
+                    <button onClick={() => setDarkMode(!darkMode)} className={`w-14 h-8 rounded-full transition-colors duration-300 relative border border-white/10 ${darkMode ? 'bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.4)]' : 'bg-[#111]'}`}>
+                      <span className={`block w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300 absolute top-0.5 ${darkMode ? 'translate-x-7' : 'translate-x-1'}`} />
                     </button>
                   </div>
-                  <div className="flex items-center justify-between py-5">
+                  <div className="flex items-center justify-between p-5 rounded-2xl border border-white/5 hover:border-white/10 hover:bg-white/[0.02] transition-colors">
                     <div>
-                      <h3 className="font-medium">Compact Messages</h3>
-                      <p className="text-sm text-gray-500 mt-0.5">Reduce spacing between chat messages.</p>
+                      <h3 className="font-medium text-white">Compact Messages</h3>
+                      <p className="text-sm text-gray-500 mt-1">Reduce spacing between chat messages.</p>
                     </div>
-                    <button onClick={() => setCompactMode(!compactMode)} className={`w-12 h-7 rounded-full transition-colors duration-200 relative ${compactMode ? 'bg-purple-500' : 'bg-gray-700'}`}>
-                      <span className={`block w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 absolute top-1 ${compactMode ? 'translate-x-6' : 'translate-x-1'}`} />
+                    <button onClick={() => setCompactMode(!compactMode)} className={`w-14 h-8 rounded-full transition-colors duration-300 relative border border-white/10 ${compactMode ? 'bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.4)]' : 'bg-[#111]'}`}>
+                      <span className={`block w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300 absolute top-0.5 ${compactMode ? 'translate-x-7' : 'translate-x-1'}`} />
                     </button>
                   </div>
                 </div>
@@ -144,52 +154,65 @@ export default function SettingsPage() {
             )}
 
             {activeTab === 'ai' && (
-              <div className="bg-[#111]/80 backdrop-blur-md rounded-3xl p-8 border border-white/[0.05] shadow-xl">
-                <h2 className="text-xl font-bold mb-8">AI Preferences</h2>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between py-5 border-b border-gray-800/50">
+              <div className="bg-[#0a0a0c]/80 backdrop-blur-2xl rounded-[2rem] p-8 md:p-10 border border-white/[0.08] shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-[80px] -z-10 group-hover:bg-cyan-500/10 transition-colors duration-500"></div>
+                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                  <span className="bg-white/10 p-2 rounded-xl border border-white/5">🤖</span>
+                  AI Preferences
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-5 rounded-2xl border border-white/5 hover:border-white/10 hover:bg-white/[0.02] transition-colors">
                     <div>
-                      <h3 className="font-medium">Stream Responses</h3>
-                      <p className="text-sm text-gray-500 mt-0.5">Show AI responses as they are generated.</p>
+                      <h3 className="font-medium text-white">Stream Responses</h3>
+                      <p className="text-sm text-gray-500 mt-1">Show AI responses as they are generated.</p>
                     </div>
-                    <button onClick={() => setStreamResponses(!streamResponses)} className={`w-12 h-7 rounded-full transition-colors duration-200 relative ${streamResponses ? 'bg-purple-500' : 'bg-gray-700'}`}>
-                      <span className={`block w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200 absolute top-1 ${streamResponses ? 'translate-x-6' : 'translate-x-1'}`} />
+                    <button onClick={() => setStreamResponses(!streamResponses)} className={`w-14 h-8 rounded-full transition-colors duration-300 relative border border-white/10 ${streamResponses ? 'bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.4)]' : 'bg-[#111]'}`}>
+                      <span className={`block w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300 absolute top-0.5 ${streamResponses ? 'translate-x-7' : 'translate-x-1'}`} />
                     </button>
                   </div>
-                  <div className="py-5">
-                    <h3 className="font-medium mb-2">Default Model</h3>
-                    <p className="text-sm text-gray-500 mb-4">Choose which model starts each new conversation.</p>
-                    <select className="w-full bg-black/50 border border-gray-800 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                      <option value="piyrox-4">PiyRox-4 — Most capable</option>
-                      <option value="piyrox-4o">PiyRox-4o — Fast & smart</option>
-                      <option value="piyrox-3.5">PiyRox-3.5 — Quick responses</option>
-                      <option value="jarvis-v3">Jarvis V3 — Advanced reasoning</option>
-                    </select>
+                  <div className="p-5 rounded-2xl border border-white/5 bg-black/20">
+                    <h3 className="font-medium text-white mb-1">Default Model</h3>
+                    <p className="text-sm text-gray-500 mb-5">Choose which model starts each new conversation.</p>
+                    <div className="relative">
+                      <select className="w-full bg-[#111] border border-gray-800 rounded-xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 hover:bg-[#151515] transition-all shadow-inner appearance-none">
+                        <option value="piyrox-4">PiyRox-4 — Most capable</option>
+                        <option value="piyrox-4o">PiyRox-4o — Fast & smart</option>
+                        <option value="piyrox-3.5">PiyRox-3.5 — Quick responses</option>
+                        <option value="jarvis-v3">Jarvis V3 — Advanced reasoning</option>
+                      </select>
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === 'danger' && (
-              <div className="bg-red-500/5 rounded-3xl p-8 border border-red-500/20">
-                <h2 className="text-xl font-bold text-red-500 mb-2">Danger Zone</h2>
-                <p className="text-red-400/60 text-sm mb-8">These actions are irreversible. Please be certain.</p>
+              <div className="bg-red-500/5 rounded-[2rem] p-8 md:p-10 border border-red-500/20 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/10 rounded-full blur-[80px] -z-10 group-hover:bg-red-500/20 transition-colors duration-500"></div>
+                <h2 className="text-2xl font-bold text-red-500 mb-2 flex items-center gap-3">
+                  <span className="bg-red-500/20 p-2 rounded-xl border border-red-500/30">⚠️</span>
+                  Danger Zone
+                </h2>
+                <p className="text-red-400/80 text-sm mb-8">These actions are permanent and cannot be undone. Please proceed with caution.</p>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between py-4 border-b border-red-500/10">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl border border-red-500/10 bg-red-500/[0.02] hover:bg-red-500/[0.05] transition-colors gap-4">
                     <div>
                       <h3 className="font-medium text-red-400">Clear all chat history</h3>
-                      <p className="text-sm text-red-400/50 mt-0.5">Permanently delete all conversations.</p>
+                      <p className="text-sm text-red-400/60 mt-1">Permanently delete all conversations from servers.</p>
                     </div>
-                    <button className="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-500 font-semibold border border-red-500/20 hover:bg-red-500/20 transition-colors text-sm">
+                    <button className="px-6 py-3 rounded-xl bg-red-500/10 text-red-500 font-bold border border-red-500/30 hover:bg-red-500 hover:text-white transition-all duration-300 text-sm hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] shrink-0">
                       Clear History
                     </button>
                   </div>
-                  <div className="flex items-center justify-between py-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl border border-red-500/10 bg-red-500/[0.02] hover:bg-red-500/[0.05] transition-colors gap-4">
                     <div>
                       <h3 className="font-medium text-red-400">Delete Account</h3>
-                      <p className="text-sm text-red-400/50 mt-0.5">Remove your account and all data.</p>
+                      <p className="text-sm text-red-400/60 mt-1">Remove your account and all associated data.</p>
                     </div>
-                    <button className="px-5 py-2.5 rounded-xl bg-red-500/10 text-red-500 font-semibold border border-red-500/20 hover:bg-red-500/20 transition-colors text-sm">
+                    <button className="px-6 py-3 rounded-xl bg-red-600 text-white font-bold border border-red-500 hover:bg-red-700 transition-all duration-300 text-sm shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)] hover:-translate-y-0.5 shrink-0">
                       Delete Account
                     </button>
                   </div>
