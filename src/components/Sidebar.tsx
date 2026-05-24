@@ -34,13 +34,13 @@ export default function Sidebar({
       <div
         className={`${
           isOpen ? 'w-64' : 'w-0'
-        } transition-all duration-300 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] flex flex-col overflow-hidden`}
+        } transition-all duration-300 border-r border-gray-200/50 dark:border-gray-800/50 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-xl flex flex-col overflow-hidden z-20`}
       >
         {/* Top section */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50">
           <button
             onClick={onNewChat}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm text-gray-700 dark:text-gray-300 font-medium"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-800/50 transition-all text-sm text-blue-700 dark:text-blue-300 font-semibold shadow-sm"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -57,10 +57,10 @@ export default function Sidebar({
             <div key={chat.id} className="group relative">
               <button
                 onClick={() => onSelectChat(chat.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm truncate transition-colors ${
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-sm truncate transition-all duration-200 ${
                   activeChatId === chat.id
-                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'bg-white dark:bg-gray-800/80 text-gray-900 dark:text-white shadow-sm border border-gray-200/50 dark:border-gray-700/50'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/40 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 {chat.title}
@@ -80,6 +80,15 @@ export default function Sidebar({
 
         {/* Navigation */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+          <a
+            href="http://localhost:3000"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm text-gray-700 dark:text-gray-300"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Back to Main Site
+          </a>
           <Link
             href="/search"
             className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm text-gray-700 dark:text-gray-300"

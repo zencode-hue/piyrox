@@ -55,4 +55,18 @@ export async function initDb() {
     console.error('Database initialization error:', error);
     throw error;
   }
+  
+  try {
+    await query(`
+      CREATE TABLE IF NOT EXISTS chats (
+        id VARCHAR(255) PRIMARY KEY,
+        user_id INTEGER,
+        title VARCHAR(255) NOT NULL,
+        messages JSONB DEFAULT '[]',
+        created_at BIGINT
+      );
+    `);
+  } catch (error) {
+    console.error('Chats table initialization error:', error);
+  }
 }

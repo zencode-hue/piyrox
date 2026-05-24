@@ -48,8 +48,8 @@ export default function ChatInput({ onSend, disabled, darkMode }: ChatInputProps
   const canSend = (input.trim().length > 0 || files.length > 0) && !disabled;
 
   return (
-    <div className={`fixed bottom-0 left-64 right-0 bg-gradient-to-t ${darkMode ? 'from-[#0d0d0d] via-[#0d0d0d] to-transparent' : 'from-white via-white to-transparent'} pt-4 pb-6 px-4`}>
-      <div className="max-w-3xl mx-auto">
+    <div className={`fixed bottom-0 left-0 md:left-64 right-0 bg-gradient-to-t ${darkMode ? 'from-[#0a0a0a] via-[#0a0a0a] to-transparent' : 'from-white via-white to-transparent'} pt-8 pb-6 px-4 z-20`}>
+      <div className="max-w-3xl mx-auto relative">
         {files.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3 px-4">
             {files.map((f, i) => (
@@ -66,7 +66,7 @@ export default function ChatInput({ onSend, disabled, darkMode }: ChatInputProps
           </div>
         )}
 
-        <div className={`flex gap-3 px-4 py-3 rounded-2xl hover:border-gray-400 transition-colors shadow-sm border ${darkMode ? 'bg-gray-800 border-gray-700 hover:border-gray-600' : 'bg-white border-gray-300 hover:border-gray-400'}`}>
+        <div className={`flex gap-3 px-4 py-3.5 rounded-3xl transition-all duration-300 shadow-xl border backdrop-blur-md ${darkMode ? 'bg-[#111111]/80 border-gray-800/80 hover:border-gray-700/80 shadow-black/40' : 'bg-white/80 border-gray-200 hover:border-gray-300 hover:shadow-2xl'}`}>
           <input
             ref={fileInputRef}
             type="file"
@@ -92,8 +92,8 @@ export default function ChatInput({ onSend, disabled, darkMode }: ChatInputProps
             placeholder="Ask anything..."
             disabled={disabled}
             rows={1}
-            className={`flex-1 bg-transparent text-sm resize-none outline-none max-h-[200px] leading-6 ${darkMode ? 'text-white placeholder-gray-500' : 'text-gray-900 placeholder-gray-500'}`}
-            style={{ minHeight: '44px' }}
+            className={`flex-1 bg-transparent text-[15px] resize-none outline-none max-h-[200px] leading-6 py-1 ${darkMode ? 'text-gray-100 placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'}`}
+            style={{ minHeight: '32px' }}
           />
 
           <button
@@ -109,8 +109,8 @@ export default function ChatInput({ onSend, disabled, darkMode }: ChatInputProps
           <button
             onClick={() => handleSubmit()}
             disabled={!canSend}
-            className={`p-2 rounded-lg flex-shrink-0 transition-colors ${
-              canSend ? (darkMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-900 hover:bg-gray-800 text-white') : (darkMode ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed')
+            className={`p-2.5 rounded-full flex-shrink-0 transition-all duration-300 ${
+              canSend ? (darkMode ? 'bg-white hover:bg-gray-200 text-black shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'bg-black hover:bg-gray-800 text-white shadow-md') : (darkMode ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-100 text-gray-400 cursor-not-allowed')
             }`}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

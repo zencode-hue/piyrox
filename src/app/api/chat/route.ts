@@ -2,18 +2,18 @@ import { NextResponse } from 'next/server';
 
 // OpenRouter free models - best quality free options
 const FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'meta-llama/llama-3.1-70b-instruct:free',
-  'piyrox-4o': 'openrouter/owl-alpha',
+  'piyrox-4': 'meta-llama/llama-3.3-70b-instruct:free',
+  'piyrox-4o': 'google/gemini-2.0-flash-lite-preview-02-05:free',
   'piyrox-3.5': 'meta-llama/llama-3.1-8b-instruct:free',
-  'jarvis-v3': 'deepseek/deepseek-v4-flash:free',
+  'jarvis-v3': 'deepseek/deepseek-r1-distill-llama-70b:free',
 };
 
 // Code-specific free models (better for coding)
 const CODE_FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'meta-llama/llama-3.1-70b-instruct:free',
-  'piyrox-4o': 'openrouter/owl-alpha',
+  'piyrox-4': 'meta-llama/llama-3.3-70b-instruct:free',
+  'piyrox-4o': 'google/gemini-2.0-pro-exp-02-05:free',
   'piyrox-3.5': 'meta-llama/llama-3.1-8b-instruct:free',
-  'jarvis-v3': 'deepseek/deepseek-v4-flash:free',
+  'jarvis-v3': 'deepseek/deepseek-r1:free',
 };
 
 export async function POST(req: Request) {
