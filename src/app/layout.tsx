@@ -40,6 +40,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 });
               });
             }
+            
+            // Dark mode detection
+            if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              document.documentElement.classList.add('dark');
+              document.body.classList.add('dark');
+            }
           `
         }} />
       </body>

@@ -1,132 +1,187 @@
 'use client';
 
-import Link from 'next/link';
+import React, { useState } from 'react';
 
 export default function HelpPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
+
+  const faqs = [
+    {
+      id: 'getting-started',
+      category: 'Getting Started',
+      question: 'How do I get started with PiyRox Chat?',
+      answer: 'Simply sign up for a free account, and you can start chatting immediately. No credit card required. You can ask questions, get help with writing, coding, analysis, and much more.',
+    },
+    {
+      id: 'models',
+      category: 'Models',
+      question: 'What models are available?',
+      answer: 'We offer several models: PiyRox-4 (most capable), PiyRox-4o (fast & smart), PiyRox-3.5 (quick responses), and Jarvis V3 (advanced). Different models are available based on your plan.',
+    },
+    {
+      id: 'file-upload',
+      category: 'Features',
+      question: 'Can I upload files?',
+      answer: 'Yes! You can upload various file types including documents, images, and code files. The Free plan has basic file upload support, while Plus and Pro plans have advanced file handling.',
+    },
+    {
+      id: 'chat-history',
+      category: 'Privacy',
+      question: 'Is my chat history private?',
+      answer: 'Yes, your chat history is encrypted and stored securely. Only you can access your chats. You can delete individual chats or your entire history at any time.',
+    },
+    {
+      id: 'api-access',
+      category: 'API',
+      question: 'Is there an API available?',
+      answer: 'Yes, API access is available for Pro plan subscribers. You can integrate PiyRox Chat into your applications. Check our documentation for details.',
+    },
+    {
+      id: 'billing',
+      category: 'Billing',
+      question: 'How does billing work?',
+      answer: 'We offer monthly and annual billing options. You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we prorate charges accordingly.',
+    },
+    {
+      id: 'support',
+      category: 'Support',
+      question: 'How can I get support?',
+      answer: 'Free plan users have access to community support. Plus and Pro users get priority email support. For urgent issues, Pro users can contact our dedicated support team.',
+    },
+    {
+      id: 'export',
+      category: 'Data',
+      question: 'Can I export my chats?',
+      answer: 'Yes, you can export your chats as JSON or PDF files. This is available for all paid plans. Go to Settings > Data Export to get started.',
+    },
+  ];
+
+  const categories = ['All', ...new Set(faqs.map(faq => faq.category))];
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const filteredFaqs = faqs.filter(faq => {
+    const matchesCategory = selectedCategory === 'All' || faq.category === selectedCategory;
+    const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   return (
-    <div className="flex h-screen bg-white">
-      {/* Sidebar */}
-      <div className="w-64 border-r border-gray-200 bg-white flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <Link
-            href="/"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-sm text-gray-700 font-medium"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            New chat
-          </Link>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <Link
-            href="/search"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-            </svg>
-            Search chats
-          </Link>
-
-          <Link
-            href="/images"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
-            </svg>
-            Images
-          </Link>
-        </div>
-
-        <div className="p-4 border-t border-gray-200 space-y-2">
-          <Link
-            href="/pricing"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-            See plans and pricing
-          </Link>
-
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="3" /><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24" />
-            </svg>
-            Settings
-          </Link>
-
-          <Link
-            href="/help"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-100 transition-colors text-sm text-gray-900 font-medium"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
-            </svg>
-            Help
-          </Link>
+    <div className="min-h-screen bg-white dark:bg-[#0d0d0d]">
+      {/* Header */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-4xl mx-auto px-6 py-12">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Help & Support</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Find answers to common questions and get help
+          </p>
         </div>
       </div>
 
-      {/* Main area */}
-      <div className="flex-1 flex flex-col">
-        <div className="h-14 border-b border-gray-200 flex items-center px-6 bg-white">
-          <div className="text-sm font-medium text-gray-900">Help & Support</div>
+      {/* Search */}
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <div className="relative mb-8">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search help articles..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-green-500 dark:focus:border-green-400"
+          />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-2xl">
-            <h1 className="text-2xl font-bold text-gray-900 mb-8">Help & Support</h1>
+        {/* Categories */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                selectedCategory === category
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
 
-            {/* FAQ */}
-            <div className="mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Frequently Asked Questions</h2>
-              <div className="space-y-4">
-                <details className="border border-gray-200 rounded-lg p-4 cursor-pointer">
-                  <summary className="font-medium text-gray-900">How do I start a new chat?</summary>
-                  <p className="mt-2 text-sm text-gray-600">Click the "New chat" button in the sidebar to start a fresh conversation.</p>
-                </details>
-
-                <details className="border border-gray-200 rounded-lg p-4 cursor-pointer">
-                  <summary className="font-medium text-gray-900">Can I upload files?</summary>
-                  <p className="mt-2 text-sm text-gray-600">Yes, click the + button in the input area to upload files. Supported formats include images, documents, and code files.</p>
-                </details>
-
-                <details className="border border-gray-200 rounded-lg p-4 cursor-pointer">
-                  <summary className="font-medium text-gray-900">How do I change my settings?</summary>
-                  <p className="mt-2 text-sm text-gray-600">Go to Settings in the sidebar to customize your theme, privacy preferences, and account settings.</p>
-                </details>
-
-                <details className="border border-gray-200 rounded-lg p-4 cursor-pointer">
-                  <summary className="font-medium text-gray-900">What models are available?</summary>
-                  <p className="mt-2 text-sm text-gray-600">We offer multiple AI models including PiyRox-4, PiyRox-4o, PiyRox-3.5, and Jarvis V3. Each has different capabilities and speeds.</p>
-                </details>
+        {/* FAQs */}
+        <div className="space-y-4">
+          {filteredFaqs.length > 0 ? (
+            filteredFaqs.map((faq) => (
+              <div
+                key={faq.id}
+                className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+              >
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
+                  className="w-full px-6 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-between"
+                >
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+                      {faq.category}
+                    </div>
+                    <h3 className="font-medium text-gray-900 dark:text-white">{faq.question}</h3>
+                  </div>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={`text-gray-400 transition-transform ${
+                      expandedFaq === faq.id ? 'rotate-180' : ''
+                    }`}
+                  >
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+                {expandedFaq === faq.id && (
+                  <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                    <p className="text-gray-700 dark:text-gray-300">{faq.answer}</p>
+                  </div>
+                )}
               </div>
+            ))
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-600 dark:text-gray-400">No results found. Try a different search.</p>
             </div>
+          )}
+        </div>
+      </div>
 
-            {/* Contact */}
-            <div className="mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Need More Help?</h2>
-              <div className="space-y-3">
-                <a href="mailto:support@piyrox.sbs" className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <p className="font-medium text-gray-900">Email Support</p>
-                  <p className="text-sm text-gray-600">support@piyrox.sbs</p>
-                </a>
-                <a href="#" className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <p className="font-medium text-gray-900">Documentation</p>
-                  <p className="text-sm text-gray-600">Read our full documentation</p>
-                </a>
-                <a href="#" className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <p className="font-medium text-gray-900">Community</p>
-                  <p className="text-sm text-gray-600">Join our community forum</p>
-                </a>
-              </div>
+      {/* Contact Support */}
+      <div className="border-t border-gray-200 dark:border-gray-700 mt-12">
+        <div className="max-w-4xl mx-auto px-6 py-12">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Still need help?</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Can't find what you're looking for? Contact our support team.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="px-6 py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors">
+                Contact Support
+              </button>
+              <button className="px-6 py-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 font-medium transition-colors">
+                View Documentation
+              </button>
             </div>
           </div>
         </div>

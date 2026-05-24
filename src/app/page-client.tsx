@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
+import Sidebar from '@/components/Sidebar';
 import { Message, Chat, Model } from '@/types';
 
 const MODELS: Model[] = [
@@ -26,6 +27,8 @@ export default function ChatPageClient() {
   const [isTyping, setIsTyping] = useState(false);
   const [user, setUser] = useState<{ id: number; name: string; email: string; plan: string } | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeChat = chats.find((c) => c.id === activeChatId)!;
@@ -44,6 +47,11 @@ export default function ChatPageClient() {
       }
     };
     loadUser();
+
+    // Check dark mode preference
+    const isDark = localStorage.getItem('theme') === 'dark' || 
+      (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setDarkMode(isDark);
   }, []);
 
   useEffect(() => {
@@ -126,120 +134,82 @@ export default function ChatPageClient() {
     setActiveChatId(id);
   };
 
+  const deleteChat = (id: string) => {
+    setChats((prev) => prev.filter((c) => c.id !== id));
+    if (activeChatId === id) {
+      setActiveChatId(chats[0]?.id || 'default');
+    }
+  };
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
+    }
+  };
+
   if (loadingUser) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-white">
-        <div className="text-gray-600">Loading...</div>
+      <div className="w-full h-screen flex items-center justify-center bg-white dark:bg-[#0d0d0d]">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className={`flex h-screen ${darkMode ? 'dark' : ''}`}>
       {/* Sidebar */}
-      <div className="w-64 border-r border-gray-200 bg-white flex flex-col">
-        {/* Top section */}
-        <div className="p-4 border-b border-gray-200">
-          <button
-            onClick={newChat}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-sm text-gray-700 font-medium"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            New chat
-          </button>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <Link
-            href="/search"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-            </svg>
-            Search chats
-          </Link>
-
-          <Link
-            href="/images"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
-            </svg>
-            Images
-          </Link>
-        </div>
-
-        {/* Bottom section */}
-        <div className="p-4 border-t border-gray-200 space-y-2">
-          <Link
-            href="/pricing"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-            See plans and pricing
-          </Link>
-
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="3" /><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24" />
-            </svg>
-            Settings
-          </Link>
-
-          <Link
-            href="/help"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
-            </svg>
-            Help
-          </Link>
-        </div>
-
-        {/* User section */}
-        {user && (
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">{user.name}</div>
-                <div className="text-xs text-gray-500 truncate">{user.email}</div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <Sidebar
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onNewChat={newChat}
+        chats={chats}
+        activeChatId={activeChatId}
+        onSelectChat={setActiveChatId}
+        onDeleteChat={deleteChat}
+        user={user}
+        darkMode={darkMode}
+        onToggleDarkMode={toggleDarkMode}
+      />
 
       {/* Main area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-white dark:bg-[#0d0d0d]">
         {/* Header */}
-        <div className="h-14 border-b border-gray-200 flex items-center justify-between px-6 bg-white">
-          <div className="text-sm font-medium text-gray-900">ChatGPT</div>
+        <div className="h-14 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 bg-white dark:bg-[#1a1a1a]">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-700 dark:text-gray-300">
+                <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <div className="text-sm font-semibold text-gray-900 dark:text-white">PiyRox Chat</div>
+          </div>
           <div className="flex items-center gap-3">
             {!user ? (
               <>
-                <a href="/login" className="text-sm text-gray-700 hover:text-gray-900">
+                <a href="/login" className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                   Log in
                 </a>
-                <a href="/signup" className="text-sm bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
-                  Sign up for free
+                <a href="/signup" className="text-sm bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors">
+                  Sign up
                 </a>
               </>
             ) : (
-              <div className="text-sm text-gray-700">{user.name}</div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-700 dark:text-gray-300">{user.name}</span>
+                <a href="/api/auth/logout" className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Logout
+                </a>
+              </div>
             )}
           </div>
         </div>
@@ -248,8 +218,29 @@ export default function ChatPageClient() {
         <div className="flex-1 overflow-y-auto pb-40">
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">What's on your mind today?</div>
+              <div className="text-center max-w-2xl mx-auto px-4">
+                <div className="text-5xl font-bold text-gray-900 dark:text-white mb-4">What can I help you with?</div>
+                <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">Ask me anything or choose a topic below</p>
+                
+                {/* Quick action cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <button className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left">
+                    <div className="font-semibold text-gray-900 dark:text-white mb-1">Create content</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Write a blog post, email, or story</div>
+                  </button>
+                  <button className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left">
+                    <div className="font-semibold text-gray-900 dark:text-white mb-1">Analyze data</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Get insights from your data</div>
+                  </button>
+                  <button className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left">
+                    <div className="font-semibold text-gray-900 dark:text-white mb-1">Code & debug</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Write, fix, or explain code</div>
+                  </button>
+                  <button className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left">
+                    <div className="font-semibold text-gray-900 dark:text-white mb-1">Get advice</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Ask for recommendations</div>
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
@@ -260,13 +251,13 @@ export default function ChatPageClient() {
               {isTyping && (
                 <div className="py-6 px-4">
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-xs font-bold">P</span>
                     </div>
                     <div className="flex gap-1 pt-2">
-                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" />
-                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" />
-                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" />
+                      <span className="typing-dot w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full" />
+                      <span className="typing-dot w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full" />
+                      <span className="typing-dot w-2 h-2 bg-gray-400 dark:bg-gray-600 rounded-full" />
                     </div>
                   </div>
                 </div>
@@ -277,7 +268,7 @@ export default function ChatPageClient() {
         </div>
 
         {/* Input */}
-        <ChatInput onSend={sendMessage} disabled={isTyping} />
+        <ChatInput onSend={sendMessage} disabled={isTyping} darkMode={darkMode} />
       </div>
     </div>
   );
