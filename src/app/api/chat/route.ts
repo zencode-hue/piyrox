@@ -68,7 +68,25 @@ export async function POST(req: Request) {
       }),
     });
 
-    const data = await res.json();
+    if (!res.ok) {
+      console.error(`OpenRouter API responded with status: ${res.status}`);
+      let errorText = await res.text();
+      try {
+        const errJson = JSON.parse(errorText);
+        errorText = errJson.error?.message || errorText;
+      } catch (e) {
+        // Not JSON
+      }
+      return NextResponse.json({ success: false, message: `API error: ${errorText}` }, { status: res.status });
+    }
+
+    let data;
+    try {
+      data = await res.json();
+    } catch (e) {
+      console.error('Failed to parse OpenRouter response:', e);
+      return NextResponse.json({ success: false, message: 'Invalid response from API' }, { status: 502 });
+    }
 
     if (data.error) {
       console.error('OpenRouter error:', data.error);

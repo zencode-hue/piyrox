@@ -226,6 +226,17 @@ export default function ChatPageClient() {
               </svg>
             </button>
             <div className="text-sm font-semibold text-gray-900 dark:text-white">PiyRox Chat</div>
+            <div className="ml-4 flex items-center bg-gray-100 dark:bg-[#1a1a1a] rounded-lg px-2 py-1">
+              <select
+                value={selectedModel.id}
+                onChange={(e) => setSelectedModel(MODELS.find(m => m.id === e.target.value) || MODELS[0])}
+                className="bg-transparent text-sm text-gray-700 dark:text-gray-300 outline-none border-none cursor-pointer focus:ring-0"
+              >
+                {MODELS.map(m => (
+                  <option key={m.id} value={m.id} className="bg-white dark:bg-[#1a1a1a]">{m.name} - {m.desc}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {!user ? (
@@ -258,7 +269,7 @@ export default function ChatPageClient() {
                 
                 {/* Quick action cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
+                  <button onClick={() => sendMessage("Write a blog post, email, or story")} className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg group-hover:scale-110 transition-transform">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -267,7 +278,7 @@ export default function ChatPageClient() {
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Write a blog post, email, or story</div>
                   </button>
-                  <button className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
+                  <button onClick={() => sendMessage("Analyze data and find insights")} className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg group-hover:scale-110 transition-transform">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
@@ -276,7 +287,7 @@ export default function ChatPageClient() {
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Get insights from your data</div>
                   </button>
-                  <button className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
+                  <button onClick={() => sendMessage("Write, fix, or explain this code:")} className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg group-hover:scale-110 transition-transform">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
@@ -285,7 +296,7 @@ export default function ChatPageClient() {
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Write, fix, or explain code</div>
                   </button>
-                  <button className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
+                  <button onClick={() => sendMessage("Can you give me some advice or recommendations on...")} className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-lg group-hover:scale-110 transition-transform">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>

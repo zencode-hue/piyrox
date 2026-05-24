@@ -1,103 +1,93 @@
-"use client";
-import React, { useState } from 'react';
-import Link from 'next/link';
+import Link from "next/link";
 
-export default function Signup() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setSuccess('Account created! Please check your email to verify your account.');
-      } else {
-        setError(data.message || 'Signup failed. Please try again.');
-      }
-    } catch {
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function SignupPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#212121] px-4">
-      <div className="w-full max-w-md">
-        <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
-            <span className="text-white text-sm font-bold">P</span>
-          </div>
-          <span className="text-2xl font-bold text-white">PiyRox</span>
-        </Link>
+    <div className="min-h-screen bg-[#050505] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans selection:bg-blue-500/30">
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>
+      
+      {/* Dynamic Background Glows */}
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none"></div>
 
-        <div className="bg-[#2f2f2f] border border-white/[0.08] rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Create an account</h2>
-          <p className="text-gray-400 text-sm mb-6">Join the frontier of AI tools</p>
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <h2 className="mt-6 text-center text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500 tracking-tight">
+          Create an account
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-400">
+          Join <span className="font-semibold text-white">Piyrox</span> and build the future
+        </p>
+      </div>
 
-          {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">{error}</div>}
-          {success && <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm">{success}</div>}
-
-          {!success && (
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                  Full Name
-                </label>
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-[#0f0f0f]/80 backdrop-blur-xl py-8 px-4 shadow-2xl shadow-black/50 sm:rounded-3xl sm:px-10 border border-white/[0.05]">
+          <form className="space-y-6" action="#" method="POST">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+                Full Name
+              </label>
+              <div className="mt-1">
                 <input
-                  type="text" id="name" required placeholder="John Doe"
-                  value={name} onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#212121] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-gray-700/50 rounded-xl shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-black/50 text-white transition-all duration-200"
+                  placeholder="John Doe"
                 />
               </div>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                  Email address
-                </label>
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+                Email address
+              </label>
+              <div className="mt-1">
                 <input
-                  type="email" id="email" required placeholder="you@example.com"
-                  value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#212121] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-gray-700/50 rounded-xl shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-black/50 text-white transition-all duration-200"
+                  placeholder="you@example.com"
                 />
               </div>
-              <div className="mb-6">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                  Password
-                </label>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+                Password
+              </label>
+              <div className="mt-1">
                 <input
-                  type="password" id="password" required
-                  placeholder="Min. 8 characters" minLength={8}
-                  value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#212121] border border-white/[0.1] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-gray-700/50 rounded-xl shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-black/50 text-white transition-all duration-200"
+                  placeholder="••••••••"
                 />
               </div>
-              <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled={loading}>
-                {loading ? 'Creating account...' : 'Create Account'}
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-[#0f0f0f] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                Sign up
               </button>
-            </form>
-          )}
+            </div>
+          </form>
 
-          <div className="mt-6 text-center text-sm text-gray-400">
-            Already have an account?{' '}
-            <Link href="/login" className="text-blue-400 hover:text-blue-300 font-medium">
-              Log in
+          <p className="mt-8 text-center text-sm text-gray-400">
+            Already have an account?{" "}
+            <Link href="/login" className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+              Log in instead
             </Link>
-          </div>
+          </p>
         </div>
       </div>
     </div>
