@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import ChatMessage from '@/components/ChatMessage';
 import ChatInput from '@/components/ChatInput';
 import { Message, Chat, Model } from '@/types';
@@ -127,56 +128,118 @@ export default function ChatPageClient() {
 
   if (loadingUser) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-[#0f0f0f]">
-        <div className="text-gray-400">Loading...</div>
+      <div className="w-full h-screen flex items-center justify-center bg-white">
+        <div className="text-gray-600">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-[#0f0f0f]">
-      {/* Main chat area */}
-      <div className="flex flex-col flex-1 min-w-0">
-        {/* Header */}
-        <div className="h-14 border-b border-gray-800 flex items-center justify-between px-6 bg-[#1a1a1a]">
-          <div className="flex items-center gap-3">
-            <button onClick={newChat} className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-gray-200">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </button>
-            <span className="text-sm font-medium text-gray-300">PiyRox Chat</span>
-          </div>
+    <div className="flex h-screen bg-white">
+      {/* Sidebar */}
+      <div className="w-64 border-r border-gray-200 bg-white flex flex-col">
+        {/* Top section */}
+        <div className="p-4 border-b border-gray-200">
+          <button
+            onClick={newChat}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-sm text-gray-700 font-medium"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New chat
+          </button>
+        </div>
 
-          <div className="flex items-center gap-4">
-            <select
-              value={selectedModel.id}
-              onChange={(e) => setSelectedModel(MODELS.find((m) => m.id === e.target.value) || MODELS[0])}
-              className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-300 hover:border-gray-600 transition-colors"
-            >
-              {MODELS.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          <Link
+            href="/search"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            Search chats
+          </Link>
 
-            {user ? (
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <span className="text-sm text-gray-400">{user.name}</span>
+          <Link
+            href="/images"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" />
+            </svg>
+            Images
+          </Link>
+        </div>
+
+        {/* Bottom section */}
+        <div className="p-4 border-t border-gray-200 space-y-2">
+          <Link
+            href="/pricing"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            See plans and pricing
+          </Link>
+
+          <Link
+            href="/settings"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3" /><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24" />
+            </svg>
+            Settings
+          </Link>
+
+          <Link
+            href="/help"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-sm text-gray-700"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+            </svg>
+            Help
+          </Link>
+        </div>
+
+        {/* User section */}
+        {user && (
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                {user.name.charAt(0).toUpperCase()}
               </div>
-            ) : (
-              <div className="flex gap-2">
-                <a href="/login" className="text-sm text-gray-400 hover:text-gray-200">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">{user.name}</div>
+                <div className="text-xs text-gray-500 truncate">{user.email}</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Main area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="h-14 border-b border-gray-200 flex items-center justify-between px-6 bg-white">
+          <div className="text-sm font-medium text-gray-900">ChatGPT</div>
+          <div className="flex items-center gap-3">
+            {!user ? (
+              <>
+                <a href="/login" className="text-sm text-gray-700 hover:text-gray-900">
                   Log in
                 </a>
-                <a href="/signup" className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg">
-                  Sign up
+                <a href="/signup" className="text-sm bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+                  Sign up for free
                 </a>
-              </div>
+              </>
+            ) : (
+              <div className="text-sm text-gray-700">{user.name}</div>
             )}
           </div>
         </div>
@@ -186,8 +249,7 @@ export default function ChatPageClient() {
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center">
               <div className="text-center">
-                <div className="text-4xl font-bold text-gray-100 mb-2">Start a conversation</div>
-                <div className="text-gray-500">Ask me anything</div>
+                <div className="text-4xl font-bold text-gray-900 mb-2">What's on your mind today?</div>
               </div>
             </div>
           ) : (
@@ -202,9 +264,9 @@ export default function ChatPageClient() {
                       <span className="text-white text-xs font-bold">P</span>
                     </div>
                     <div className="flex gap-1 pt-2">
-                      <span className="typing-dot w-2 h-2 bg-gray-500 rounded-full" />
-                      <span className="typing-dot w-2 h-2 bg-gray-500 rounded-full" />
-                      <span className="typing-dot w-2 h-2 bg-gray-500 rounded-full" />
+                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" />
+                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" />
+                      <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" />
                     </div>
                   </div>
                 </div>

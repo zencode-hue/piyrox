@@ -12,22 +12,22 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0a0a0a',
+  themeColor: '#ffffff',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} dark`}>
+    <html lang="en" className={inter.variable}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0a0a0a" />
+        <meta name="theme-color" content="#ffffff" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="white" />
         <meta name="apple-mobile-web-app-title" content="PiyRox" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body className="bg-black text-gray-100 antialiased">
+      <body className="bg-white text-gray-900 antialiased">
         {children}
         <script dangerouslySetInnerHTML={{
           __html: `

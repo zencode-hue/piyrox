@@ -47,15 +47,15 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const canSend = (input.trim().length > 0 || files.length > 0) && !disabled;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f] to-transparent pt-4 pb-6 px-4">
+    <div className="fixed bottom-0 left-64 right-0 bg-gradient-to-t from-white via-white to-transparent pt-4 pb-6 px-4">
       <div className="max-w-3xl mx-auto">
         {files.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3 px-4">
             {files.map((f, i) => (
-              <div key={i} className="flex items-center gap-2 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-xs text-gray-400">
+              <div key={i} className="flex items-center gap-2 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-xs text-gray-700">
                 <span>{f.type.startsWith('image/') ? '🖼️' : '📎'}</span>
                 <span className="truncate max-w-[100px]">{f.name}</span>
-                <button onClick={() => removeFile(i)} className="text-gray-600 hover:text-gray-400">
+                <button onClick={() => removeFile(i)} className="text-gray-600 hover:text-gray-900">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
@@ -65,7 +65,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           </div>
         )}
 
-        <div className="flex gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-2xl hover:border-gray-700 transition-colors">
+        <div className="flex gap-3 px-4 py-3 bg-white border border-gray-300 rounded-2xl hover:border-gray-400 transition-colors shadow-sm">
           <input
             ref={fileInputRef}
             type="file"
@@ -75,7 +75,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 hover:bg-gray-800 rounded-lg text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
+            className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
             disabled={disabled}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -88,18 +88,28 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
             value={input}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Message..."
+            placeholder="Ask anything..."
             disabled={disabled}
             rows={1}
-            className="flex-1 bg-transparent text-gray-100 placeholder-gray-600 text-sm resize-none outline-none max-h-[200px] leading-6"
+            className="flex-1 bg-transparent text-gray-900 placeholder-gray-500 text-sm resize-none outline-none max-h-[200px] leading-6"
             style={{ minHeight: '44px' }}
           />
+
+          <button
+            className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
+            title="Voice input"
+            disabled={disabled}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+          </button>
 
           <button
             onClick={() => handleSubmit()}
             disabled={!canSend}
             className={`p-2 rounded-lg flex-shrink-0 transition-colors ${
-              canSend ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+              canSend ? 'bg-gray-900 hover:bg-gray-800 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
