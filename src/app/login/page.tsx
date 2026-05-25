@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { redirectIfAuthenticated } from "./utils";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  await redirectIfAuthenticated();
+
   return (
     <div className="min-h-screen bg-[#050505] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans selection:bg-purple-500/30">
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] pointer-events-none mix-blend-overlay"></div>

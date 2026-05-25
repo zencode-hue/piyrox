@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 export async function POST(req: Request) {
@@ -8,11 +8,11 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ success: false, message: 'Missing fields' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Missing email or password' }, { status: 400 });
     }
 
     const res = await query(
-      'SELECT id, name, password, plan, is_verified FROM users WHERE email = $1',
+      'SELECT id, name, email, password, plan, is_verified FROM users WHERE email = $1',
       [email]
     );
 
@@ -21,9 +21,9 @@ export async function POST(req: Request) {
     }
 
     const user = res.rows[0];
-    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (user.password !== hashedPassword) {
+    if (!isPasswordValid) {
       return NextResponse.json({ success: false, message: 'Invalid email or password' }, { status: 401 });
     }
 
@@ -36,18 +36,18 @@ export async function POST(req: Request) {
 
     const secret = process.env.JWT_SECRET!;
     const token = jwt.sign(
-      { userId: user.id, email, plan: user.plan || 'free' },
+      { userId: user.id, name: user.name, email: user.email, plan: user.plan || 'free' },
       secret,
       { expiresIn: '7d' }
     );
 
-    const response = NextResponse.redirect(new URL('/', req.url));
+    const response = NextResponse.json({ success: true, user: { name: user.name, email: user.email, plan: user.plan }});
 
     response.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
 

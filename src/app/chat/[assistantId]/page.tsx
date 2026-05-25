@@ -15,10 +15,5 @@ const ChatPageClient = dynamic(() => import('@/app/page-client'), {
 export default function AssistantChatPage({ params }: { params: { assistantId: string } }) {
   const assistant = assistants.find((a) => a.id === params.assistantId);
 
-  // A simple system prompt, you can get much more creative
-  const systemPrompt = assistant
-    ? `You are ${assistant.title}, a specialized AI assistant. Your purpose is to ${assistant.desc.toLowerCase()}`
-    : undefined; // Let the default prompt be used if not found
-
-  return <ChatPageClient defaultSystemPrompt={systemPrompt} />;
+  return <ChatPageClient defaultSystemPrompt={assistant?.systemPrompt} />;
 }

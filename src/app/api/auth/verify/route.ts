@@ -6,15 +6,14 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get('token');
-    const email = searchParams.get('email');
 
-    if (!token || !email) {
-      return NextResponse.json({ success: false, message: 'Missing token or email' }, { status: 400 });
+    if (!token) {
+      return NextResponse.json({ success: false, message: 'Missing token' }, { status: 400 });
     }
 
     const res = await query(
-      'SELECT id, plan FROM users WHERE email = $1 AND verification_token = $2',
-      [email, token]
+      'SELECT id, name, email, plan FROM users WHERE verification_token = $1',
+      [token]
     );
 
     if (res.rows.length === 0) {
@@ -26,7 +25,7 @@ export async function GET(req: Request) {
 
     const secret = process.env.JWT_SECRET!;
     const jwtToken = jwt.sign(
-      { userId: user.id, email, plan: user.plan || 'free' },
+      { userId: user.id, name: user.name, email: user.email, plan: user.plan || 'free' },
       secret,
       { expiresIn: '7d' }
     );
@@ -36,7 +35,7 @@ export async function GET(req: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
 

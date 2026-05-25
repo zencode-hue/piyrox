@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { query, initDb } from '@/lib/db';
-import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import { nanoid } from 'nanoid';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
@@ -11,8 +15,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'Missing fields' }, { status: 400 });
     }
 
-    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const verificationToken = nanoid(32);
 
     try {
       await query(
@@ -20,36 +25,26 @@ export async function POST(req: Request) {
         [name, email, hashedPassword, false, verificationToken]
       );
     } catch (e: any) {
-      if (e.code === '23505') {
-        return NextResponse.json({ success: false, message: 'Email already exists' }, { status: 400 });
+      if (e.code === '23505') { // Unique violation for email
+        return NextResponse.json({ success: false, message: 'Email already exists' }, { status: 409 });
       }
       throw e;
     }
 
-    const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey) {
-      const verifyLink = `https://piyrox.sbs/api/auth/verify?token=${verificationToken}&email=${encodeURIComponent(email)}`;
-      
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: 'PiyRox <' + process.env.RESEND_FROM_EMAIL + '>',
-          to: [email],
-          subject: 'Verify your PiyRox Account',
-          html: `
-            <h2>Welcome to PiyRox, ${name}!</h2>
-            <p>Please click the link below to verify your account and complete your registration:</p>
-            <a href="${verifyLink}" style="display:inline-block;padding:10px 20px;background:#2a8af6;color:#fff;text-decoration:none;border-radius:5px;">Verify My Account</a>
-          `
-        })
-      });
-    }
+    const verifyLink = `https://piyrox.sbs/api/auth/verify?token=${verificationToken}`;
+    
+    await resend.emails.send({
+      from: 'PiyRox <' + process.env.RESEND_FROM_EMAIL + '>',
+      to: [email],
+      subject: 'Verify your PiyRox Account',
+      html: `
+        <h2>Welcome to PiyRox, ${name}!</h2>
+        <p>Please click the link below to verify your account and complete your registration:</p>
+        <a href="${verifyLink}" style="display:inline-block;padding:10px 20px;background:#2a8af6;color:#fff;text-decoration:none;border-radius:5px;">Verify My Account</a>
+      `
+    });
 
-    return NextResponse.json({ success: true, message: 'Registration successful! Please check your email to verify your account.' });
+    return NextResponse.json({ success: true, message: 'Registration successful! Please check your email to verify your account.' }, { status: 201 });
   } catch (error: any) {
     console.error('Signup error:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
