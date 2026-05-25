@@ -1,6 +1,8 @@
-"use client";
+'use client';
 import React, { useState } from 'react';
 import { Message } from '@/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatMessageProps {
   message: Message;
@@ -37,11 +39,11 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             {!isUser && message.model && <span className="text-xs text-gray-500 dark:text-gray-400">{message.model}</span>}
           </div>
 
-          {isUser ? (
-            <div className="text-gray-700 dark:text-gray-300 text-sm whitespace-pre-wrap">{message.content}</div>
-          ) : (
-            <div className="text-gray-700 dark:text-gray-300 text-sm leading-7 whitespace-pre-wrap">{message.content}</div>
-          )}
+          <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-7">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {message.content}
+            </ReactMarkdown>
+          </div>
 
           {!isUser && (
             <button
