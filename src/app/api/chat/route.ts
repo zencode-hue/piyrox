@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server';
 
 const FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'google/gemma-2-9b-it:free',
-  'piyrox-4o': 'meta-llama/llama-3.1-8b-instruct:free',
-  'piyrox-3.5': 'mistralai/mistral-7b-instruct:free',
-  'jarvis-v3': 'qwen/qwen-2.5-coder-32b-instruct:free',
+  'piyrox-4': 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo',
+  'piyrox-4o': 'google/gemma-7b-it',
+  'piyrox-3.5': 'mistralai/mistral-7b-instruct',
+  'jarvis-v3': 'openrouter/cinematika-7b',
 };
 
 // Code-specific free models (better for coding)
 const CODE_FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'qwen/qwen-2.5-coder-32b-instruct:free',
-  'piyrox-4o': 'meta-llama/llama-3.1-8b-instruct:free',
-  'piyrox-3.5': 'mistralai/mistral-7b-instruct:free',
-  'jarvis-v3': 'qwen/qwen-2.5-coder-32b-instruct:free',
+  'piyrox-4': 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo',
+  'piyrox-4o': 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo',
+  'piyrox-3.5': 'mistralai/mistral-7b-instruct',
+  'jarvis-v3': 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo',
 };
 
 export async function POST(req: Request) {
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       console.error(`Primary model ${selectedModel} failed. Status: ${res.status}. Response: ${await res.text()}`);
       console.error(`Falling back to backup model...`);
       
-      res = await makeApiCall('mistralai/mistral-7b-instruct:free');
+      res = await makeApiCall('google/gemma-7b-it');
     }
 
     if (!res.ok) {
