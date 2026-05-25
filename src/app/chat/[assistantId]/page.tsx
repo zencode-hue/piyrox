@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { assistants } from '@/lib/assistants.tsx';
+import { assistants } from '@/lib/assistants';
 
 const ChatPageClient = dynamic(() => import('@/app/page-client'), {
   ssr: false,
