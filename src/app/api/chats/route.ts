@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, initDb } from '@/lib/db';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+
+// Initialize the database and create tables if they don't exist
+initDb().catch(console.error);
 
 async function getUser() {
   const cookieStore = await cookies();

@@ -51,56 +51,40 @@ export async function POST(req: Request) {
     // Build system prompt based on model
     const systemPrompt = getSystemPrompt(model);
 
-    let res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openrouterKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://chat.piyrox.sbs',
-        'X-Title': 'PiyRox Chat',
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages.filter((m: { role: string }) => m.role !== 'system'),
-        ],
-        max_tokens: 2048,
-        temperature: 0.7,
-      }),
-    });
-
-    // Fallback if the provider fails
-    if (!res.ok) {
-      console.error(`Primary model failed, falling back to backup model...`);
-      res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const makeApiCall = async (modelToUse: string) => {
+      return fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${openrouterKey}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://chat.piyrox.sbs',
+          'HTTP-Referer': siteUrl,
           'X-Title': 'PiyRox Chat',
         },
         body: JSON.stringify({
-          model: 'mistralai/mistral-7b-instruct:free',
+          model: modelToUse,
           messages: [
             { role: 'system', content: systemPrompt },
             ...messages.filter((m: { role: string }) => m.role !== 'system'),
           ],
-          max_tokens: 1024,
+          max_tokens: 2048,
+          temperature: 0.7,
         }),
       });
+    };
+
+    let res = await makeApiCall(selectedModel);
+
+    // Fallback if the provider fails
+    if (!res.ok) {
+      console.error(`Primary model ${selectedModel} failed. Status: ${res.status}. Response: ${await res.text()}`);
+      console.error(`Falling back to backup model...`);
+      
+      res = await makeApiCall('mistralai/mistral-7b-instruct:free');
     }
 
     if (!res.ok) {
-      console.error(`OpenRouter API responded with status: ${res.status}`);
-      let errorText = await res.text();
-      try {
-        const errJson = JSON.parse(errorText);
-        errorText = errJson.error?.message || errorText;
-      } catch (e) {
-        // Not JSON
-      }
+      const errorText = await res.text();
+      console.error(`OpenRouter API (backup) responded with status: ${res.status}. Response: ${errorText}`);
       return NextResponse.json({ success: false, message: `Our AI servers are currently overloaded. Please try again in a few moments.` }, { status: 503 });
     }
 
@@ -108,7 +92,8 @@ export async function POST(req: Request) {
     try {
       data = await res.json();
     } catch (e) {
-      console.error('Failed to parse OpenRouter response:', e);
+      const errorText = await res.text(); // Get the raw response text
+      console.error('Failed to parse OpenRouter response:', e, 'Raw Response:', errorText);
       return NextResponse.json({ success: false, message: 'Invalid response from API' }, { status: 502 });
     }
 
