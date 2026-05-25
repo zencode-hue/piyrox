@@ -53,7 +53,6 @@ export async function POST(req: Request) {
       headers: {
         'Authorization': `Bearer ${openrouterKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://chat.piyrox.sbs',
         'X-Title': 'PiyRox Chat',
       },
       body: JSON.stringify({
@@ -75,7 +74,6 @@ export async function POST(req: Request) {
         headers: {
           'Authorization': `Bearer ${openrouterKey}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://chat.piyrox.sbs',
           'X-Title': 'PiyRox Chat',
         },
         body: JSON.stringify({
