@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { assistants } from '@/lib/assistants';
+import { assistants } from '@/lib/assistants.tsx';
 
 export default function ExplorePage() {
   return (
