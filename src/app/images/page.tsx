@@ -8,6 +8,7 @@ export default function ImagesPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -51,21 +52,41 @@ export default function ImagesPage() {
     setImages(prev => prev.filter(img => img.id !== id));
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setGenerating(true);
-    // Simulate AI generation delay
-    setTimeout(() => {
-      setImages(prev => [...prev, {
-        id: Math.random().toString(36).slice(2),
-        src: `https://placehold.co/512x512/1a1a2e/7c3aed?text=${encodeURIComponent(prompt.slice(0, 20))}`,
-        name: `Generated: ${prompt.slice(0, 30)}`,
-        size: 0,
-        type: 'generated',
-      }]);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.url) {
+        setImages(prev => [...prev, {
+          id: Math.random().toString(36).slice(2),
+          src: data.url,
+          name: `Generated: ${prompt.slice(0, 30)}`,
+          size: 0,
+          type: 'generated',
+        }]);
+        setPrompt('');
+      } else {
+        throw new Error(data.message || 'Failed to generate image.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An unknown error occurred.');
+    } finally {
       setGenerating(false);
-      setPrompt('');
-    }, 2000);
+    }
   };
 
   return (
@@ -123,6 +144,7 @@ export default function ImagesPage() {
               )}
             </button>
           </div>
+          {error && <p className="text-red-500 text-center mt-4">{error}</p>}
         </div>
 
         {/* Upload Area */}

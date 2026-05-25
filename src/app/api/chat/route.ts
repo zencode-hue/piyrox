@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server';
 
 const FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo',
-  'piyrox-4o': 'google/gemma-7b-it',
-  'piyrox-3.5': 'mistralai/mistral-7b-instruct',
-  'jarvis-v3': 'openrouter/cinematika-7b',
+  'piyrox-4': 'deepseek/deepseek-v4-flash:free',
+  'piyrox-4o': 'poolside/laguna-m.1:free',
+  'piyrox-3.5': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+  'jarvis-v3': 'nvidia/nemotron-3-super-120b-a12b:free',
 };
 
 // Code-specific free models (better for coding)
 const CODE_FREE_MODELS: Record<string, string> = {
-  'piyrox-4': 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo',
-  'piyrox-4o': 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo',
-  'piyrox-3.5': 'mistralai/mistral-7b-instruct',
-  'jarvis-v3': 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo',
+  'piyrox-4': 'deepseek/deepseek-v4-flash:free',
+  'piyrox-4o': 'poolside/laguna-m.1:free',
+  'piyrox-3.5': 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+  'jarvis-v3': 'nvidia/nemotron-3-super-120b-a12b:free',
 };
 
 export async function POST(req: Request) {
@@ -79,13 +79,13 @@ export async function POST(req: Request) {
       console.error(`Primary model ${selectedModel} failed. Status: ${res.status}. Response: ${await res.text()}`);
       console.error(`Falling back to backup model...`);
       
-      res = await makeApiCall('google/gemma-7b-it');
+      res = await makeApiCall('deepseek/deepseek-v4-flash:free');
     }
 
     if (!res.ok) {
       const errorText = await res.text();
       console.error(`OpenRouter API (backup) responded with status: ${res.status}. Response: ${errorText}`);
-      return NextResponse.json({ success: false, message: `Our AI servers are currently overloaded. Please try again in a few moments.` }, { status: 503 });
+      return NextResponse.json({ success: false, message: 'Our AI servers are currently overloaded. Please try again in a few moments.' }, { status: 503 });
     }
 
     let data;
@@ -140,7 +140,7 @@ function getSystemPrompt(model: string): string {
 
   const modelName = modelNames[model] || 'PiyRox AI';
   
-  return `You are ${modelName}, an advanced AI assistant created by PiyRox. You are intelligent, helpful, and direct.
+  return \`You are ${modelName}, an advanced AI assistant created by PiyRox. You are intelligent, helpful, and direct.
 
 CORE TRAITS:
 - Be concise but thorough
@@ -165,5 +165,5 @@ RESPONSE STYLE:
 - Be conversational but professional
 - Provide examples when relevant
 
-Always prioritize accuracy and helpfulness.`;
+Always prioritize accuracy and helpfulness.\`;
 }
