@@ -140,7 +140,7 @@ function getSystemPrompt(model: string): string {
 
   const modelName = modelNames[model] || 'PiyRox AI';
   
-  return \`You are ${modelName}, an advanced AI assistant created by PiyRox. You are intelligent, helpful, and direct.
+  return `You are ${modelName}, an advanced AI assistant created by PiyRox. You are intelligent, helpful, and direct.
 
 CORE TRAITS:
 - Be concise but thorough
@@ -165,5 +165,5 @@ RESPONSE STYLE:
 - Be conversational but professional
 - Provide examples when relevant
 
-Always prioritize accuracy and helpfulness.\`;
+Always prioritize accuracy and helpfulness.`;
 }
