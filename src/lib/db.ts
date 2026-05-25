@@ -39,24 +39,10 @@ export async function initDb() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    
-    try {
-      await query(`ALTER TABLE users ADD COLUMN is_verified BOOLEAN DEFAULT FALSE;`);
-    } catch (e) {
-      // Column likely already exists
-    }
-    
-    try {
-      await query(`ALTER TABLE users ADD COLUMN verification_token VARCHAR(255);`);
-    } catch (e) {
-      // Column likely already exists
-    }
-  } catch (error) {
-    console.error('Database initialization error:', error);
-    throw error;
-  }
-  
-  try {
+
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE;`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token VARCHAR(255);`);
+
     await query(`
       CREATE TABLE IF NOT EXISTS chats (
         id VARCHAR(255) PRIMARY KEY,
@@ -67,6 +53,7 @@ export async function initDb() {
       );
     `);
   } catch (error) {
-    console.error('Chats table initialization error:', error);
+    console.error('Database initialization error:', error);
+    throw error;
   }
 }
