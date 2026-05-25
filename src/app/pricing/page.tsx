@@ -8,11 +8,11 @@ export default function PricingPage() {
     {
       name: 'Free',
       price: '$0',
-      description: 'Perfect for getting started',
+      description: 'For casual users and those trying out our service.',
       features: [
         'Access to PiyRox-3.5',
-        '40 messages per 3 hours',
-        'Basic file uploads',
+        '20 messages per day',
+        'Standard response speed',
         'Community support',
       ],
       cta: 'Get started',
@@ -22,70 +22,53 @@ export default function PricingPage() {
       name: 'Plus',
       price: '$20',
       period: '/month',
-      description: 'For regular users',
+      description: 'For users who need more power and features.',
       features: [
-        'Access to all models',
+        'Access to all models (PiyRox-4, 4o, 3.5, Jarvis-V3)',
         'Unlimited messages',
-        'Advanced file uploads',
-        'Priority support',
-        'Custom instructions',
         'Faster response times',
+        'Priority support',
+        'Access to new features first',
       ],
       cta: 'Upgrade to Plus',
       highlighted: true,
-    },
-    {
-      name: 'Pro',
-      price: '$200',
-      period: '/month',
-      description: 'For power users',
-      features: [
-        'Everything in Plus',
-        'Advanced data analysis',
-        'Custom model fine-tuning',
-        'API access',
-        'Dedicated support',
-        'Advanced security',
-      ],
-      cta: 'Upgrade to Pro',
-      highlighted: false,
     },
   ];
 
   const faqs = [
     {
       question: 'Can I change my plan anytime?',
-      answer: 'Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.',
+      answer: 'Yes, you can upgrade or downgrade your plan at any time. Changes will take effect at the start of your next billing cycle.',
     },
     {
       question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards, PayPal, and bank transfers for annual plans.',
+      answer: 'We accept all major credit cards and PayPal.',
     },
     {
-      question: 'Is there a free trial for Plus?',
-      answer: 'Yes, we offer a 7-day free trial for Plus plan. No credit card required.',
+      question: 'Is there a free trial for the Plus plan?',
+      answer: 'We do not offer a free trial at this time, but you can use the Free plan to get a feel for our service.',
     },
     {
-      question: 'What happens if I exceed my message limit?',
-      answer: 'On the Free plan, you can wait for the limit to reset. Plus and Pro plans have unlimited messages.',
+      question: 'What happens if I exceed my message limit on the Free plan?',
+      answer: 'You will have to wait until the next day for your message limit to reset. To get unlimited messages, you can upgrade to the Plus plan.',
     },
   ];
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0d0d0d]">
       {/* Header */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <header className="border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-6 py-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Simple, transparent pricing</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Pricing Plans</h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Choose the plan that works best for you
+            Choose a plan that fits your needs. Get started for free.
           </p>
         </div>
-      </div>
+      </header>
 
       {/* Pricing Cards */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <main className="max-w-6xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -108,19 +91,21 @@ export default function PricingPage() {
                 {plan.period && <span className="text-gray-600 dark:text-gray-400">{plan.period}</span>}
               </div>
 
-              <button
-                className={`w-full py-3 rounded-lg font-medium transition-colors mb-8 ${
-                  plan.highlighted
-                    ? 'bg-green-500 hover:bg-green-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-              >
-                {plan.cta}
-              </button>
+              <Link href={plan.name === 'Free' ? '/signup' : '/signup?plan=plus'}>
+                <button
+                  className={`w-full py-3 rounded-lg font-medium transition-colors mb-8 ${
+                    plan.highlighted
+                      ? 'bg-green-500 hover:bg-green-600 text-white'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {plan.cta}
+                </button>
+              </Link>
 
-              <div className="space-y-4">
+              <ul className="space-y-4">
                 {plan.features.map((feature) => (
-                  <div key={feature} className="flex items-start gap-3">
+                  <li key={feature} className="flex items-start gap-3">
                     <svg
                       width="20"
                       height="20"
@@ -129,32 +114,33 @@ export default function PricingPage() {
                       stroke="currentColor"
                       strokeWidth="2"
                       className="text-green-500 dark:text-green-400 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
                     >
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                     <span className="text-gray-700 dark:text-gray-300 text-sm">{feature}</span>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           ))}
         </div>
-      </div>
+      </main>
 
       {/* FAQ */}
-      <div className="border-t border-gray-200 dark:border-gray-700">
+      <section className="border-t border-gray-200 dark:border-gray-700">
         <div className="max-w-3xl mx-auto px-6 py-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Frequently asked questions</h2>
-          <div className="space-y-6">
-            {faqs.map((faq) => (
-              <div key={faq.question} className="border-b border-gray-200 dark:border-gray-700 pb-6">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Frequently Asked Questions</h2>
+          <div className="space-y-8">
+            {faqs.map((faq, index) => (
+              <div key={index}>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{faq.question}</h3>
                 <p className="text-gray-600 dark:text-gray-400">{faq.answer}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

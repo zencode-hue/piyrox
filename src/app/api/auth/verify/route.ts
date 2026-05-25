@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import jwt from 'jsonwebtoken';
 
 export async function GET(req: Request) {
   try {
@@ -12,7 +13,7 @@ export async function GET(req: Request) {
     }
 
     const res = await query(
-      'SELECT id, is_verified FROM users WHERE email = $1 AND verification_token = $2',
+      'SELECT id, plan FROM users WHERE email = $1 AND verification_token = $2',
       [email, token]
     );
 
@@ -20,9 +21,27 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: false, message: 'Invalid verification token' }, { status: 400 });
     }
 
-    await query('UPDATE users SET is_verified = true WHERE id = $1', [res.rows[0].id]);
+    const user = res.rows[0];
+    await query('UPDATE users SET is_verified = true, verification_token = NULL WHERE id = $1', [user.id]);
 
-    return NextResponse.redirect(new URL('/login?verified=true', req.url));
+    const secret = process.env.JWT_SECRET!;
+    const jwtToken = jwt.sign(
+      { userId: user.id, email, plan: user.plan || 'free' },
+      secret,
+      { expiresIn: '7d' }
+    );
+
+    const response = NextResponse.redirect(new URL('/', req.url));
+    response.cookies.set('token', jwtToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    });
+
+    return response;
+
   } catch (error) {
     console.error('Verify error:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });

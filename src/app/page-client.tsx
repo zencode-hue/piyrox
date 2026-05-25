@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export default function ChatPageClient() {
+export default function ChatPageClient({ defaultSystemPrompt }: { defaultSystemPrompt?: string }) {
   const [chats, setChats] = useState<Chat[]>([
     { id: 'default', title: 'New chat', messages: [], createdAt: Date.now() },
   ]);
@@ -53,7 +53,6 @@ export default function ChatPageClient() {
         const res = await fetch('/api/chats');
         const data = await res.json();
         if (data.success && data.chats && data.chats.length > 0) {
-          // Parse messages if it's a string, DB might return JSON
           const loadedChats = data.chats.map((c: any) => ({
             ...c,
             messages: typeof c.messages === 'string' ? JSON.parse(c.messages) : c.messages
@@ -67,15 +66,10 @@ export default function ChatPageClient() {
     };
     loadChats();
 
-    // Check dark mode preference
     const isDark = localStorage.getItem('theme') === 'dark' || 
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     setDarkMode(isDark);
   }, []);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -127,6 +121,7 @@ export default function ChatPageClient() {
             messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
             model: selectedModel.id,
             prompt: content,
+            system_prompt: defaultSystemPrompt, // Pass the system prompt
           }),
         });
 
@@ -159,7 +154,7 @@ export default function ChatPageClient() {
         setIsTyping(false);
       }
     },
-    [activeChatId, messages, selectedModel, activeChat, updateChat]
+    [activeChatId, messages, selectedModel, activeChat, updateChat, defaultSystemPrompt]
   );
 
   const newChat = () => {
@@ -198,7 +193,6 @@ export default function ChatPageClient() {
 
   return (
     <div className={`flex h-screen font-sans transition-colors duration-300 ${darkMode ? 'dark bg-[#0a0a0a]' : 'bg-gray-50'}`}>
-      {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -212,9 +206,7 @@ export default function ChatPageClient() {
         onToggleDarkMode={toggleDarkMode}
       />
 
-      {/* Main area */}
       <div className="flex-1 flex flex-col bg-white dark:bg-[#0a0a0a] shadow-xl rounded-l-3xl overflow-hidden border-l border-gray-200 dark:border-gray-800">
-        {/* Header */}
         <div className="h-16 backdrop-blur-md bg-white/70 dark:bg-[#0a0a0a]/70 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between px-6 sticky top-0 z-10 transition-colors">
           <div className="flex items-center gap-4">
             <button
@@ -250,7 +242,9 @@ export default function ChatPageClient() {
               </>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-700 dark:text-gray-300">{user.name}</span>
+                 <Link href="/dashboard">
+                  <span className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer">{user.name}</span>
+                </Link>
                 <a href="/api/auth/logout" className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                   Logout
                 </a>
@@ -259,15 +253,12 @@ export default function ChatPageClient() {
           </div>
         </div>
 
-        {/* Messages */}
         <div className="flex-1 overflow-y-auto pb-40">
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center">
               <div className="text-center max-w-3xl mx-auto px-4 mt-20">
                 <div className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 mb-6 tracking-tight">What can I help you with?</div>
                 <p className="text-xl text-gray-500 dark:text-gray-400 mb-12 font-medium">Ask me anything or choose a topic below</p>
-                
-                {/* Quick action cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <button onClick={() => sendMessage("Write a blog post, email, or story")} className="p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-[#111111]/50 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 dark:hover:bg-gray-800/80 transition-all duration-300 text-left group">
                     <div className="flex items-center gap-3 mb-2">
@@ -332,7 +323,6 @@ export default function ChatPageClient() {
           )}
         </div>
 
-        {/* Input */}
         <ChatInput onSend={sendMessage} disabled={isTyping} darkMode={darkMode} />
       </div>
     </div>

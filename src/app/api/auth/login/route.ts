@@ -41,11 +41,7 @@ export async function POST(req: Request) {
       { expiresIn: '7d' }
     );
 
-    const response = NextResponse.json({
-      success: true,
-      message: 'Login successful',
-      user: { id: user.id, name: user.name, email, plan: user.plan || 'free' },
-    });
+    const response = NextResponse.redirect(new URL('/', req.url));
 
     response.cookies.set('token', token, {
       httpOnly: true,

@@ -1,5 +1,6 @@
-
 import { NextResponse } from 'next/server';
+import { query } from '../../../lib/db';
+import jwt from 'jsonwebtoken';
 
 const MODEL_CHAINS: Record<string, string[]> = {
   'piyrox-4': [
@@ -22,12 +23,64 @@ const MODEL_CHAINS: Record<string, string[]> = {
   ],
 };
 
+async function getUserIdFromToken(req: Request): Promise<number | null> {
+  const authHeader = req.headers.get('authorization');
+  const cookie = req.headers.get('cookie');
+
+  let token: string | undefined;
+
+  if (authHeader) {
+    token = authHeader.split(' ')[1];
+  }
+
+  if (!token && cookie) {
+    token = cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1];
+  }
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: number };
+    return decoded.userId;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return null;
+  }
+}
+
 export async function POST(req: Request) {
   try {
-    const { messages, model, prompt } = await req.json();
+    const { messages, model, system_prompt } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ success: false, message: 'Invalid request' }, { status: 400 });
+    }
+
+    const userId = await getUserIdFromToken(req);
+    if (!userId) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userResult = await query('SELECT plan, message_count, last_message_date FROM users WHERE id = $1', [userId]);
+    const user = userResult.rows[0];
+
+    if (!user) {
+      return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+    }
+
+    if (user.plan === 'free') {
+      const today = new Date().toISOString().split('T')[0];
+      if (user.last_message_date === today && user.message_count >= 20) {
+        return NextResponse.json({ success: false, message: 'You have reached your daily message limit.' }, { status: 429 });
+      }
+
+      if (user.last_message_date === today) {
+        await query('UPDATE users SET message_count = message_count + 1 WHERE id = $1', [userId]);
+      } else {
+        await query('UPDATE users SET message_count = 1, last_message_date = $1 WHERE id = $2', [today, userId]);
+      }
     }
 
     const referer = req.headers.get('referer');
@@ -42,7 +95,7 @@ export async function POST(req: Request) {
       }, { status: 500 });
     }
 
-    const systemPrompt = getSystemPrompt(model);
+    const finalSystemPrompt = system_prompt || getSystemPrompt(model);
     const modelChain = MODEL_CHAINS[model] || MODEL_CHAINS['piyrox-4o'];
 
     let lastError: any = null;
@@ -60,7 +113,7 @@ export async function POST(req: Request) {
           body: JSON.stringify({
             model: modelToUse,
             messages: [
-              { role: 'system', content: systemPrompt },
+              { role: 'system', content: finalSystemPrompt },
               ...messages.filter((m: { role: string }) => m.role !== 'system'),
             ],
             max_tokens: 2048,
