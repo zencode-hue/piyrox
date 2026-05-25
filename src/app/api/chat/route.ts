@@ -23,6 +23,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'Invalid request' }, { status: 400 });
     }
 
+    const referer = req.headers.get('referer');
+    const siteUrl = referer ? new URL(referer).origin : 'https://chat.piyrox.sbs';
+
     // Try both env var names for compatibility
     const openrouterKey = process.env.OPENROUTER_API_KEY || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
     
@@ -53,6 +56,7 @@ export async function POST(req: Request) {
       headers: {
         'Authorization': `Bearer ${openrouterKey}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': siteUrl,
         'X-Title': 'PiyRox Chat',
       },
       body: JSON.stringify({
@@ -74,6 +78,7 @@ export async function POST(req: Request) {
         headers: {
           'Authorization': `Bearer ${openrouterKey}`,
           'Content-Type': 'application/json',
+          'HTTP-Referer': siteUrl,
           'X-Title': 'PiyRox Chat',
         },
         body: JSON.stringify({
