@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       });
     };
 
-    let res = await makeApiCall(selectedModel);
+    let res = await makeApiCall(selected.model);
 
     // Fallback if the provider fails
     if (!res.ok) {
