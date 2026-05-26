@@ -3,6 +3,47 @@
     {
       "path": "/api/cron/deals-notify",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "17 2 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "43 5 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "8 8 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "31 10 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "55 12 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "22 14 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "47 16 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "13 18 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "38 20 * * *"
+    },
+    {
+      "path": "/api/cron/auto-vouch",
+      "schedule": "5 22 * * *"
     }
   ]
 }
+
