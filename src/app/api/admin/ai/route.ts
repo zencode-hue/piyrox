@@ -268,8 +268,8 @@ function parseToolCalls(reply: string): ToolCall[] {
     }
   }
 
-  // 2. XML format: <tool_call>action_name<arg_key>k</arg_key><arg_value>v</arg_value>...</tool_call>
-  const xmlRegex = /<tool_call>([\s\S]*?)<\/tool_call>/g;
+  // 2. XML format: </arg_value>action_name</arg_value>k</arg_key><arg_value>v</arg_value>...</arg_value>
+  const xmlRegex = /([\s\S]*?)<\/tool_call>/g;
   let xm: RegExpExecArray | null;
   while ((xm = xmlRegex.exec(reply)) !== null) {
     const raw = xm[0];
@@ -280,7 +280,7 @@ function parseToolCalls(reply: string): ToolCall[] {
       if (!actionMatch) continue;
       const action = actionMatch[1];
       const params: Record<string, unknown> = {};
-      const pairRegex = /<arg_key>([^<]+)<\/arg_key>\s*<arg_value>([\s\S]*?)<\/arg_value>/g;
+      const pairRegex = /([^<]+)<\/arg_key>\s*([\s\S]*?)<\/arg_value>/g;
       let pm: RegExpExecArray | null;
       while ((pm = pairRegex.exec(block)) !== null) {
         const key = pm[1].trim();
@@ -511,11 +511,11 @@ export async function POST(req: NextRequest) {
 
     // ── Mode Detection ─────────────────────────────────────────────────────────
     const CONTEXT_MODELS: Record<string, string> = {
-      seo:       "google/gemma-4-31b:free",
-      marketing: "google/gemma-4-31b:free",
-      strategy:  "google/gemma-4-31b:free",
-      task:      "google/gemma-4-31b:free",
-      general:   "google/gemma-4-31b:free",
+      seo:       "z-ai/glm-4.5-air:free",
+      marketing: "z-ai/glm-4.5-air:free",
+      strategy:  "z-ai/glm-4.5-air:free",
+      task:      "z-ai/glm-4.5-air:free",
+      general:   "z-ai/glm-4.5-air:free",
     };
 
     let orchestrationMode = context || "auto";
@@ -529,10 +529,11 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Model Selection ────────────────────────────────────────────────────────
-    let selectedModel = "google/gemma-4-31b:free"; // Enforced Global Model
+    let selectedModel = "z-ai/glm-4.5-air:free"; // Enforced Global Model
     if (orchestrationMode !== "auto") {
-      selectedModel = "google/gemma-4-31b:free";
-    }  console.log(`[AI Router] Mode: ${orchestrationMode}, Model: ${selectedModel}, Name: ${selectedModelName}`);
+      selectedModel = "z-ai/glm-4.5-air:free";
+    }
+    console.log(`[AI Router] Mode: ${orchestrationMode}, Model: ${selectedModel}, Name: ${selectedModelName}`);
 
     // ── Persona ────────────────────────────────────────────────────────────────
     const PERSONAS: Record<string, string> = {
@@ -601,8 +602,8 @@ ${productCatalog}
       cleanReply = cleanReply
         .replace(/Clear\s*Console/gi, "")
         .replace(/<\/?tool_call>/g, "")
-        .replace(/<arg_key>[^<]*<\/arg_key>/g, "")
-        .replace(/<arg_value>[^<]*<\/arg_value>/g, "")
+        .replace(/[^<]*<\/arg_key>/g, "")
+        .replace(/[^<]*<\/arg_value>/g, "")
         .trim();
 
       reply = cleanReply
