@@ -114,7 +114,7 @@ function infoRow(label: string, value: string): string {
 // --- 1. Verification Email ---------------------------------------------------
 
 export async function sendVerificationEmail(email: string, token: string): Promise<void> {
-  const link = `${APP_URL}/api/auth/verify-email?token=${token}`;
+  const link = `${APP_URL}/api/verify-email?token=${token}`;
   await send(
     email,
     `Verify your MetraMart account`,

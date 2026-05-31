@@ -6,6 +6,7 @@ import {
   ShoppingBag, Trash2, Zap, Bitcoin, Wallet, Loader2,
   CheckCircle, ArrowRight, Tag, CreditCard, ChevronRight, ExternalLink, X,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useCart } from "@/contexts/CartContext";
 
 const CAT: Record<string, string> = {
@@ -173,6 +174,8 @@ export default function CartPage() {
   const [paying, setPaying] = useState(false);
   const [payErr, setPayErr] = useState<string | null>(null);
   const [giftCardModal, setGiftCardModal] = useState<{ orderId: string; amount: number } | null>(null);
+  const [guestEmail, setGuestEmail] = useState("");
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     Promise.all([
@@ -204,6 +207,12 @@ export default function CartPage() {
 
   async function handleCheckout() {
     if (items.length === 0) return;
+    
+    if (status !== "loading" && !session?.user && !guestEmail.trim()) {
+      setPayErr("Please provide an email address for delivery.");
+      return;
+    }
+
     setPaying(true); setPayErr(null);
 
     const res = await fetch("/api/v1/checkout/cart", {
@@ -213,6 +222,7 @@ export default function CartPage() {
         items: items.map((i) => ({ productId: i.productId, variantId: i.variantId })),
         paymentProvider: selectedPayment,
         discountCode: discountCode || undefined,
+        guestEmail: guestEmail || undefined,
       }),
     });
 
@@ -331,6 +341,26 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+
+        {/* Guest Email Input */}
+        {status !== "loading" && !session?.user && (
+          <div className="glass-card p-5 mb-4">
+            <label className="block text-sm text-gray-400 mb-2">
+              Email Address for Delivery <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="email"
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              className="input-field w-full text-sm py-2"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              We will send your order details to this email. Sign in to save your purchase history.
+            </p>
+          </div>
+        )}
 
         {/* Payment method */}
         <div className="glass-card p-5 mb-5">
