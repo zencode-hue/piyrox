@@ -20,4 +20,4 @@ if (process.env.NODE_ENV !== "production") {
   globalThis.prisma = db;
 }
 
-export default db;
+export { db };
