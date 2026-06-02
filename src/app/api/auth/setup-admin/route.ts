@@ -17,15 +17,15 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const admin = await db.user.create({
-      data: {
-        email: email.toLowerCase().trim(),
-        passwordHash,
-        name: name || "Admin",
-        role: "ADMIN",
-        emailVerified: new Date(),
-      },
-    });
+  const admin = await db.user.create({
+    data: {
+      email: email.toLowerCase().trim(),
+      hashedPassword: passwordHash,
+      name: name || "Admin",
+      role: "ADMIN",
+      emailVerified: new Date(),
+    },
+  });
 
     return NextResponse.json({
       data: { id: admin.id, email: admin.email },

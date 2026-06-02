@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     await db.user.update({
       where: { email },
-      data: { passwordHash },
+      data: { hashedPassword: passwordHash },
     });
 
     await db.verificationToken.delete({

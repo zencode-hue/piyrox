@@ -41,13 +41,13 @@ export async function POST(req: NextRequest) {
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    const user = await db.user.create({
-      data: {
-        name,
-        email: normalizedEmail,
-        passwordHash,
-      },
-    });
+  const user = await db.user.create({
+    data: {
+      name,
+      email: normalizedEmail,
+      hashedPassword: passwordHash,
+    },
+  });
 
     await db.verificationToken.create({
       data: {

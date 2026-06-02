@@ -9,7 +9,7 @@
  * 5. Update the order status
  */
 
-import db from "@/lib/db";
+import { db } from "@/lib/db";
 import { decrypt } from "@/lib/crypto";
 import { InventoryStatus, OrderStatus } from "@prisma/client";
 

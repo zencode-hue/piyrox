@@ -1,7 +1,7 @@
 import { NextAuthOptions, getServerSession as _getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import db from "@/lib/db";
+import { db } from "@/lib/db";
 
 // Account lockout configuration
 const MAX_FAILED_ATTEMPTS = 3;
