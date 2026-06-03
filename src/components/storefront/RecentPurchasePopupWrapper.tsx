@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import RecentPurchasePopup from "./RecentPurchasePopup";
 
 export default async function RecentPurchasePopupWrapper() {
-  let products = [];
+  let products: Array<{ title: string }> = [];
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     products = await (db.product.findMany as any)({
