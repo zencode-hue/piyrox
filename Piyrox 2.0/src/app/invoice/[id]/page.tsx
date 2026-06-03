@@ -1,0 +1,203 @@
+import { db } from "@/lib/db";
+import { decrypt } from "@/lib/crypto";
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { CheckCircle, Clock, XCircle, Package, ArrowLeft } from "lucide-react";
+import CopyButton from "./CopyButton";
+import InvoiceClient from "./InvoiceClient";
+import { formatOrderId } from "@/lib/slug";
+import type { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
+
+const STATUS_CONFIG: Record<string, { icon: typeof CheckCircle; color: string; bg: string; label: string }> = {
+  PAID: { icon: CheckCircle, color: "text-green-400", bg: "bg-green-500/10 border-green-500/20", label: "Delivered" },
+  PENDING: { icon: Clock, color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20", label: "Awaiting Payment" },
+  PENDING_STOCK: { icon: Clock, color: "text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20", label: "Processing" },
+  FAILED: { icon: XCircle, color: "text-red-400", bg: "bg-red-500/10 border-red-500/20", label: "Payment Failed" },
+  REFUNDED: { icon: CheckCircle, color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20", label: "Refunded" },
+};
+
+const PAYMENT_LABELS: Record<string, string> = {
+  nowpayments: "Crypto (NOWPayments)",
+  balance: "Wallet Balance",
+  binance_gift_card: "Binance Gift Card",
+  discord: "Discord Manual",
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  STREAMING: "Streaming", AI_TOOLS: "AI Tools", SOFTWARE: "Software", GAMING: "Gaming",
+};
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  return {
+    title: `Invoice MMT-${params.id.slice(-6).toUpperCase()} - PIYROX`,
+    robots: { index: false, follow: false },
+  };
+}
+
+export default async function InvoicePage({ params }: { params: { id: string } }) {
+  const order = await db.order.findUnique({
+    where: { id: params.id },
+    include: {
+      product: { select: { title: true, category: true, imageUrl: true, price: true } },
+      deliveryLog: {
+        include: { inventoryItem: { select: { encryptedData: true, iv: true, authTag: true } } },
+      },
+    },
+  });
+
+  if (!order) notFound();
+
+  let credentials: string | null = null;
+  if (order.deliveryLog?.inventoryItem) {
+    try {
+      const { encryptedData, iv, authTag } = order.deliveryLog.inventoryItem;
+      credentials = decrypt(encryptedData, iv, authTag);
+    } catch { credentials = null; }
+  }
+
+  const status = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.PENDING;
+  const StatusIcon = status.icon;
+  const invoiceNum = `MMT-${order.id.slice(-6).toUpperCase()}`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+
+  const steps = [
+    { label: "Order Placed", done: true, time: new Date(order.createdAt).toLocaleString() },
+    { label: "Payment Confirmed", done: ["PAID", "PENDING_STOCK", "REFUNDED"].includes(order.status) },
+    { label: "Product Delivered", done: order.status === "PAID" && !!order.deliveryLog },
+  ];
+
+  return (
+    <div className="min-h-screen px-4 py-12" style={{ background: "#000" }}>
+      <div className="max-w-2xl mx-auto">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors mb-8">
+          <ArrowLeft size={14} /> PIYROX
+        </Link>
+
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Invoice</p>
+            <h1 className="text-2xl font-bold text-white font-mono">#{invoiceNum}</h1>
+            <p className="text-xs text-gray-600 mt-1">
+              {new Date(order.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </p>
+          </div>
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${status.bg} ${status.color}`}>
+            <StatusIcon size={14} />
+            {status.label}
+          </div>
+        </div>
+
+        {/* Progress steps */}
+        <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(17,17,17,0.9)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="flex items-start">
+            {steps.map((s, i) => (
+              <div key={s.label} className="flex-1 flex flex-col items-center relative">
+                {i < steps.length - 1 && (
+                  <div className={`absolute top-3.5 left-1/2 w-full h-px ${s.done ? "bg-green-500/50" : "bg-white/10"}`} />
+                )}
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center z-10 shrink-0 ${s.done ? "bg-green-500" : "bg-white/10"}`}>
+                  {s.done ? <CheckCircle size={14} className="text-white" /> : <div className="w-2 h-2 rounded-full bg-gray-600" />}
+                </div>
+                <p className={`text-xs mt-2 text-center font-medium ${s.done ? "text-white" : "text-gray-600"}`}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Product */}
+        <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(17,17,17,0.9)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <p className="text-xs text-gray-500 uppercase tracking-wider mb-4">Items</p>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 relative" style={{ background: "linear-gradient(135deg, #1a1a2e, #0f3460)" }}>
+              {order.product.imageUrl ? (
+                <Image src={order.product.imageUrl} alt={order.product.title} fill className="object-cover" sizes="56px" />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center"><Package size={22} className="text-amber-400/50" /></div>
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-white">{order.product.title}</p>
+              <p className="text-xs text-gray-500">{CATEGORY_LABELS[order.product.category] ?? order.product.category}</p>
+            </div>
+            <div className="text-right">
+              <p className="font-bold text-white">${Number(order.amount).toFixed(2)}</p>
+              <p className="text-xs text-green-400 capitalize">{order.status === "PAID" ? "Delivered" : order.status.toLowerCase().replace("_", " ")}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment details */}
+        <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(17,17,17,0.9)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <p className="text-xs text-gray-500 uppercase tracking-wider mb-4">Payment Details</p>
+          <div className="space-y-2.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Subtotal</span>
+              <span className="text-white">${(Number(order.amount) + Number(order.discountAmount)).toFixed(2)}</span>
+            </div>
+            {Number(order.discountAmount) > 0 && (
+              <div className="flex justify-between">
+                <span className="text-green-400">Discount</span>
+                <span className="text-green-400">-${Number(order.discountAmount).toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold border-t border-white/5 pt-2.5">
+              <span className="text-white">Total Paid</span>
+              <span className="text-white">${Number(order.amount).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 pt-1">
+              <span>Payment Method</span>
+              <span>{PAYMENT_LABELS[order.paymentProvider] ?? order.paymentProvider}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Interactive payment flow (gift card, crypto, etc.) */}
+        <InvoiceClient
+          orderId={order.id}
+          status={order.status}
+          paymentProvider={order.paymentProvider}
+          amount={Number(order.amount)}
+          paymentRef={order.paymentRef}
+          giftCardDenomination={Number(order.amount)}
+        />
+
+        {/* Credentials — only shown if delivered */}
+        {credentials && (
+          <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.2)" }}>
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">Your Credentials</p>
+            <div className="flex items-start gap-3 p-3 rounded-xl" style={{ background: "rgba(124,58,237,0.1)", border: "1px solid rgba(124,58,237,0.15)" }}>
+              <code className="text-sm text-purple-300 break-all font-mono flex-1">{credentials}</code>
+              <CopyButton text={credentials} />
+            </div>
+            <p className="text-xs text-gray-600 mt-2">⚠️ Keep these credentials safe. Do not share them.</p>
+          </div>
+        )}
+
+        {/* Invoice Reference */}
+        <div className="rounded-2xl p-5 mb-6" style={{ background: "rgba(17,17,17,0.9)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-gray-500 uppercase tracking-wider">Order Reference</p>
+            <CopyButton text={formatOrderId(order.id)} label="Copy" />
+          </div>
+          <p className="font-mono text-lg font-bold text-purple-300">{formatOrderId(order.id)}</p>
+          <p className="text-xs text-gray-700 mt-1">{appUrl}/invoice/{order.id}</p>
+        </div>
+
+        <div className="flex gap-3">
+          <Link href="/products"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-gray-400 hover:text-white text-sm border border-white/10 hover:border-white/20 transition-all">
+            Browse More
+          </Link>
+          <Link href="/support"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-gray-400 hover:text-white text-sm border border-white/10 hover:border-white/20 transition-all">
+            Need Help?
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,196 @@
+import { db } from "@/lib/db";
+import { decrypt } from "@/lib/crypto";
+import { sendDeliveryEmail, sendAdminPendingStockAlert, sendAdminLowStockAlert, trackEvent } from "@/lib/email";
+import { checkAndSendStockAlerts } from "@/lib/stock-alerts";
+import { sendDiscordNotification } from "@/lib/discord";
+import { formatOrderId } from "@/lib/slug";
+
+export interface DeliveryResult {
+  success: boolean;
+  orderId: string;
+  inventoryItemId?: string;
+  error?: string;
+}
+
+/**
+ * Delivers a paid order by atomically assigning an available InventoryItem,
+ * decrypting credentials, sending a delivery email, and logging the delivery.
+ * Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 11.1, 12.6
+ */
+export async function deliverOrder(orderId: string): Promise<void> {
+  const order = await db.order.findUnique({
+    where: { id: orderId },
+    include: { product: true, user: true },
+  });
+
+  if (!order) throw new Error(`Order not found: ${orderId}`);
+
+  const { product, user } = order;
+  const deliveryEmail = user?.email ?? (order as { guestEmail?: string | null }).guestEmail ?? null;
+  if (!deliveryEmail) throw new Error(`No delivery email for order: ${orderId}`);
+  const now = new Date();
+
+  let assignedItem: { id: string; encryptedData: string; iv: string; authTag: string } | null = null;
+
+  await db.$transaction(async (tx) => {
+    // If order has a variant, try to find inventory for that variant first, then fall back to product-level
+    const variantId = (order as { variantId?: string | null }).variantId ?? null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const item = await (tx.inventoryItem.findFirst as any)({
+      where: variantId
+        ? { variantId, status: "AVAILABLE" }
+        : { productId: product.id, status: "AVAILABLE" },
+    }) as { id: string; encryptedData: string; iv: string; authTag: string } | null;
+
+    if (!item) {
+      await tx.order.update({ where: { id: orderId }, data: { status: "PENDING_STOCK" } });
+      await sendAdminPendingStockAlert(orderId, product.title);
+      await sendDeliveryEmail(deliveryEmail, {
+        orderId, productTitle: product.title,
+        status: "pending_stock",
+        message: `Your order is awaiting stock. Join our Discord and use your reference ${formatOrderId(orderId)} to claim your product.`,
+      });
+      // Notify Discord with the pending stock order so admin can fulfill manually
+      const adminSetting = await tx.siteSetting.findUnique({ where: { key: "discord_admin_webhook_url" } });
+      const discordUrl = adminSetting?.value || process.env.DISCORD_ADMIN_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
+      if (discordUrl) {
+        await sendDiscordNotification(discordUrl, {
+          embeds: [{
+            title: "⚠️ Order Pending Stock — Manual Fulfillment Required",
+            color: 0xf97316,
+            fields: [
+              { name: "Reference", value: `**${formatOrderId(orderId)}**`, inline: true },
+              { name: "Product", value: product.title, inline: true },
+              { name: "Customer Email", value: deliveryEmail, inline: false },
+            ],
+            description: `Customer has paid but no inventory is available. They have been directed to Discord to claim their product using reference **${formatOrderId(orderId)}**.`,
+            timestamp: new Date().toISOString(),
+            footer: { text: "Add inventory and redeliver, or fulfill manually on Discord" },
+          }],
+        });
+      }
+      return;
+    }
+
+    await tx.inventoryItem.update({ where: { id: item.id }, data: { status: "DELIVERED" } });
+    await tx.product.update({ where: { id: product.id }, data: { stockCount: { decrement: 1 } } });
+    await tx.deliveryLog.create({
+      data: { orderId, userId: order.userId ?? null, productId: product.id, inventoryItemId: item.id, deliveredAt: now },
+    });
+
+    assignedItem = { id: item.id, encryptedData: item.encryptedData, iv: item.iv, authTag: item.authTag };
+  });
+
+  if (!assignedItem) return;
+
+  const item = assignedItem as { id: string; encryptedData: string; iv: string; authTag: string };
+  const decryptedCredentials = decrypt(item.encryptedData, item.iv, item.authTag);
+
+  await sendDeliveryEmail(deliveryEmail, {
+    orderId, productTitle: product.title,
+    credentials: decryptedCredentials, deliveredAt: now,
+  });
+
+  // Track delivery event in Resend for email automation
+  await trackEvent(deliveryEmail, "order_delivered", {
+    orderId,
+    productTitle: product.title,
+    amount: Number(order.amount),
+  });
+
+  await checkAndSendStockAlerts(product.id);
+  await checkDuplicateDelivery(item.id, orderId);
+
+  // Credit affiliate commission if the buyer was referred (logged-in users only)
+  if (order.userId) {
+    await creditAffiliateCommission(order.userId, Number(order.amount));
+    await creditPartnerCommission(order.userId, Number(order.amount));
+  }
+
+  const adminSetting = await db.siteSetting.findUnique({ where: { key: "discord_admin_webhook_url" } });
+  const discordUrl = adminSetting?.value || process.env.DISCORD_ADMIN_WEBHOOK_URL || process.env.DISCORD_ORDERS_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
+  if (discordUrl) {
+    await sendDiscordNotification(discordUrl, {
+      embeds: [{
+        title: "✅ New Sale",
+        color: 0x22c55e,
+        fields: [
+          { name: "Product", value: product.title, inline: true },
+          { name: "Amount", value: `$${Number(order.amount).toFixed(2)}`, inline: true },
+          { name: "Customer", value: deliveryEmail, inline: false },
+          { name: "Reference", value: `**${formatOrderId(orderId)}**`, inline: false },
+          { name: "Payment", value: order.paymentProvider, inline: true },
+        ],
+        timestamp: new Date().toISOString(),
+        footer: { text: "PIYROX" },
+      }],
+    });
+  }
+}
+
+async function creditAffiliateCommission(userId: string, orderAmount: number): Promise<void> {
+  const referral = await db.referral.findUnique({ where: { referredUserId: userId } });
+  if (!referral) return;
+
+  const affiliate = await db.affiliate.findUnique({ where: { id: referral.affiliateId } });
+  if (!affiliate) return;
+
+  const commission = (orderAmount * Number(affiliate.commissionPct)) / 100;
+
+  await db.affiliate.update({
+    where: { id: affiliate.id },
+    data: {
+      pendingPayout: { increment: commission },
+      totalEarned: { increment: commission },
+    },
+  });
+}
+
+async function creditPartnerCommission(userId: string, orderAmount: number): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const partnerReferral = await (db as any).partnerReferral.findUnique({ where: { referredUserId: userId } }) as { partnerAffiliateId: string } | null;
+  if (!partnerReferral) return;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const partner = await (db as any).partnerAffiliate.findUnique({ where: { id: partnerReferral.partnerAffiliateId } }) as { id: string; status: string; commissionPct: { toString(): string } } | null;
+  if (!partner || partner.status !== "ACTIVE") return;
+
+  const commission = (orderAmount * Number(partner.commissionPct)) / 100;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db as any).partnerAffiliate.update({
+    where: { id: partner.id },
+    data: {
+      balance: { increment: commission },
+      totalEarned: { increment: commission },
+    },
+  });
+}
+
+/**
+ * Retries delivery for an order that is PAID but has no DeliveryLog yet.
+ */
+export async function retryDelivery(orderId: string): Promise<void> {
+  const order = await db.order.findUnique({
+    where: { id: orderId },
+    include: { deliveryLog: true },
+  });
+
+  if (!order) throw new Error(`Order not found: ${orderId}`);
+  if (order.status !== "PAID") return;
+  if (order.deliveryLog) return;
+
+  await deliverOrder(orderId);
+}
+
+/**
+ * Checks for duplicate delivery of the same InventoryItem.
+ * Requirements: 12.6
+ */
+export async function checkDuplicateDelivery(inventoryItemId: string, orderId: string): Promise<void> {
+  const count = await db.deliveryLog.count({ where: { inventoryItemId } });
+  if (count > 1) {
+    console.warn(`[DeliveryEngine] DUPLICATE DELIVERY — inventoryItemId=${inventoryItemId} orderId=${orderId}`);
+    await sendAdminLowStockAlert("DUPLICATE DELIVERY DETECTED", -1);
+  }
+}
