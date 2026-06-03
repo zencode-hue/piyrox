@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+export const dynamic = "force-dynamic";
 import { Category } from "@prisma/client";
 import { db } from "@/lib/db";
 import ProductGrid from "@/components/storefront/ProductGrid";

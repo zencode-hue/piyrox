@@ -29,45 +29,65 @@ export const metadata: Metadata = {
 };
 
 async function getProductsByCategory(category: string, take = 4) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const products = await (db.product.findMany as any)({
-    where: { isActive: true, category },
-    orderBy: { createdAt: "desc" },
-    take,
-    select: { id: true, title: true, price: true, category: true, imageUrl: true, avgRating: true, stockCount: true, unlimitedStock: true },
-  }) as Array<{ id: string; title: string; price: { toString(): string }; category: string; imageUrl: string | null; avgRating: { toString(): string }; stockCount: number; unlimitedStock: boolean }>;
-  return products.map((p) => ({
-    id: p.id, title: p.title, price: Number(p.price), category: p.category,
-    imageUrl: p.imageUrl, avgRating: Number(p.avgRating), stockCount: p.stockCount,
-    unlimitedStock: p.unlimitedStock, inStock: p.unlimitedStock || p.stockCount > 0,
-  }));
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const products = await (db.product.findMany as any)({
+      where: { isActive: true, category },
+      orderBy: { createdAt: "desc" },
+      take,
+      select: { id: true, title: true, price: true, category: true, imageUrl: true, avgRating: true, stockCount: true, unlimitedStock: true },
+    }) as Array<{ id: string; title: string; price: { toString(): string }; category: string; imageUrl: string | null; avgRating: { toString(): string }; stockCount: number; unlimitedStock: boolean }>;
+    return products.map((p) => ({
+      id: p.id, title: p.title, price: Number(p.price), category: p.category,
+      imageUrl: p.imageUrl, avgRating: Number(p.avgRating), stockCount: p.stockCount,
+      unlimitedStock: p.unlimitedStock, inStock: p.unlimitedStock || p.stockCount > 0,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 async function getFeatured() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const products = await (db.product.findMany as any)({
-    where: { isActive: true },
-    orderBy: { createdAt: "desc" },
-    take: 8,
-    select: { id: true, title: true, price: true, category: true, imageUrl: true, avgRating: true, stockCount: true, unlimitedStock: true },
-  }) as Array<{ id: string; title: string; price: { toString(): string }; category: string; imageUrl: string | null; avgRating: { toString(): string }; stockCount: number; unlimitedStock: boolean }>;
-  return products.map((p) => ({
-    id: p.id, title: p.title, price: Number(p.price), category: p.category,
-    imageUrl: p.imageUrl, avgRating: Number(p.avgRating), stockCount: p.stockCount,
-    unlimitedStock: p.unlimitedStock, inStock: p.unlimitedStock || p.stockCount > 0,
-  }));
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const products = await (db.product.findMany as any)({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: { id: true, title: true, price: true, category: true, imageUrl: true, avgRating: true, stockCount: true, unlimitedStock: true },
+    }) as Array<{ id: string; title: string; price: { toString(): string }; category: string; imageUrl: string | null; avgRating: { toString(): string }; stockCount: number; unlimitedStock: boolean }>;
+    return products.map((p) => ({
+      id: p.id, title: p.title, price: Number(p.price), category: p.category,
+      imageUrl: p.imageUrl, avgRating: Number(p.avgRating), stockCount: p.stockCount,
+      unlimitedStock: p.unlimitedStock, inStock: p.unlimitedStock || p.stockCount > 0,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export default async function HomePage() {
-  const [featured, streaming, aiTools, gaming, software, dealsData, siteSettings] = await Promise.all([
-    getFeatured(),
-    getProductsByCategory("STREAMING", 4),
-    getProductsByCategory("AI_TOOLS", 4),
-    getProductsByCategory("GAMING", 4),
-    getProductsByCategory("SOFTWARE", 4),
-    getDealsData(),
-    getSiteSettings(),
-  ]);
+  let featured: Awaited<ReturnType<typeof getFeatured>> = [];
+  let streaming: Awaited<ReturnType<typeof getFeatured>> = [];
+  let aiTools: Awaited<ReturnType<typeof getFeatured>> = [];
+  let gaming: Awaited<ReturnType<typeof getFeatured>> = [];
+  let software: Awaited<ReturnType<typeof getFeatured>> = [];
+  let dealsData: Awaited<ReturnType<typeof getDealsData>> = { deals: [], resetAt: new Date().toISOString() };
+  let siteSettings: Awaited<ReturnType<typeof getSiteSettings>> = {};
+
+  try {
+    [featured, streaming, aiTools, gaming, software, dealsData, siteSettings] = await Promise.all([
+      getFeatured(),
+      getProductsByCategory("STREAMING", 4),
+      getProductsByCategory("AI_TOOLS", 4),
+      getProductsByCategory("GAMING", 4),
+      getProductsByCategory("SOFTWARE", 4),
+      getDealsData(),
+      getSiteSettings(),
+    ]);
+  } catch (error) {
+    console.warn("Could not fetch homepage data during build", error);
+  }
 
   const discordUrl = siteSettings["discord_url"] || process.env.DISCORD_SERVER_URL || "https://discord.gg/piyrox";
   const telegramUrl = siteSettings["telegram_url"] || "";
