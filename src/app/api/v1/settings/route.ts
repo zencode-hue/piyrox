@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // Public read-only settings endpoint — only exposes safe keys
 const PUBLIC_KEYS = [
   "discord_url",
