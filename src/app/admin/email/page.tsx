@@ -157,7 +157,7 @@ export default function AdminEmailPage() {
             role: "user", 
             content: `Write a compelling marketing email with the subject "${subject}". 
             Target audience: ${AUDIENCE_OPTIONS.find(o => o.key === audience)?.label}. 
-            The store is MetraMart, a premium digital marketplace. Keep it professional and persuasive.` 
+            The store is PIYROX, a premium digital marketplace. Keep it professional and persuasive.` 
           }]
         }),
       });
@@ -221,7 +221,7 @@ export default function AdminEmailPage() {
         <div>
           <label className="block text-xs text-gray-500 mb-1">Subject</label>
           <input value={subject} onChange={(e) => setSubject(e.target.value)}
-            placeholder="e.g. New products just dropped at MetraMart!" className="input-field text-sm py-2.5 w-full" />
+            placeholder="e.g. New products just dropped at PIYROX!" className="input-field text-sm py-2.5 w-full" />
         </div>
 
         {/* Message */}

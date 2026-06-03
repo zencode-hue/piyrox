@@ -68,7 +68,7 @@ function RegisterPageInner() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 font-bold text-2xl">
             <Zap size={24} className="text-amber-500" />
-            <span className="gradient-text">MetraMart</span>
+            <span className="gradient-text">PIYROX</span>
           </Link>
           <p className="text-gray-500 mt-2 text-sm">Create your account</p>
         </div>

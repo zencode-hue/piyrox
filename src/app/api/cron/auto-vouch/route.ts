@@ -53,7 +53,7 @@ const REVIEW_TEMPLATES: ReviewTemplate[] = [
     comments: [
       "Worked perfectly straight away. Delivery was instant, no issues at all. Will definitely be back.",
       "Exactly what I needed. Activated first try and everything is running smooth. 10/10.",
-      "Super fast delivery and the product works flawlessly. MetraMart never disappoints.",
+      "Super fast delivery and the product works flawlessly. PIYROX never disappoints.",
       "Got it within seconds of paying. Already using it and it's great. Highly recommend.",
       "Legit and fast. I was skeptical at first but this is the real deal. Very happy.",
       "Smooth transaction, product delivered instantly. Already shared this site with my friends.",
@@ -87,7 +87,7 @@ const REVIEW_TEMPLATES: ReviewTemplate[] = [
     badge: "✅ Verified Purchase",
     comments: [
       "Solid. Took about 30 mins to get my order but support was responsive. Works perfectly now.",
-      "Not instant delivery but it came through and works. Would still recommend MetraMart.",
+      "Not instant delivery but it came through and works. Would still recommend PIYROX.",
     ],
   },
   {
@@ -150,7 +150,7 @@ function buildPurchaseEmbed(
   return {
     color,
     author: {
-      name: `${name} just purchased from MetraMart`,
+      name: `${name} just purchased from PIYROX`,
       icon_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=64`,
     },
     title: `🛒 ${product.title} — ${variant}`,
@@ -170,7 +170,7 @@ function buildPurchaseEmbed(
       { name: "Purchased", value: timeLabel, inline: true },
     ],
     footer: {
-      text: "MetraMart • Real customer purchase • metramart.xyz",
+      text: "PIYROX • Real customer purchase • piyrox.xyz",
     },
     timestamp: new Date().toISOString(),
     url: `${appUrl}/products`,
@@ -207,7 +207,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
 
     // Fetch a random active product
     const products = await db.product.findMany({
@@ -232,7 +232,7 @@ export async function GET(req: NextRequest) {
     const embed = buildPurchaseEmbed(product, appUrl);
 
     await sendDiscordNotification(webhookUrl, {
-      username: "MetraMart Reviews",
+      username: "PIYROX Reviews",
       avatar_url: `${appUrl}/logo.png`,
       embeds: [embed],
     });

@@ -68,7 +68,7 @@ async function executeTool(
           headers: { ...bypassHeaders, "Content-Type": "application/json" },
           body: JSON.stringify({
             to: tool.params.audience || "all",
-            subject: tool.params.subject || "MetraMart Announcement",
+            subject: tool.params.subject || "PIYROX Announcement",
             message: tool.params.message || "Check your dashboard for the latest updates.",
             type: tool.params.type || "announcement",
             customEmail: tool.params.customEmail,
@@ -335,8 +335,8 @@ async function callOpenRouter(
   const headers = {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
-    "HTTP-Referer": "https://metramart.xyz",
-    "X-Title": "MetraMart Admin AI",
+    "HTTP-Referer": "https://piyrox.xyz",
+    "X-Title": "PIYROX Admin AI",
   };
 
   // Deduplicate: start with requested model, then run through fallbacks
@@ -466,7 +466,7 @@ export async function POST(req: NextRequest) {
     };
 
     const origin = new URL(req.url).origin;
-    const bypassKey = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
+    const bypassKey = process.env.INTERNAL_BYPASS_KEY || "piyrox-ai-secret-2024";
     const bypassHeaders: Record<string, string> = {
       "X-Internal-AI-Bypass": bypassKey,
       "Content-Type": "application/json",
@@ -541,11 +541,11 @@ export async function POST(req: NextRequest) {
       marketing: "[Metra AI — Marketing Director] 🎯 World-class CMO. High-conversion copy, emoji-rich, NO bold or headers.",
       strategy:  "[Metra AI — Growth Strategist] 📈 Data-driven business analyst. Revenue models, churn reduction, monetisation.",
       task:      "[Metra AI — Task Engine] ⚡ You are the EXECUTOR. Use tools for every action. Never say you'll do it — DO IT NOW.",
-      general:   "[Metra AI — Command Centre] 🛡️ Total administrative control of MetraMart. Direct, decisive, and data-aware.",
+      general:   "[Metra AI — Command Centre] 🛡️ Total administrative control of PIYROX. Direct, decisive, and data-aware.",
     };
 
     const systemPrompt = `
-You are METRA AI — the autonomous intelligence behind MetraMart, the world's #1 premium digital marketplace.
+You are METRA AI — the autonomous intelligence behind PIYROX, the world's #1 premium digital marketplace.
 Products: Streaming (Netflix, Disney+, Spotify, YT Premium), AI Tools (ChatGPT Plus, Midjourney, Claude), Software (Windows, Adobe), Gaming (Xbox Game Pass, PS Plus).
 
 ACTIVE PERSONA: ${PERSONAS[orchestrationMode] || PERSONAS.general}

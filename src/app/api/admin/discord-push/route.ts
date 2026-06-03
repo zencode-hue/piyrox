@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     const settingsMap: Record<string, string> = {};
     for (const s of settings) settingsMap[s.key] = s.value;
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
 
     // Push today's deals
     if (type === "deals") {
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       }));
 
       await sendDiscordNotification(webhookUrl, {
-        username: "MetraMart Deals",
+        username: "PIYROX Deals",
         embeds: [{
           title: "DAILY DEAL VAULT — NOW OPEN",
           description: [
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
           ].join("\n"),
           color: 0xea580c,
           fields: dealFields,
-          footer: { text: `MetraMart • Deals reset daily at midnight UTC • Seed #${seed}` },
+          footer: { text: `PIYROX • Deals reset daily at midnight UTC • Seed #${seed}` },
           timestamp: new Date().toISOString(),
         }],
       });
@@ -100,13 +100,13 @@ export async function POST(req: NextRequest) {
       if (!webhookUrl) return NextResponse.json({ error: "Discord Admin & Logs webhook not configured. Save it in Admin → Settings first." }, { status: 503 });
 
       await sendDiscordNotification(webhookUrl, {
-        username: "MetraMart Admin Logs",
+        username: "PIYROX Admin Logs",
         embeds: [{
           description: message,
           color: 0x3b82f6,
-          footer: { text: "MetraMart Admin Information" },
+          footer: { text: "PIYROX Admin Information" },
           timestamp: new Date().toISOString(),
-          author: { name: "MetraMart", url: appUrl },
+          author: { name: "PIYROX", url: appUrl },
         }],
       });
       return NextResponse.json({ ok: true });

@@ -2,21 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── CSS Variables — Liquid Glass / Gold & Black ───────────────────────────── */
+/* ─── CSS Variables — Monochrome Dark ───────────────────────────── */
 :root {
-  --bg: #000000;
-  --bg-2: #080808;
-  --surface: rgba(255,255,255,0.04);
-  --surface-hover: rgba(255,255,255,0.07);
-  --surface-active: rgba(255,255,255,0.10);
-  --border: rgba(255,255,255,0.08);
-  --border-bright: rgba(255,255,255,0.15);
-  --accent: #f59e0b;
-  --accent-2: #d97706;
-  --accent-glow: rgba(245,158,11,0.25);
-  --text-primary: #f8fafc;
-  --text-secondary: rgba(248,250,252,0.6);
-  --text-muted: rgba(248,250,252,0.3);
+  --bg: #09090b;
+  --bg-2: #18181b;
+  --surface: rgba(255,255,255,0.03);
+  --surface-hover: rgba(255,255,255,0.08);
+  --surface-active: rgba(255,255,255,0.12);
+  --border: rgba(255,255,255,0.1);
+  --border-bright: rgba(255,255,255,0.2);
+  --accent: #ffffff;
+  --accent-2: #e4e4e7;
+  --accent-glow: rgba(255,255,255,0.15);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255,255,255,0.6);
+  --text-muted: rgba(255,255,255,0.4);
   --blur: blur(24px);
   --blur-sm: blur(12px);
 }

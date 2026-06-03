@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
     // 3. Trigger Social Blast
     const origin = new URL(req.url).origin;
-    const bypassHeaders = { "X-Internal-AI-Bypass": process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024" };
+    const bypassHeaders = { "X-Internal-AI-Bypass": process.env.INTERNAL_BYPASS_KEY || "piyrox-ai-secret-2024" };
 
     const blastRes = await fetch(`${origin}/api/admin/social-blast`, {
       method: "POST",

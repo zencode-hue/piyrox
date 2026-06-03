@@ -46,7 +46,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem("metramart_currency");
+    const saved = localStorage.getItem("piyrox_currency");
     if (saved) {
       setCurrencyState(saved);
       fetchRates();
@@ -62,7 +62,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
   function setCurrency(c: string) {
     setCurrencyState(c);
-    localStorage.setItem("metramart_currency", c);
+    localStorage.setItem("piyrox_currency", c);
   }
 
   return (

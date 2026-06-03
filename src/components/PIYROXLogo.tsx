@@ -1,9 +1,9 @@
-interface MetraMartLogoProps {
+interface PIYROXLogoProps {
   size?: number;
   className?: string;
 }
 
-export default function MetraMartLogo({ size = 32, className = "" }: MetraMartLogoProps) {
+export default function PIYROXLogo({ size = 32, className = "" }: PIYROXLogoProps) {
   return (
     <svg
       width={size}

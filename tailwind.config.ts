@@ -10,19 +10,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#000000",
-        surface: "rgba(255,255,255,0.04)",
-        border: "#1a1a1a",
-        accent: "#f59e0b",
-        "accent-2": "#d97706",
+        background: "#09090b",
+        surface: "rgba(255,255,255,0.03)",
+        border: "rgba(255,255,255,0.1)",
+        accent: "#ffffff",
+        "accent-2": "#e4e4e7",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["var(--font-outfit)", "system-ui", "sans-serif"],
       },
       boxShadow: {
         glass: "0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)",
-        "glow-violet": "0 0 30px rgba(245,158,11,0.25)",
-        "glow-violet-lg": "0 0 60px rgba(245,158,11,0.35)",
+        "glow-violet": "0 0 30px rgba(255,255,255,0.15)",
+        "glow-violet-lg": "0 0 60px rgba(255,255,255,0.25)",
       },
       backdropBlur: {
         xs: "4px",

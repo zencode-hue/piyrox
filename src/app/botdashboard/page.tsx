@@ -5,7 +5,7 @@ import BotDashboardClient from "./BotDashboardClient";
 export const dynamic = "force-dynamic";
 
 export default async function BotDashboardPage() {
-  // Ensure only authenticated MetraMart ADMINS can access this page
+  // Ensure only authenticated PIYROX ADMINS can access this page
   await requireAdmin();
 
   // Load current site settings for pre-filling input forms

@@ -1,4 +1,3 @@
-// v4 - no Tailwind responsive classes, pure JS/inline-style responsive
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,18 +5,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
-  Menu, X, Search, User, Zap, ShoppingBag, ShoppingCart,
-  Package, Tag, BookOpen, Users, LayoutDashboard, LogIn,
+  Menu, X, Search, ShoppingCart, User,
+  Home, Package, Star, Activity, BookOpen, LogIn
 } from "lucide-react";
-import MetraMartLogo from "@/components/MetraMartLogo";
+import PIYROXLogo from "@/components/PIYROXLogo";
 import { useCart } from "@/contexts/CartContext";
 import CartDrawer from "@/components/storefront/CartDrawer";
 
 const NAV_LINKS = [
+  { href: "/", label: "Home", icon: Home },
   { href: "/products", label: "Products", icon: Package },
-  { href: "/deals", label: "Deals", icon: Tag },
+  { href: "/deals", label: "Deals", icon: Star },
+  { href: "/affiliate", label: "Affiliate", icon: Activity },
   { href: "/blog", label: "Blog", icon: BookOpen },
-  { href: "/affiliate", label: "Affiliate", icon: Users },
 ];
 
 export default function Navbar() {
@@ -27,275 +27,120 @@ export default function Navbar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 1024);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   useEffect(() => { setMobileOpen(false); }, [pathname]);
-
-  useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [mobileOpen]);
 
   return (
     <>
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 
-      {/* Navbar pill */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 40, display: "flex", justifyContent: "center", padding: "16px 16px 0" }}>
-        <header style={{
-          width: "100%", maxWidth: 960,
-          background: scrolled ? "rgba(6,6,6,0.92)" : "rgba(255,255,255,0.04)",
-          backdropFilter: "blur(40px) saturate(180%)",
-          WebkitBackdropFilter: "blur(40px) saturate(180%)",
-          border: "1px solid rgba(255,255,255,0.09)",
-          borderRadius: 20,
-          boxShadow: scrolled
-            ? "0 8px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)"
-            : "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
-          transition: "all 0.4s ease",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", height: 56 }}>
+      {/* Navbar container */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center p-4">
+        <header className="w-full max-w-7xl h-16 flex items-center justify-between px-6 bg-black/40 border border-white/5 backdrop-blur-xl rounded-2xl shadow-2xl">
+          
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <PIYROXLogo size={24} />
+          </Link>
 
-            {/* Logo */}
-            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
-              <MetraMartLogo size={22} />
-              <span style={{ fontWeight: 700, fontSize: 15, color: "#fff", letterSpacing: "-0.3px" }}>MetraMart</span>
-            </Link>
-
-            {/* Desktop nav — hidden on mobile */}
-            {!isMobile && (
-              <nav style={{ display: "flex", alignItems: "center", gap: 2 }}>
-                {NAV_LINKS.map(({ href, label }) => {
-                  const active = pathname === href || (href !== "/" && pathname.startsWith(href));
-                  return (
-                    <Link key={href} href={href} style={{
-                      padding: "6px 14px", borderRadius: 12, fontSize: 13, fontWeight: 500,
-                      textDecoration: "none",
-                      color: active ? "#fff" : "rgba(255,255,255,0.45)",
-                      background: active ? "rgba(255,255,255,0.09)" : "transparent",
-                      border: active ? "1px solid rgba(255,255,255,0.1)" : "1px solid transparent",
-                      transition: "all 0.15s ease",
-                    }}>
-                      {label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            )}
-
-            {/* Right actions */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              {/* Search */}
-              <Link href="/search" aria-label="Search" style={{
-                padding: 8, borderRadius: 10, color: "rgba(255,255,255,0.5)",
-                textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <Search size={17} />
-              </Link>
-
-              {/* Cart */}
-              <button onClick={() => setCartOpen(true)} aria-label="Cart" style={{
-                position: "relative", padding: 8, borderRadius: 10, cursor: "pointer",
-                background: count > 0 ? "rgba(245,158,11,0.12)" : "transparent",
-                border: count > 0 ? "1px solid rgba(245,158,11,0.25)" : "1px solid transparent",
-                color: count > 0 ? "#fde68a" : "rgba(255,255,255,0.5)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                transition: "all 0.15s ease",
-              }}>
-                <ShoppingCart size={17} />
-                {count > 0 && (
-                  <span style={{
-                    position: "absolute", top: -2, right: -2,
-                    minWidth: 16, height: 16, borderRadius: 100,
-                    background: "#f59e0b", color: "#000",
-                    fontSize: 10, fontWeight: 700,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    padding: "0 3px",
-                  }}>
-                    {count > 9 ? "9+" : count}
-                  </span>
-                )}
-              </button>
-
-              {/* Desktop-only: Dashboard / Sign in */}
-              {!isMobile && (
-                session ? (
-                  <Link href="/dashboard" style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    padding: "6px 12px", borderRadius: 10, fontSize: 13, fontWeight: 500,
-                    textDecoration: "none", color: "rgba(255,255,255,0.6)",
-                    background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
-                  }}>
-                    <User size={13} /> Dashboard
-                  </Link>
-                ) : (
-                  <Link href="/auth/login" style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    padding: "6px 12px", borderRadius: 10, fontSize: 13, fontWeight: 500,
-                    textDecoration: "none", color: "rgba(255,255,255,0.6)",
-                    background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
-                  }}>
-                    <User size={13} /> Sign In
-                  </Link>
-                )
-              )}
-
-              {/* Desktop-only: Shop CTA */}
-              {!isMobile && (
-                <Link href="/products" style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  padding: "6px 14px", borderRadius: 10, fontSize: 13, fontWeight: 600,
-                  textDecoration: "none", color: "#000",
-                  background: "rgba(245,158,11,0.9)", border: "1px solid rgba(245,158,11,0.6)",
-                  boxShadow: "0 0 16px rgba(245,158,11,0.25)",
-                }}>
-                  <Zap size={12} /> Shop
-                </Link>
-              )}
-
-              {/* Mobile-only: Hamburger */}
-              {isMobile && (
-                <button onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu" style={{
-                  padding: 8, borderRadius: 10,
-                  background: mobileOpen ? "rgba(255,255,255,0.08)" : "none",
-                  border: "none", cursor: "pointer",
-                  color: "rgba(255,255,255,0.7)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "all 0.15s ease",
-                }}>
-                  {mobileOpen ? <X size={19} /> : <Menu size={19} />}
-                </button>
-              )}
-            </div>
-          </div>
-        </header>
-      </div>
-
-      {/* Spacer */}
-      <div style={{ height: 80 }} />
-
-      {/* Mobile menu — bottom sheet, only on mobile */}
-      {isMobile && mobileOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 39 }}>
-          {/* Backdrop */}
-          <div onClick={() => setMobileOpen(false)} style={{
-            position: "absolute", inset: 0,
-            background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
-          }} />
-
-          {/* Bottom sheet panel */}
-          <div style={{
-            position: "absolute", bottom: 0, left: 0, right: 0,
-            background: "rgba(8,8,8,0.98)",
-            borderTop: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: "20px 20px 0 0",
-            paddingBottom: 32,
-            backdropFilter: "blur(40px)",
-          }}>
-            {/* Drag handle */}
-            <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 16px" }}>
-              <div style={{ width: 36, height: 4, borderRadius: 100, background: "rgba(255,255,255,0.15)" }} />
-            </div>
-
-            {/* Nav links */}
-            <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 2 }}>
+          {/* Desktop Navigation */}
+          {!isMobile && (
+            <nav className="flex items-center gap-1.5 bg-white/[0.03] p-1.5 rounded-xl border border-white/5">
               {NAV_LINKS.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href || (href !== "/" && pathname.startsWith(href));
                 return (
-                  <Link key={href} href={href} style={{
-                    display: "flex", alignItems: "center", gap: 14,
-                    padding: "13px 16px", borderRadius: 14, textDecoration: "none",
-                    color: active ? "#fff" : "rgba(255,255,255,0.6)",
-                    background: active ? "rgba(245,158,11,0.1)" : "transparent",
-                    fontSize: 16, fontWeight: active ? 600 : 500,
-                  }}>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                      background: active ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.05)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <Icon size={17} color={active ? "#fde68a" : "rgba(255,255,255,0.4)"} />
-                    </div>
+                  <Link key={href} href={href} className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[13px] font-medium transition-all ${active ? 'bg-white/10 text-white shadow-sm' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                    <Icon size={14} className={active ? "text-white" : "text-zinc-400"} />
                     {label}
-                    {active && <div style={{ marginLeft: "auto", width: 6, height: 6, borderRadius: "50%", background: "#f59e0b" }} />}
                   </Link>
                 );
               })}
+            </nav>
+          )}
 
-              {/* Cart row */}
-              <button onClick={() => { setMobileOpen(false); setCartOpen(true); }} style={{
-                display: "flex", alignItems: "center", gap: 14,
-                padding: "13px 16px", borderRadius: 14,
-                background: "transparent", border: "none", cursor: "pointer",
-                color: "rgba(255,255,255,0.6)", fontSize: 16, fontWeight: 500,
-                width: "100%", textAlign: "left",
-              }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <ShoppingCart size={17} color="rgba(255,255,255,0.4)" />
-                </div>
-                Cart
-                {count > 0 && (
-                  <span style={{ marginLeft: "auto", background: "#f59e0b", color: "#000", borderRadius: 100, padding: "2px 8px", fontSize: 12, fontWeight: 700 }}>
-                    {count}
-                  </span>
-                )}
+          {/* Right Actions */}
+          <div className="flex items-center gap-4">
+            {!isMobile && (
+              <div className="relative flex items-center">
+                <Search size={14} className="absolute left-3 text-zinc-400" />
+                <input 
+                  type="text" 
+                  placeholder="Search For Products..." 
+                  className="pl-9 pr-4 py-2 w-[240px] bg-white/[0.03] border border-white/5 rounded-xl text-[13px] text-white placeholder-zinc-500 focus:outline-none focus:bg-white/5 transition-all"
+                />
+              </div>
+            )}
+
+            <button onClick={() => setCartOpen(true)} className="relative p-2 text-zinc-400 hover:text-white transition-colors">
+              <ShoppingCart size={18} />
+              {count > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] rounded-full bg-white text-black text-[10px] font-bold flex items-center justify-center px-1">
+                  {count}
+                </span>
+              )}
+            </button>
+
+            {isMobile ? (
+              <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 text-zinc-400 hover:text-white">
+                {mobileOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
-            </div>
-
-            {/* Divider */}
-            <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "12px 16px" }} />
-
-            {/* Auth */}
-            <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-              {session ? (
-                <Link href="/dashboard" style={{
-                  display: "flex", alignItems: "center", gap: 14,
-                  padding: "13px 16px", borderRadius: 14, textDecoration: "none",
-                  color: "rgba(255,255,255,0.6)", background: "transparent", fontSize: 16, fontWeight: 500,
-                }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <LayoutDashboard size={17} color="rgba(255,255,255,0.4)" />
-                  </div>
-                  Dashboard
+            ) : (
+              session ? (
+                <Link href="/dashboard" className="flex items-center gap-2 px-5 py-2 bg-white text-black rounded-xl text-[13px] font-bold hover:bg-zinc-200 transition-colors">
+                  <User size={14} /> Dashboard
                 </Link>
               ) : (
-                <>
-                  <Link href="/auth/login" style={{
-                    display: "flex", alignItems: "center", gap: 14,
-                    padding: "13px 16px", borderRadius: 14, textDecoration: "none",
-                    color: "rgba(255,255,255,0.6)", background: "transparent", fontSize: 16, fontWeight: 500,
-                  }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <LogIn size={17} color="rgba(255,255,255,0.4)" />
-                    </div>
-                    Sign In
-                  </Link>
-                  <Link href="/auth/register" style={{
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                    padding: "15px 20px", borderRadius: 14, textDecoration: "none", color: "#000",
-                    background: "rgba(245,158,11,0.9)", border: "1px solid rgba(245,158,11,0.6)",
-                    fontSize: 15, fontWeight: 700, boxShadow: "0 4px 20px rgba(245,158,11,0.25)",
-                  }}>
-                    <ShoppingBag size={16} />
-                    Get Started — It&apos;s Free
-                  </Link>
-                </>
-              )}
+                <Link href="/auth/login" className="flex items-center gap-2 px-5 py-2 bg-white text-black rounded-xl text-[13px] font-bold hover:bg-zinc-200 transition-colors">
+                  <User size={14} /> Login
+                </Link>
+              )
+            )}
+          </div>
+
+        </header>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobile && mobileOpen && (
+        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl pt-24 px-4 pb-6 overflow-y-auto">
+          <div className="flex flex-col gap-2">
+            <div className="relative flex items-center mb-6">
+              <Search size={16} className="absolute left-4 text-zinc-400" />
+              <input 
+                type="text" 
+                placeholder="Search For Products..." 
+                className="w-full pl-11 pr-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none"
+              />
             </div>
+
+            {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+              const active = pathname === href || (href !== "/" && pathname.startsWith(href));
+              return (
+                <Link key={href} href={href} className={`flex items-center gap-3 p-4 rounded-xl text-base font-medium transition-all ${active ? 'bg-white/10 text-white' : 'text-zinc-400'}`}>
+                  <Icon size={18} /> {label}
+                </Link>
+              );
+            })}
+
+            <div className="h-px bg-white/10 my-4" />
+
+            {session ? (
+              <Link href="/dashboard" className="flex items-center justify-center gap-2 w-full p-4 bg-white text-black rounded-xl text-base font-bold">
+                <User size={18} /> Dashboard
+              </Link>
+            ) : (
+              <Link href="/auth/login" className="flex items-center justify-center gap-2 w-full p-4 bg-white text-black rounded-xl text-base font-bold">
+                <LogIn size={18} /> Login
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -6,7 +6,7 @@ import RecentPurchasePopupWrapper from "@/components/storefront/RecentPurchasePo
 import ExitIntentPopup from "@/components/storefront/ExitIntentPopup";
 import Link from "next/link";
 import { MessageCircle, Mail, XIcon } from "lucide-react";
-import MetraMartLogo from "@/components/MetraMartLogo";
+import PIYROXLogo from "@/components/PIYROXLogo";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { CartProvider } from "@/contexts/CartContext";
 
@@ -17,18 +17,18 @@ function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-2.5 font-bold text-xl mb-3">
-              <MetraMartLogo size={26} />
-              <span style={{ background: "linear-gradient(135deg, #fde68a, #d97706)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>MetraMart</span>
+              <PIYROXLogo size={26} />
+              <span style={{ background: "linear-gradient(135deg, #fde68a, #d97706)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>PIYROX</span>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed mb-4">Premium digital marketplace. Instant delivery, secure payments, 500+ products.</p>
             <div className="flex items-center gap-2">
-              <a href="https://discord.gg/metramart" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-slate-600 hover:text-amber-400 hover:bg-amber-500/10 transition-all">
+              <a href="https://discord.gg/piyrox" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-slate-600 hover:text-amber-400 hover:bg-amber-500/10 transition-all">
                 <MessageCircle size={15} />
               </a>
-              <a href="https://twitter.com/metramart" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-slate-600 hover:text-amber-400 hover:bg-amber-500/10 transition-all">
+              <a href="https://twitter.com/piyrox" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg text-slate-600 hover:text-amber-400 hover:bg-amber-500/10 transition-all">
                 <XIcon size={15} />
               </a>
-              <a href="mailto:support@metramart.xyz" className="p-2 rounded-lg text-slate-600 hover:text-sky-400 hover:bg-sky-500/10 transition-all">
+              <a href="mailto:support@piyrox.xyz" className="p-2 rounded-lg text-slate-600 hover:text-sky-400 hover:bg-sky-500/10 transition-all">
                 <Mail size={15} />
               </a>
             </div>
@@ -59,9 +59,9 @@ function Footer() {
           </div>
         </div>
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ borderTop: "1px solid rgba(30,37,53,0.8)" }}>
-          <p className="text-xs text-slate-700">© {new Date().getFullYear()} MetraMart. All rights reserved.</p>
+          <p className="text-xs text-slate-700">© {new Date().getFullYear()} PIYROX. All rights reserved.</p>
           <div className="flex items-center gap-4 text-xs text-slate-700">
-            <span>metramart.xyz</span>
+            <span>piyrox.xyz</span>
             <span>·</span>
             <span>Instant Digital Delivery</span>
           </div>

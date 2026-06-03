@@ -2,10 +2,10 @@
  * Email service - Resend (primary) with Nodemailer SMTP fallback.
  */
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
-const APP_NAME = "MetraMart";
-const FROM = process.env.EMAIL_FROM ?? "MetraMart <noreply@metramart.xyz>";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "noreply@metramart.xyz";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+const APP_NAME = "PIYROX";
+const FROM = process.env.EMAIL_FROM ?? "PIYROX <noreply@piyrox.xyz>";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "noreply@piyrox.xyz";
 
 async function send(to: string, subject: string, htmlBody: string): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY;
@@ -38,7 +38,7 @@ const BASE_STYLES = `
   img{-ms-interpolation-mode:bicubic;border:0;outline:none;text-decoration:none}
 `;
 
-function header(accentColor = "#f59e0b", label = "MetraMart"): string {
+function header(accentColor = "#f59e0b", label = "PIYROX"): string {
   return `
     <tr>
       <td style="background:linear-gradient(135deg,${accentColor} 0%,${accentColor}cc 100%);padding:0;">
@@ -60,10 +60,10 @@ function footer(): string {
     <tr>
       <td style="padding:24px 36px;border-top:1px solid rgba(255,255,255,0.06);">
         <p style="margin:0 0 8px;font-size:12px;color:#4b5563;text-align:center;font-family:system-ui,sans-serif;">
-          &copy; ${new Date().getFullYear()} ${APP_NAME} &middot; <a href="${APP_URL}" style="color:#f59e0b;text-decoration:none;">metramart.xyz</a>
+          &copy; ${new Date().getFullYear()} ${APP_NAME} &middot; <a href="${APP_URL}" style="color:#f59e0b;text-decoration:none;">piyrox.xyz</a>
         </p>
         <p style="margin:0;font-size:11px;color:#374151;text-align:center;font-family:system-ui,sans-serif;">
-          You received this email because you have an account or placed an order at MetraMart.
+          You received this email because you have an account or placed an order at PIYROX.
         </p>
       </td>
     </tr>`;
@@ -117,7 +117,7 @@ export async function sendVerificationEmail(email: string, token: string): Promi
   const link = `${APP_URL}/api/verify-email?token=${token}`;
   await send(
     email,
-    `Verify your MetraMart account`,
+    `Verify your PIYROX account`,
     wrap(
       header("#f59e0b", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#f59e0b;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">ACCOUNT SETUP</p>
@@ -142,13 +142,13 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
   const link = `${APP_URL}/auth/reset-password?token=${token}`;
   await send(
     email,
-    `Reset your MetraMart password`,
+    `Reset your PIYROX password`,
     wrap(
       header("#dc2626", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#ef4444;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">SECURITY</p>
        <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Reset your password</h1>
        <p style="margin:0 0 24px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
-         We received a request to reset the password for your MetraMart account. Click the button below to set a new password.
+         We received a request to reset the password for your PIYROX account. Click the button below to set a new password.
        </p>
        <div style="margin:28px 0;text-align:center;">
          ${btn(link, "Reset Password", "#dc2626")}
@@ -166,11 +166,11 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
 export async function sendWelcomeEmail(email: string): Promise<void> {
   await send(
     email,
-    `Welcome to MetraMart`,
+    `Welcome to PIYROX`,
     wrap(
       header("#059669", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#10b981;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">YOU'RE IN</p>
-       <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Welcome to MetraMart!</h1>
+       <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#f9fafb;font-family:system-ui,sans-serif;line-height:1.2;">Welcome to PIYROX!</h1>
        <p style="margin:0 0 20px;font-size:15px;color:#9ca3af;line-height:1.7;font-family:system-ui,sans-serif;">
          Your account is ready. You now have access to 50+ premium digital products - streaming subscriptions, AI tools, software licenses, and gaming products - all at the best prices with instant delivery.
        </p>
@@ -243,7 +243,7 @@ export async function sendDeliveryEmail(email: string, orderDetails: object): Pr
 export async function sendLockoutEmail(email: string): Promise<void> {
   await send(
     email,
-    `Your MetraMart account has been temporarily locked`,
+    `Your PIYROX account has been temporarily locked`,
     wrap(
       header("#d97706", APP_NAME),
       `<p style="margin:0 0 6px;font-size:13px;color:#f59e0b;font-weight:600;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:1px;">SECURITY ALERT</p>
@@ -362,7 +362,7 @@ export async function sendPayoutNotificationEmail(
 
   await send(
     email,
-    isApproved ? `Payout of $${amount.toFixed(2)} sent to your wallet` : `Payout request update - MetraMart`,
+    isApproved ? `Payout of $${amount.toFixed(2)} sent to your wallet` : `Payout request update - PIYROX`,
     wrap(
       header(accentColor, APP_NAME),
       isApproved

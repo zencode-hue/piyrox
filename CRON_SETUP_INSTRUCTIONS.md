@@ -31,9 +31,9 @@ You have two options for setting up the cron job:
 ### Option A: Using console.cron-job.org (Recommended for most users)
 
 #### 2.1 Basic Settings
-- **Job Name**: "MetraMart Product Review Poster"
-- **Job URL**: `https://www.metramart.xyz/api/cron/product-review`
-  - **Important**: Use `www.metramart.xyz` (not `metramart.xyz`)
+- **Job Name**: "PIYROX Product Review Poster"
+- **Job URL**: `https://www.piyrox.xyz/api/cron/product-review`
+  - **Important**: Use `www.piyrox.xyz` (not `piyrox.xyz`)
   - The non-www version redirects to www version
 - **Request Method**: GET
 
@@ -56,7 +56,7 @@ You have two options for setting up the cron job:
 #### 2.5 Advanced Settings
 - **Timeout**: 30 seconds
 - **Retries**: 3
-- **User Agent**: "MetraMart-Cron/1.0"
+- **User Agent**: "PIYROX-Cron/1.0"
 
 ### Option B: Using Direct Cron (For advanced users)
 
@@ -64,7 +64,7 @@ If you prefer to set up the cron job directly on your server, use this command:
 
 ```bash
 # Run every 3 hours
-0 */3 * * * curl -H "X-Cron-Security-Token: 80ab304eca4412286745f9770c332a38" -m 30 https://www.metramart.xyz/api/cron/product-review > /dev/null
+0 */3 * * * curl -H "X-Cron-Security-Token: 80ab304eca4412286745f9770c332a38" -m 30 https://www.piyrox.xyz/api/cron/product-review > /dev/null
 ```
 
 #### Cron Format Explanation:
@@ -73,7 +73,7 @@ If you prefer to set up the cron job directly on your server, use this command:
 - `-m 30` - Sets timeout to 30 seconds
 - `> /dev/null` - Suppresses output
 
-**Important**: Use `https://www.metramart.xyz/api/cron/product-review` (with `www`) as the direct URL. The non-www version redirects and may cause issues with some cron systems.
+**Important**: Use `https://www.piyrox.xyz/api/cron/product-review` (with `www`) as the direct URL. The non-www version redirects and may cause issues with some cron systems.
 
 To modify the frequency:
 - Every hour: `0 * * * *`
@@ -88,11 +88,11 @@ Before setting up the cron job, test your endpoint manually:
 ```bash
 # Test with the correct URL (with www)
 curl -H "X-Cron-Security-Token: 80ab304eca4412286745f9770c332a38" \
-     https://www.metramart.xyz/api/cron/product-review
+     https://www.piyrox.xyz/api/cron/product-review
 
 # For debugging, use verbose mode
 curl -v -H "X-Cron-Security-Token: 80ab304eca4412286745f9770c332a38" \
-     https://www.metramart.xyz/api/cron/product-review
+     https://www.piyrox.xyz/api/cron/product-review
 ```
 
 ### 3.2 Expected Response
@@ -115,7 +115,7 @@ Check your Discord channel for the review post. It should appear as a formatted 
 - Review timestamp
 
 ### 3.4 Debugging Tips
-- If you get a redirect, make sure you're using `www.metramart.xyz`
+- If you get a redirect, make sure you're using `www.piyrox.xyz`
 - Check the response headers to understand redirects
 - Use verbose mode (`-v`) to see the full request/response flow
 - Test multiple times to ensure different products/reviews are generated

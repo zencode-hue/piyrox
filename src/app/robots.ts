@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/staff/", "/api/", "/dashboard/", "/auth/"],
       },
     ],
-    sitemap: "https://metramart.xyz/sitemap.xml",
-    host: "https://metramart.xyz",
+    sitemap: "https://piyrox.xyz/sitemap.xml",
+    host: "https://piyrox.xyz",
   };
 }

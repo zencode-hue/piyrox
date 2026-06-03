@@ -151,22 +151,22 @@ const REVIEW_TEMPLATES: ReviewTemplate[] = [
     stars: "⭐⭐⭐⭐⭐",
     comments: [
       "Absolutely amazing! Got it instantly and it's working perfectly. Will definitely be back for more.",
-      "This exceeded my expectations! Super fast delivery and the product works flawlessly. Highly recommend MetraMart.",
+      "This exceeded my expectations! Super fast delivery and the product works flawlessly. Highly recommend PIYROX.",
       "Perfect! Activated right away, no issues at all. Best service I've seen in a while.",
       "Wow, that was fast! Paid and had it in seconds. Already using it and it's great value.",
       "Legit and quick. I was worried at first but this is the real deal. Very satisfied with my purchase.",
       "Smooth transaction from start to finish. Product delivered instantly and works perfectly. 10/10!",
       "Outstanding service! Got it within seconds of paying. Already told my friends about this place.",
       "Impressive speed and quality. Exactly what I needed, no complications at all. Will order again.",
-      "MetraMart never disappoints! Fast delivery and exactly what I ordered. Can't recommend them enough!",
+      "PIYROX never disappoints! Fast delivery and exactly what I ordered. Can't recommend them enough!",
       "Best purchase experience ever! Everything worked perfectly and the support was top-notch.",
     ],
     scenarios: [
       "Just got my order and everything is perfect! The activation was instant and everything works as expected.",
-      "Wow, MetraMart really delivers! Got my stuff right away and it's working flawlessly.",
+      "Wow, PIYROX really delivers! Got my stuff right away and it's working flawlessly.",
       "This is why I keep coming back! Fast, reliable, and exactly what I need every time.",
       "Seriously impressed with how quick this was. From payment to working product in minutes!",
-      "MetraMart nailed it again! Perfect service and the products work exactly as advertised.",
+      "PIYROX nailed it again! Perfect service and the products work exactly as advertised.",
     ]
   },
   {
@@ -179,17 +179,17 @@ const REVIEW_TEMPLATES: ReviewTemplate[] = [
       "Fast and reliable. Got my product quickly and it's working perfectly as described.",
       "Top-notch service! The product arrived exactly as promised and works flawlessly.",
       "Smooth experience from payment to delivery. Very happy with this purchase.",
-      "Impressed with the speed and quality. MetraMart really delivers on their promises.",
+      "Impressed with the speed and quality. PIYROX really delivers on their promises.",
       "Perfect! No waiting, no hassle. Exactly what I needed when I needed it.",
       "Can't believe how efficient this was! Ordered and had it working in no time flat.",
-      "MetraMart is my go-to for a reason. Always fast, always reliable, always perfect.",
+      "PIYROX is my go-to for a reason. Always fast, always reliable, always perfect.",
     ],
     scenarios: [
-      "Just finished setting up everything and it's working perfectly! Thanks MetraMart!",
+      "Just finished setting up everything and it's working perfectly! Thanks PIYROX!",
       "Got my order super fast and everything was exactly as described. Very happy!",
       "This was the smoothest transaction ever! From checkout to working in minutes.",
       "Impressed with the quality and speed. Will definitely be a repeat customer.",
-      "MetraMart really knows how to do it right! Fast service and great products.",
+      "PIYROX really knows how to do it right! Fast service and great products.",
     ]
   },
   {
@@ -220,7 +220,7 @@ const REVIEW_TEMPLATES: ReviewTemplate[] = [
     stars: "⭐⭐⭐⭐",
     comments: [
       "Solid service. Took about 40 minutes to get my order but support was helpful. Works perfectly now.",
-      "Not instant delivery but it came through and works well. Would still recommend MetraMart.",
+      "Not instant delivery but it came through and works well. Would still recommend PIYROX.",
       "Good product with reasonable delivery time. A bit slower than ideal but worth the wait.",
       "4 stars because of the delay, but the product quality is excellent. Support team was great.",
       "Decent overall experience. The wait was longer than I'd like but the end result is good.",
@@ -338,11 +338,11 @@ function buildReviewEmbed(
       { name: "Review Time", value: reviewTimeLabel, inline: true },
       {
         name: "Actions",
-        value: "[View Product](https://metramart.xyz) • [Contact Support](https://metramart.xyz/support)",
+        value: "[View Product](https://piyrox.xyz) • [Contact Support](https://piyrox.xyz/support)",
       }
     ],
     footer: {
-      text: `MetraMart • Customer Reviews • metramart.xyz • Reviewed ${reviewTimeLabel}`,
+      text: `PIYROX • Customer Reviews • piyrox.xyz • Reviewed ${reviewTimeLabel}`,
     },
     timestamp: reviewTime.toISOString(), // Use actual review time
   };
@@ -376,7 +376,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
 
     // Generate purchase scenario
     const purchase = await generatePurchaseScenario();
@@ -394,8 +394,8 @@ export async function GET(req: NextRequest) {
     const embed = buildReviewEmbed(purchase, customerName, template, reviewTime);
 
     await sendDiscordNotification(webhookUrl, {
-      username: "MetraMart Reviews",
-      avatar_url: `${appUrl}/logo.png`, // Use MetraMart logo
+      username: "PIYROX Reviews",
+      avatar_url: `${appUrl}/logo.png`, // Use PIYROX logo
       embeds: [embed],
     });
 

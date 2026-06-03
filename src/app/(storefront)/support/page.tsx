@@ -6,8 +6,8 @@ import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Support — MetraMart",
-  description: "Get help with your MetraMart orders, account, and products. Live chat, Discord, and email support available.",
+  title: "Support — PIYROX",
+  description: "Get help with your PIYROX orders, account, and products. Live chat, Discord, and email support available.",
 };
 
 const faqs = [
@@ -33,7 +33,7 @@ async function getSettings() {
 
 export default async function SupportPage() {
   const settings = await getSettings();
-  const discordUrl = settings["support_discord_url"] || settings["discord_url"] || process.env.NEXT_PUBLIC_DISCORD_URL || "https://discord.gg/metramart";
+  const discordUrl = settings["support_discord_url"] || settings["discord_url"] || process.env.NEXT_PUBLIC_DISCORD_URL || "https://discord.gg/piyrox";
   const telegramUrl = settings["telegram_url"] || "";
 
   return (
@@ -63,7 +63,7 @@ export default async function SupportPage() {
           <div className="rounded-xl border border-white/8 p-6 text-center" style={{ background: "rgba(255,255,255,0.02)" }}>
             <Mail size={28} className="text-amber-400 mx-auto mb-3" />
             <h3 className="font-bold text-white mb-1">Email</h3>
-            <p className="text-xs text-gray-500">support@metramart.xyz</p>
+            <p className="text-xs text-gray-500">support@piyrox.xyz</p>
             <span className="inline-block mt-3 text-xs text-gray-600">Response within 24h</span>
           </div>
         )}

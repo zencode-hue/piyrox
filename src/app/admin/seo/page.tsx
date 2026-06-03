@@ -28,7 +28,7 @@ export default function AdminSEOPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   
   // Global States
-  const [appUrl, setAppUrl] = useState("https://metramart.xyz");
+  const [appUrl, setAppUrl] = useState("https://piyrox.xyz");
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -103,7 +103,7 @@ export default function AdminSEOPage() {
     setIsGenerating(true);
     setError(null);
     try {
-      const prompt = `You are an elite SEO specialist. Generate optimized Meta Title (max 60 chars), Meta Description (max 150 chars), and 5-8 Keywords for our digital marketplace MetraMart. RESPOND WITH ONLY THIS JSON FORMAT, NO OTHER TEXT: { "title": "...", "description": "...", "keywords": "..." }`;
+      const prompt = `You are an elite SEO specialist. Generate optimized Meta Title (max 60 chars), Meta Description (max 150 chars), and 5-8 Keywords for our digital marketplace PIYROX. RESPOND WITH ONLY THIS JSON FORMAT, NO OTHER TEXT: { "title": "...", "description": "...", "keywords": "..." }`;
       const reply = await callAI(prompt, "seo", MODELS.MAIN);
       const match = reply.match(/\{[\s\S]*\}/);
       if (match) {
@@ -178,7 +178,7 @@ export default function AdminSEOPage() {
   async function generateStrategy() {
     setStrategyLoading(true);
     try {
-      const prompt = `Create a master 90-day SEO Growth Strategy for MetraMart. Detail 3 phases: Day 30 (Foundations), Day 60 (Content/Links), Day 90 (Dominance). Provide 4 high-impact steps per phase. RESPOND ONLY WITH JSON: { "day30": ["..."], "day60": ["..."], "day90": ["..."] }`;
+      const prompt = `Create a master 90-day SEO Growth Strategy for PIYROX. Detail 3 phases: Day 30 (Foundations), Day 60 (Content/Links), Day 90 (Dominance). Provide 4 high-impact steps per phase. RESPOND ONLY WITH JSON: { "day30": ["..."], "day60": ["..."], "day90": ["..."] }`;
       const reply = await callAI(prompt, "strategy", MODELS.STRATEGY);
       const match = reply.match(/\{[\s\S]*\}/);
       if (match) setStrategyResult(JSON.parse(match[0]));
@@ -369,7 +369,7 @@ export default function AdminSEOPage() {
               <div className="glass-card p-5">
                 <h3 className="text-sm font-bold text-white mb-3">SERP Preview</h3>
                 <div className="p-3 rounded-xl bg-black/40 border border-white/5">
-                  <p className="text-[#1a0dab] text-sm hover:underline cursor-pointer truncate font-medium">{metaTitle || "MetraMart - Premium Digital Marketplace"}</p>
+                  <p className="text-[#1a0dab] text-sm hover:underline cursor-pointer truncate font-medium">{metaTitle || "PIYROX - Premium Digital Marketplace"}</p>
                   <p className="text-[#006621] text-xs truncate mt-0.5">{appUrl}</p>
                   <p className="text-[#4d5156] text-xs mt-1 line-clamp-2">
                     {metaDesc || "Buy Netflix, Spotify, ChatGPT Plus and more at the best prices. Instant delivery worldwide."}
@@ -657,7 +657,7 @@ export default function AdminSEOPage() {
               <h3 className="text-sm font-bold text-white mb-6">Market Share Comparison</h3>
               <div className="space-y-6">
                 {[
-                  { name: "MetraMart (You)", share: 22, color: "bg-amber-500" },
+                  { name: "PIYROX (You)", share: 22, color: "bg-amber-500" },
                   { name: "G2A", share: 45, color: "bg-blue-500" },
                   { name: "Kinguin", share: 18, color: "bg-purple-500" },
                   { name: "CDKeys", share: 15, color: "bg-green-500" }

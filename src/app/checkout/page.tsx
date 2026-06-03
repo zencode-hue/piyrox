@@ -123,7 +123,7 @@ function GiftCardInstructions({ amount, orderId, onClose }: { amount: number; or
               {/* Support link */}
               <p className="text-center text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
                 Need help?{" "}
-                <a href="https://discord.gg/metramart" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">
+                <a href="https://discord.gg/piyrox" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300">
                   Ask on Discord
                 </a>
               </p>

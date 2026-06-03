@@ -14,7 +14,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "metramart.xyz", "*.vercel.app"],
+      allowedOrigins: ["localhost:3000", "piyrox.xyz", "*.vercel.app"],
     },
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },

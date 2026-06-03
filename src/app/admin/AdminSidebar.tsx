@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import MetraMartLogo from "@/components/MetraMartLogo";
+import PIYROXLogo from "@/components/PIYROXLogo";
 import {
   LayoutDashboard, Package, ShoppingCart, Users,
   Tag, UserCheck, Settings, Menu,
@@ -137,8 +137,8 @@ export default function AdminSidebar() {
       <aside className="hidden lg:flex w-60 shrink-0 flex-col fixed h-full z-30"
         style={{ background: "rgba(6,6,6,0.97)", borderRight: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(24px)" }}>
         <div className="h-14 flex items-center gap-2.5 px-4 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-          <MetraMartLogo size={24} />
-          <span className="font-bold text-white text-sm">MetraMart</span>
+          <PIYROXLogo size={24} />
+          <span className="font-bold text-white text-sm">PIYROX</span>
           <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full"
             style={{ background: "rgba(245,158,11,0.15)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.25)" }}>
             ADMIN
@@ -162,9 +162,9 @@ export default function AdminSidebar() {
           WebkitBackdropFilter: "blur(20px)"
         }}>
         <div className="flex items-center gap-2.5">
-          <MetraMartLogo size={22} />
+          <PIYROXLogo size={22} />
           <div className="flex flex-col">
-            <span className="font-bold text-white text-[13px] leading-tight">MetraMart</span>
+            <span className="font-bold text-white text-[13px] leading-tight">PIYROX</span>
             <span className="text-[10px] text-amber-500 font-bold uppercase tracking-widest opacity-80">Admin Console</span>
           </div>
         </div>
@@ -206,8 +206,8 @@ export default function AdminSidebar() {
             style={{ background: "rgba(6,6,6,0.99)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="h-16 flex items-center justify-between px-5 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
               <div className="flex items-center gap-2.5">
-                <MetraMartLogo size={22} />
-                <span className="font-bold text-white text-sm">MetraMart <span className="text-amber-500">Admin</span></span>
+                <PIYROXLogo size={22} />
+                <span className="font-bold text-white text-sm">PIYROX <span className="text-amber-500">Admin</span></span>
               </div>
               <button onClick={() => setOpen(false)} className="text-gray-500 p-1">
                 <ChevronDown size={20} className="rotate-90" />

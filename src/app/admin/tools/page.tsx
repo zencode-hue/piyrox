@@ -25,7 +25,7 @@ export default function AdminToolsPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `metramart-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `piyrox-orders-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
       setResult({ type: "success", msg: "Orders exported successfully!" });

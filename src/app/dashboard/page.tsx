@@ -8,8 +8,8 @@ import { Package, ShoppingBag, Wallet, Star, ArrowRight, TrendingUp } from "luci
 import CopyButton from "./CopyButton";
 
 export const metadata: Metadata = {
-  title: "Dashboard — MetraMart",
-  description: "Your MetraMart account overview.",
+  title: "Dashboard — PIYROX",
+  description: "Your PIYROX account overview.",
 };
 
 export const dynamic = "force-dynamic";

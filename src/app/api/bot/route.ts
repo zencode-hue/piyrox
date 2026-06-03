@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   try {
-    const bypassKey = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
+    const bypassKey = process.env.INTERNAL_BYPASS_KEY || "piyrox-ai-secret-2024";
     const headerKey = req.headers.get("X-Internal-AI-Bypass");
     
     if (headerKey !== bypassKey) {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const bypassKey = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
+    const bypassKey = process.env.INTERNAL_BYPASS_KEY || "piyrox-ai-secret-2024";
     const headerKey = req.headers.get("X-Internal-AI-Bypass");
     
     if (headerKey !== bypassKey) {
@@ -271,7 +271,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Order not found. Please verify your Order ID." }, { status: 404 });
       }
 
-      const warrantyDurationDays = 30; // Standard MetraMart warranty
+      const warrantyDurationDays = 30; // Standard PIYROX warranty
       const createdAt = new Date(order.createdAt);
       const expirationDate = new Date(createdAt.getTime() + warrantyDurationDays * 24 * 60 * 60 * 1000);
       const now = new Date();

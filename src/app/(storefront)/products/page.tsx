@@ -5,21 +5,21 @@ import ProductGrid from "@/components/storefront/ProductGrid";
 import type { CategoryOption } from "@/components/storefront/CategoryNav";
 
 export const metadata: Metadata = {
-  title: "All Products — MetraMart",
-  description: "Browse 500+ digital products on MetraMart — Netflix, Spotify, ChatGPT Plus, gaming keys, AI tools and software licenses. Instant delivery.",
+  title: "All Products — PIYROX",
+  description: "Browse 500+ digital products on PIYROX — Netflix, Spotify, ChatGPT Plus, gaming keys, AI tools and software licenses. Instant delivery.",
   alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz"}/products`,
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz"}/products`,
   },
   openGraph: {
-    title: "All Products — MetraMart",
+    title: "All Products — PIYROX",
     description: "Browse 500+ digital products — streaming, AI tools, software, gaming. Instant delivery.",
     url: `${process.env.NEXT_PUBLIC_APP_URL}/products`,
-    siteName: "MetraMart",
+    siteName: "PIYROX",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "All Products — MetraMart",
+    title: "All Products — PIYROX",
     description: "Browse 500+ digital products — streaming, AI tools, software, gaming. Instant delivery.",
   },
 };

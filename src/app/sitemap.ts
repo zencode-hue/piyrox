@@ -7,7 +7,7 @@ export const revalidate = 3600; // regenerate every hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Always use the primary naked domain for SEO consistency
-  const appUrl = "https://metramart.xyz";
+  const appUrl = "https://piyrox.xyz";
 
   const [products, blogPosts] = await Promise.all([
     db.product.findMany({

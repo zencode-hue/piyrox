@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "Daily Deals — MetraMart",
+  title: "Daily Deals — PIYROX",
   description: "Daily deals with 20% off on premium digital subscriptions. Refreshes every 24 hours. Limited time only.",
 };
 

@@ -64,26 +64,26 @@ export async function deployTicketPanel(channelId: string) {
   const payload = {
     embeds: [
       {
-        title: "🎫  MetraMart Support Center",
+        title: "🎫  PIYROX Support Center",
         description:
-          "Welcome to **MetraMart** support.\n" +
+          "Welcome to **PIYROX** support.\n" +
           "Select a category from the dropdown below to open a ticket.\n" +
           "Our team will assist you as soon as possible.\n\n" +
           "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
           "🎫  **Support** — Issues, questions, problems\n" +
           "📦  **Claim Order** — Claim a purchased product\n" +
-          "📋  **Application** — Join the MetraMart staff team\n" +
+          "📋  **Application** — Join the PIYROX staff team\n" +
           "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-        color: 0xF59E0B, // MetraMart Gold
+        color: 0xF59E0B, // PIYROX Gold
         fields: [
           { name: "⏱️  Response Time", value: "> Our team typically responds within **15–30 minutes**.", inline: false },
           {
             name: "📌  Before Opening a Ticket",
-            value: "> • Check our [FAQ at metramart.xyz](https://metramart.xyz/support)\n> • Have your Order ID ready if applicable\n> • One ticket per issue please",
+            value: "> • Check our [FAQ at piyrox.xyz](https://piyrox.xyz/support)\n> • Have your Order ID ready if applicable\n> • One ticket per issue please",
             inline: false,
           },
         ],
-        footer: { text: "MetraMart • metramart.xyz | Replacing Velxo Shop", icon_url: "https://metramart.xyz/favicon.ico" },
+        footer: { text: "PIYROX • piyrox.xyz | Replacing Velxo Shop", icon_url: "https://piyrox.xyz/favicon.ico" },
       },
     ],
     components: [
@@ -97,7 +97,7 @@ export async function deployTicketPanel(channelId: string) {
             options: [
               { label: "Support", value: "support", emoji: { name: "🎫" }, description: "Get help with an issue or question" },
               { label: "Claim Order", value: "order", emoji: { name: "📦" }, description: "Claim a product you've purchased" },
-              { label: "Staff Application", value: "application", emoji: { name: "📋" }, description: "Apply to join the MetraMart team" },
+              { label: "Staff Application", value: "application", emoji: { name: "📋" }, description: "Apply to join the PIYROX team" },
             ],
           },
         ],
@@ -105,9 +105,9 @@ export async function deployTicketPanel(channelId: string) {
       {
         type: 1, // ActionRow
         components: [
-          { type: 2, style: 5, label: "MetraMart", url: "https://metramart.xyz", emoji: { name: "🛒" } },
-          { type: 2, style: 5, label: "Browse Deals", url: "https://metramart.xyz/deals", emoji: { name: "🔥" } },
-          { type: 2, style: 5, label: "Support", url: "https://metramart.xyz/support", emoji: { name: "🎫" } },
+          { type: 2, style: 5, label: "PIYROX", url: "https://piyrox.xyz", emoji: { name: "🛒" } },
+          { type: 2, style: 5, label: "Browse Deals", url: "https://piyrox.xyz/deals", emoji: { name: "🔥" } },
+          { type: 2, style: 5, label: "Support", url: "https://piyrox.xyz/support", emoji: { name: "🎫" } },
         ],
       },
     ],
@@ -151,7 +151,7 @@ export async function sendAnnouncement(channelId: string, data: {
       {
         title: data.title,
         description: data.message,
-        color: 0xF59E0B, // MetraMart Gold
+        color: 0xF59E0B, // PIYROX Gold
         fields: [
           {
             name: "\u200b",
@@ -159,7 +159,7 @@ export async function sendAnnouncement(channelId: string, data: {
             inline: false,
           },
         ],
-        footer: { text: "MetraMart • metramart.xyz", icon_url: "https://metramart.xyz/favicon.ico" },
+        footer: { text: "PIYROX • piyrox.xyz", icon_url: "https://piyrox.xyz/favicon.ico" },
         timestamp: new Date().toISOString(),
       },
     ],

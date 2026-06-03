@@ -45,9 +45,9 @@ CURRENT PRODUCT CONTEXT:
       `- ${p.title} (${p.category}): $${Number(p.price).toFixed(2)} [${p.unlimitedStock || p.stockCount > 0 ? "In Stock" : "Out of Stock"}]`
     ).join("\n");
 
-    const systemPrompt = `You are the MetraMart AI Support Assistant.
+    const systemPrompt = `You are the PIYROX AI Support Assistant.
 
-NAME: MetraMart | URL: https://metramart.xyz
+NAME: PIYROX | URL: https://piyrox.xyz
 LIVE CATALOG:
 ${liveCatalog}
 ${productContext}
@@ -62,7 +62,7 @@ YOUR MISSION:
 7. Use EMOJIS to make the chat friendly.
 8. NO markdown bold (**) or headers (#). Plain text and emojis only.
 
-MANDATORY: You are Metra AI, the official support for MetraMart.`;
+MANDATORY: You are Metra AI, the official support for PIYROX.`;
 
     // openrouter/free first — strictly routes to free-tier models only, never paid
     const modelsToTry = [
@@ -86,8 +86,8 @@ MANDATORY: You are Metra AI, the official support for MetraMart.`;
           headers: {
             Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://metramart.xyz",
-            "X-Title": "MetraMart Customer AI",
+            "HTTP-Referer": "https://piyrox.xyz",
+            "X-Title": "PIYROX Customer AI",
           },
           body: JSON.stringify({
             model: m,

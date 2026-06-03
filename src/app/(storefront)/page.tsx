@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
@@ -16,14 +16,14 @@ import DealCountdown from "@/components/storefront/DealCountdown";
 import { getDealsData, getSiteSettings } from "@/lib/server-data";
 
 export const metadata: Metadata = {
-  title: "MetraMart — Buy Netflix, Spotify & Digital Subscriptions at Best Prices",
-  description: "MetraMart is your #1 digital marketplace. Buy Netflix, Spotify Premium, ChatGPT Plus, gaming keys and software licenses at unbeatable prices. Instant automated delivery worldwide.",
-  keywords: ["buy netflix cheap", "spotify premium discount", "chatgpt plus cheap", "buy digital subscriptions", "instant delivery digital products", "cheap streaming services", "gaming keys", "software licenses", "metramart"],
+  title: "PIYROX — Buy Netflix, Spotify & Digital Subscriptions at Best Prices",
+  description: "PIYROX is your #1 digital marketplace. Buy Netflix, Spotify Premium, ChatGPT Plus, gaming keys and software licenses at unbeatable prices. Instant automated delivery worldwide.",
+  keywords: ["buy netflix cheap", "spotify premium discount", "chatgpt plus cheap", "buy digital subscriptions", "instant delivery digital products", "cheap streaming services", "gaming keys", "software licenses", "piyrox"],
   openGraph: {
-    title: "MetraMart — Premium Digital Subscriptions at Unbeatable Prices",
+    title: "PIYROX — Premium Digital Subscriptions at Unbeatable Prices",
     description: "Netflix, Spotify, ChatGPT Plus, gaming keys and more. Instant delivery, secure payments, best prices guaranteed.",
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: "MetraMart",
+    siteName: "PIYROX",
     type: "website",
   },
 };
@@ -69,7 +69,7 @@ export default async function HomePage() {
     getSiteSettings(),
   ]);
 
-  const discordUrl = siteSettings["discord_url"] || process.env.DISCORD_SERVER_URL || "https://discord.gg/metramart";
+  const discordUrl = siteSettings["discord_url"] || process.env.DISCORD_SERVER_URL || "https://discord.gg/piyrox";
   const telegramUrl = siteSettings["telegram_url"] || "";
   const discordMembers = siteSettings["discord_members"] || "1,000+";
   const telegramMembers = siteSettings["telegram_members"] || "";
@@ -95,7 +95,7 @@ export default async function HomePage() {
       <section className="sr-only" aria-hidden="false">
         <h2>Affordable Premium Subscriptions in One Place</h2>
         <p>
-          MetraMart is your trusted platform to buy cheap Netflix, Spotify, IPTV, and gaming subscriptions at the best prices.
+          PIYROX is your trusted platform to buy cheap Netflix, Spotify, IPTV, and gaming subscriptions at the best prices.
           We provide instant delivery, secure payments, and reliable access to your favorite digital services worldwide.
           Whether you need a cheap Netflix subscription, affordable Spotify Premium, or discounted AI tools — we have it all.
         </p>
@@ -175,7 +175,7 @@ export default async function HomePage() {
       {/* ── Section 2: Why Choose Us ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-white/5">
         <div className="text-center mb-12">
-          <h2 className="text-2xl font-bold text-white mb-2">Why Choose MetraMart?</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">Why Choose PIYROX?</h2>
           <p className="text-gray-500">Trusted by thousands of customers worldwide</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -203,7 +203,7 @@ export default async function HomePage() {
       <section className="sr-only" aria-hidden="false">
         <h2>Cheap Netflix, Spotify &amp; IPTV Subscriptions</h2>
         <p>
-          Looking for cheap Netflix subscriptions or affordable Spotify Premium accounts? MetraMart offers some of the best deals online.
+          Looking for cheap Netflix subscriptions or affordable Spotify Premium accounts? PIYROX offers some of the best deals online.
           Whether you want IPTV for unlimited channels or discounted streaming services, we provide high-quality access at unbeatable prices.
           Our shop specializes in cheap digital subscriptions — from Netflix and Spotify to ChatGPT Plus, gaming keys, and AI tools.
           All products come with instant automated delivery and a replacement guarantee, making us the most reliable place to buy affordable streaming services.
@@ -248,4 +248,3 @@ export default async function HomePage() {
     </>
   );
 }
-

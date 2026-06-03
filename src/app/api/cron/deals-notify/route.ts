@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "No webhook configured" }, { status: 503 });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
 
     // Fetch products directly from DB to avoid self-fetch issues in some environments
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
     const dateStr = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
     const payload = {
-      username: "MetraMart Deals",
+      username: "PIYROX Deals",
       avatar_url: `${appUrl}/logo.png`,
       embeds: [
         {
@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
           color: 0xea580c,
           fields: dealFields,
           footer: {
-            text: `MetraMart • Deals reset daily at midnight UTC • Seed #${seed}`,
+            text: `PIYROX • Deals reset daily at midnight UTC • Seed #${seed}`,
             icon_url: `${appUrl}/logo.png`,
           },
           timestamp: new Date().toISOString(),

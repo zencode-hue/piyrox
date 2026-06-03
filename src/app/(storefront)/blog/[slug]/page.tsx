@@ -24,25 +24,25 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     where: { slug: params.slug, published: true },
     select: { title: true, excerpt: true, emoji: true },
   }) as { title: string; excerpt: string; emoji: string } | null;
-  if (!post) return { title: "Post Not Found — MetraMart" };
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+  if (!post) return { title: "Post Not Found — PIYROX" };
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
   const ogImage = `${appUrl}/opengraph-image`;
   return {
-    title: `${post.title} — MetraMart Blog`,
+    title: `${post.title} — PIYROX Blog`,
     description: post.excerpt,
     alternates: { canonical: `${appUrl}/blog/${params.slug}` },
     openGraph: {
-      title: `${post.title} — MetraMart Blog`,
+      title: `${post.title} — PIYROX Blog`,
       description: post.excerpt,
       url: `${appUrl}/blog/${params.slug}`,
-      siteName: "MetraMart",
+      siteName: "PIYROX",
       type: "article",
       images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
       card: "summary_large_image",
-      site: "@metramart",
-      title: `${post.title} — MetraMart Blog`,
+      site: "@piyrox",
+      title: `${post.title} — PIYROX Blog`,
       description: post.excerpt,
       images: [ogImage],
     },

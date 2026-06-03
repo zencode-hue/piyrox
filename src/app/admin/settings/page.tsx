@@ -38,7 +38,7 @@ export default async function AdminSettingsPage() {
             discord_admin_webhook_url: map["discord_admin_webhook_url"] ?? "",
             affiliate_commission_pct: map["affiliate_commission_pct"] ?? "10",
             partner_commission_pct: map["partner_commission_pct"] ?? "15",
-            store_name: map["store_name"] ?? "MetraMart",
+            store_name: map["store_name"] ?? "PIYROX",
             store_tagline: map["store_tagline"] ?? "Premium Digital Marketplace",
             hero_title: map["hero_title"] ?? "",
             hero_subtitle: map["hero_subtitle"] ?? "",

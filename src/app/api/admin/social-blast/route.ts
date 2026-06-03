@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     const pinToken = map["pinterest_access_token"];
     const pinBoardId = map["pinterest_board_id"];
     
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
 
     // Create a SocialBlast entry
     const blast = await db.socialBlast.create({
@@ -123,8 +123,8 @@ export async function POST(req: NextRequest) {
                 headers: {
                   Authorization: `Bearer ${apiKey}`,
                   "Content-Type": "application/json",
-                  "HTTP-Referer": "https://metramart.xyz",
-                  "X-Title": "MetraMart Admin",
+                  "HTTP-Referer": "https://piyrox.xyz",
+                  "X-Title": "PIYROX Admin",
                 },
                 body: JSON.stringify({
                   model: m,
@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Execution (Multi-Platform)
-    const secret = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
+    const secret = process.env.INTERNAL_BYPASS_KEY || "piyrox-ai-secret-2024";
     const bypassHeaders = { 
       "Content-Type": "application/json",
       "X-Internal-AI-Bypass": secret 
@@ -246,7 +246,7 @@ export async function POST(req: NextRequest) {
             link: `${origin}/api/social/click/${blast.id}/pinterest`,
             media_source: {
               source_type: "image_url",
-              url: product.imageUrl || "https://metramart.xyz/logo.png",
+              url: product.imageUrl || "https://piyrox.xyz/logo.png",
             },
           }),
         });

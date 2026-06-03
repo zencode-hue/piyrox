@@ -32,7 +32,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   return {
-    title: `Invoice MMT-${params.id.slice(-6).toUpperCase()} - MetraMart`,
+    title: `Invoice MMT-${params.id.slice(-6).toUpperCase()} - PIYROX`,
     robots: { index: false, follow: false },
   };
 }
@@ -61,7 +61,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
   const status = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.PENDING;
   const StatusIcon = status.icon;
   const invoiceNum = `MMT-${order.id.slice(-6).toUpperCase()}`;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://metramart.xyz";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
 
   const steps = [
     { label: "Order Placed", done: true, time: new Date(order.createdAt).toLocaleString() },
@@ -73,7 +73,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
     <div className="min-h-screen px-4 py-12" style={{ background: "#000" }}>
       <div className="max-w-2xl mx-auto">
         <Link href="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors mb-8">
-          <ArrowLeft size={14} /> MetraMart
+          <ArrowLeft size={14} /> PIYROX
         </Link>
 
         {/* Header */}

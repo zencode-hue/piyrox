@@ -7,8 +7,8 @@ import Link from "next/link";
 import { Search, SlidersHorizontal } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Search Products — MetraMart",
-  description: "Search for digital products on MetraMart.",
+  title: "Search Products — PIYROX",
+  description: "Search for digital products on PIYROX.",
   robots: { index: false, follow: false },
 };
 

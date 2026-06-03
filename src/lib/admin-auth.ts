@@ -19,7 +19,7 @@ export async function requireAdmin() {
  */
 export async function requireAdminApi(): Promise<{ session: Awaited<ReturnType<typeof getServerSession>>; error: null } | { session: null; error: NextResponse }> {
   const { cookies, headers } = await import("next/headers");
-  const secret = process.env.INTERNAL_BYPASS_KEY || "metramart-ai-secret-2024";
+  const secret = process.env.INTERNAL_BYPASS_KEY || "piyrox-ai-secret-2024";
   const isAiBypass = cookies().get("__internal_ai_bypass")?.value === "1" || 
                     headers().get("X-Internal-AI-Bypass") === secret;
   

@@ -188,7 +188,7 @@ export default function MarketingPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-white">AI Strategy Result</h3>
-                    <p className="text-xs text-gray-500">Tailored for MetraMart Ecosystem</p>
+                    <p className="text-xs text-gray-500">Tailored for PIYROX Ecosystem</p>
                   </div>
                 </div>
                 <button 

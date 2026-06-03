@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import MetraMartLogo from "@/components/MetraMartLogo";
+import PIYROXLogo from "@/components/PIYROXLogo";
 import {
   LayoutDashboard, ShoppingCart, Package, AlertTriangle,
   Menu, LogOut, ExternalLink, Users, User, X,
@@ -87,10 +87,10 @@ export default function StaffSidebar({ staffName, staffPosition }: { staffName: 
   const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => (
     <>
       <div className="h-16 flex items-center gap-2.5 px-5 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-        <MetraMartLogo size={26} />
+        <PIYROXLogo size={26} />
         <div>
           <span className="font-bold text-white text-sm block leading-tight">Staff Portal</span>
-          <span className="text-xs" style={{ color: "#fde68a" }}>MetraMart</span>
+          <span className="text-xs" style={{ color: "#fde68a" }}>PIYROX</span>
         </div>
       </div>
 
@@ -135,7 +135,7 @@ export default function StaffSidebar({ staffName, staffPosition }: { staffName: 
         <button onClick={() => setOpen(true)} style={{ color: "rgba(255,255,255,0.5)" }}>
           <Menu size={20} />
         </button>
-        <MetraMartLogo size={22} />
+        <PIYROXLogo size={22} />
         <span className="font-bold text-white text-sm">Staff Portal</span>
         <span className="ml-auto text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{currentLabel}</span>
       </div>

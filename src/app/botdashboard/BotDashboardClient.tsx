@@ -117,7 +117,7 @@ export default function BotDashboardClient({ initialSettings, stats }: BotDashbo
       <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-zinc-800 pb-8">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 bg-clip-text text-transparent">
-            MetraMart Discord Dashboard
+            PIYROX Discord Dashboard
           </h1>
           <p className="mt-2 text-zinc-400 font-medium">
             Manage your Discord storefront ticketing bot, announcements, and configurations in real-time.
@@ -331,7 +331,7 @@ export default function BotDashboardClient({ initialSettings, stats }: BotDashbo
                   rows={3}
                   value={announceMessageContent}
                   onChange={e => setAnnounceMessageContent(e.target.value)}
-                  placeholder="Netflix Premium Ultra-HD accounts have been fully restocked! Visit metramart.xyz to secure yours."
+                  placeholder="Netflix Premium Ultra-HD accounts have been fully restocked! Visit piyrox.xyz to secure yours."
                   className="bg-zinc-950 border border-zinc-800 focus:border-amber-500/40 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none transition w-full resize-none"
                 />
               </div>
