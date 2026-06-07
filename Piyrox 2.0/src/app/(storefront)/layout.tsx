@@ -110,17 +110,14 @@ function Footer() {
             <p className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-2">
               Stay Updated
             </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="flex items-center gap-0"
-            >
+            <form className="flex items-center gap-0">
               <input
                 type="email"
                 placeholder="you@email.com"
                 className="h-10 w-full md:w-64 rounded-l-lg bg-white/5 border border-r-0 px-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/20 transition-colors"
               />
               <button
-                type="submit"
+                type="button"
                 className="h-10 px-5 rounded-r-lg bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors shrink-0"
               >
                 Subscribe
