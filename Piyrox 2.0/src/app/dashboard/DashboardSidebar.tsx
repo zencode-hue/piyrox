@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { signOut } from "next-auth/react";
 import PIYROXLogo from "@/components/PIYROXLogo";
 import {
   LayoutDashboard, ShoppingBag, Wallet, Users, Handshake,
-  Menu, ExternalLink, Star, Settings, X,
+  Menu, ExternalLink, Star, Settings, X, LogOut,
 } from "lucide-react";
 
 const navItems = [
@@ -69,9 +70,12 @@ export default function DashboardSidebar({ userName }: { userName: string }) {
       </div>
       <NavLinks onClick={onLinkClick} />
       <div className="p-4 shrink-0 border-t border-white/5">
-        <Link href="/" className="flex items-center gap-2 text-xs text-zinc-400 hover:text-white transition-colors">
+        <Link href="/" className="flex items-center gap-2 text-xs text-zinc-400 hover:text-white transition-colors mb-3">
           <ExternalLink size={14} /> Back to Store
         </Link>
+        <button onClick={() => signOut({ callbackUrl: "/" })} className="flex items-center gap-2 text-xs text-red-400 hover:text-red-300 transition-colors w-full text-left">
+          <LogOut size={14} /> Sign Out
+        </button>
       </div>
     </>
   );

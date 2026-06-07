@@ -39,8 +39,9 @@ export default function Navbar() {
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && searchQuery.trim()) {
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
       router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setMobileOpen(false);
     }
@@ -77,17 +78,16 @@ export default function Navbar() {
           {/* Right Actions */}
           <div className="flex items-center gap-4">
             {!isMobile && (
-              <div className="relative flex items-center">
+              <form onSubmit={handleSearchSubmit} className="relative flex items-center">
                 <Search size={14} className="absolute left-3 text-white/60" />
                 <input 
                   type="text" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleSearch}
                   placeholder="Search For Products..." 
                   className="pl-9 pr-4 py-2 w-[240px] bg-white/[0.05] border border-white/10 rounded-xl text-[13px] text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] transition-all"
                 />
-              </div>
+              </form>
             )}
 
             <button onClick={() => setCartOpen(true)} className="relative p-2 text-white/60 hover:text-white transition-colors">
@@ -123,17 +123,16 @@ export default function Navbar() {
       {isMobile && mobileOpen && (
         <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl pt-24 px-4 pb-6 overflow-y-auto">
           <div className="flex flex-col gap-2">
-            <div className="relative flex items-center mb-6">
+            <form onSubmit={handleSearchSubmit} className="relative flex items-center mb-6">
               <Search size={16} className="absolute left-4 text-white/60" />
               <input 
                 type="text" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearch}
                 placeholder="Search For Products..." 
                 className="w-full pl-11 pr-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] transition-all"
               />
-            </div>
+            </form>
 
             {NAV_LINKS.map(({ href, label, icon: Icon }) => {
               const active = pathname === href || (href !== "/" && pathname.startsWith(href));

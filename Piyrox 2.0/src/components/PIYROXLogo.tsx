@@ -21,19 +21,10 @@ export default function PIYROXLogo({ size = 32, className = "" }: PIYROXLogoProp
       </defs>
       {/* Rounded background */}
       <rect x="4" y="4" width="92" height="92" rx="22" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-      {/* PY letterform */}
-      <text
-        x="50"
-        y="70"
-        textAnchor="middle"
-        fontFamily="system-ui, -apple-system, sans-serif"
-        fontWeight="900"
-        fontSize="54"
-        fill="url(#mg1)"
-        letterSpacing="-3"
-      >
-        PY
-      </text>
+      {/* Abstract Design: Interlocking shapes */}
+      <circle cx="40" cy="40" r="18" fill="url(#mg1)" fillOpacity="0.8" />
+      <rect x="42" y="42" width="30" height="30" rx="8" fill="url(#mg1)" fillOpacity="0.6" />
+      <circle cx="65" cy="35" r="12" fill="url(#mg1)" fillOpacity="0.9" />
     </svg>
   );
 }
