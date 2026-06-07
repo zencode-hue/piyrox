@@ -32,7 +32,7 @@ export default function ProductCard({ id, title, price, category, imageUrl, avgR
     e.preventDefault();
     e.stopPropagation();
     if (!inStock) return;
-    addItem({ productId: id, title, price, category, imageUrl });
+    addItem({ id, productId: id, title, price, category, imageUrl });
   }
 
   return (
