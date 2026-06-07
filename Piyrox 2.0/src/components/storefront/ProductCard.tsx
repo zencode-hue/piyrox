@@ -13,7 +13,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   GAMING: "Gaming",
 };
 
-interface Props {
+export interface ProductCardProps {
   id: string;
   title: string;
   price: number;
@@ -25,7 +25,7 @@ interface Props {
   inStock: boolean;
 }
 
-export default function ProductCard({ id, title, price, category, imageUrl, avgRating, inStock }: Props) {
+export default function ProductCard({ id, title, price, category, imageUrl, avgRating, inStock }: ProductCardProps) {
   const { addItem } = useCart();
 
   function handleAddToCart(e: React.MouseEvent) {
