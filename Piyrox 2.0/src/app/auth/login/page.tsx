@@ -89,47 +89,43 @@ function LoginPageInner() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      {/* Purple glow */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: "radial-gradient(ellipse at 50% 30%, rgba(59,130,246,0.08) 0%, transparent 60%)"
-      }} />
+    <div className="min-h-screen bg-black flex items-center justify-center px-4 py-12">
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2.5 font-bold text-2xl">
+          <Link href="/" className="inline-flex items-center gap-2.5 font-bold text-2xl text-white">
             <PIYROXLogo size={28} />
-            <span style={{ background: "linear-gradient(135deg, #fde68a, #d97706)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>PIYROX</span>
+            <span>PIYROX</span>
           </Link>
-          <p className="text-slate-500 mt-2 text-sm">Sign in to your account</p>
+          <p className="text-zinc-400 mt-2 text-sm">Sign in to your account</p>
         </div>
 
         {verified && (
-          <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
+          <div className="mb-4 p-3 rounded-lg bg-white/[0.02] border border-white/10 text-white text-sm text-center">
             Email verified! You can now sign in.
           </div>
         )}
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+          <div className="mb-4 p-3 rounded-lg bg-white/[0.02] border border-white/10 text-white text-sm text-center">
             {error === "OAuthAccountNotLinked" ? "This email is already registered. Sign in with email/password." : "Authentication error. Please try again."}
           </div>
         )}
 
-        <div className="glass-card p-8">
+        <div className="bg-white/[0.02] border border-white/5 backdrop-blur-md p-8 rounded-2xl">
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Email</label>
+              <label className="block text-sm text-zinc-400 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="input-field"
+                className="w-full px-4 py-2.5 rounded-lg bg-white/[0.03] border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Password</label>
+              <label className="block text-sm text-zinc-400 mb-1.5">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -137,43 +133,43 @@ function LoginPageInner() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="input-field pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+                  className="w-full px-4 py-2.5 rounded-lg bg-white/[0.03] border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
+          </div>
 
-            {err && <p className="text-red-400 text-sm">{err}</p>}
+          {err && <p className="text-white text-sm">{err}</p>}
 
-            <div className="flex items-center justify-end">
-              <Link href="/auth/forgot-password" className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
-                Forgot password?
-              </Link>
-            </div>
+          <div className="flex items-center justify-end">
+            <Link href="/auth/forgot-password" className="text-xs text-zinc-400 hover:text-white transition-colors">
+              Forgot password?
+            </Link>
+          </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-              {loading ? "Signing in…" : "Sign In"}
-            </button>
+          <button type="submit" disabled={loading} className="bg-white text-black hover:bg-zinc-200 font-medium w-full py-3 rounded-lg transition-colors">
+            {loading ? "Signing in…" : "Sign In"}
+          </button>
           </form>
 
           <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-white/5" />
             </div>
-            <div className="relative flex justify-center text-xs text-gray-600">
-              <span className="bg-[#111] px-3">or continue with</span>
+            <div className="relative flex justify-center text-xs text-zinc-400">
+              <span className="bg-black px-3">or continue with</span>
             </div>
           </div>
 
           <button
             onClick={handleGoogleLogin}
-            className="btn-secondary w-full py-3 text-sm gap-3 mb-3"
+            className="flex items-center justify-center bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 text-white w-full py-3 rounded-lg text-sm gap-3 mb-3 transition-colors"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
@@ -186,8 +182,7 @@ function LoginPageInner() {
 
           <button
             onClick={() => signIn("discord", { callbackUrl: "/dashboard" })}
-            className="btn-secondary w-full py-3 text-sm gap-3"
-            style={{ background: "rgba(88,101,242,0.1)", border: "1px solid rgba(88,101,242,0.2)" }}
+            className="flex items-center justify-center bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 text-white w-full py-3 rounded-lg text-sm gap-3 transition-colors"
           >
             <svg width="18" height="18" viewBox="0 0 127.14 96.36" fill="#5865F2">
               <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a67.58,67.58,0,0,1-10.85,5.18,77.24,77.24,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.14c0,0,.04-.06.05-.09C129.05,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.1,46,96,53,91,65.69,84.69,65.69Z"/>
@@ -195,9 +190,9 @@ function LoginPageInner() {
             Continue with Discord
           </button>
 
-          <p className="text-center text-sm text-slate-500 mt-5">
+          <p className="text-center text-sm text-zinc-400 mt-5">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/register" className="text-amber-400 hover:text-amber-300 transition-colors">
+            <Link href="/auth/register" className="text-white hover:text-zinc-300 transition-colors">
               Sign up
             </Link>
           </p>
@@ -206,7 +201,7 @@ function LoginPageInner() {
           <div className="mt-6 flex justify-center">
             <button
               onClick={() => setShowAdminModal(true)}
-              className="text-[10px] text-gray-700 hover:text-gray-500 transition-colors flex items-center gap-1"
+              className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
             >
               <Lock size={9} />
               Admin
@@ -218,9 +213,9 @@ function LoginPageInner() {
       {/* Admin password modal */}
       {showAdminModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="glass-card p-6 w-full max-w-sm">
+          <div className="bg-white/[0.02] border border-white/5 backdrop-blur-md p-6 w-full max-w-sm rounded-2xl">
             <div className="flex items-center gap-2 mb-4">
-              <Lock size={16} className="text-amber-400" />
+              <Lock size={16} className="text-white" />
               <h2 className="text-base font-semibold text-white">Admin Access</h2>
             </div>
             <form onSubmit={handleAdminLogin} className="space-y-4">
@@ -231,18 +226,18 @@ function LoginPageInner() {
                 placeholder="Enter admin password"
                 required
                 autoFocus
-                className="input-field"
+                className="w-full px-4 py-2.5 rounded-lg bg-white/[0.03] border border-white/10 text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all"
               />
-              {adminErr && <p className="text-red-400 text-sm">{adminErr}</p>}
+              {adminErr && <p className="text-white text-sm">{adminErr}</p>}
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => { setShowAdminModal(false); setAdminErr(null); setAdminPassword(""); }}
-                  className="btn-secondary flex-1 py-2.5 text-sm"
+                  className="flex items-center justify-center bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 text-white flex-1 py-2.5 rounded-lg text-sm transition-colors"
                 >
                   Cancel
                 </button>
-                <button type="submit" disabled={adminLoading} className="btn-primary flex-1 py-2.5 text-sm">
+                <button type="submit" disabled={adminLoading} className="bg-white text-black hover:bg-zinc-200 font-medium flex-1 py-2.5 rounded-lg text-sm transition-colors">
                   {adminLoading ? "Verifying…" : "Enter"}
                 </button>
               </div>

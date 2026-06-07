@@ -9,11 +9,9 @@ import FeaturedCategories from '@/components/storefront/FeaturedCategories';
 import TrustBadges from '@/components/storefront/TrustBadges';
 import NewsletterSection from '@/components/storefront/NewsletterSection';
 import CommunitySection from '@/components/storefront/CommunitySection';
-import LiveOrderTicker from '@/components/storefront/LiveOrderTicker';
-import { ArrowRight, Zap, Lock, Gem, Flame, Shield, Clock, Star, CheckCircle } from 'lucide-react';
-import DealCard from '@/components/storefront/DealCard';
-import DealCountdown from '@/components/storefront/DealCountdown';
-import { getDealsData, getSiteSettings } from '@/lib/server-data';
+
+import { ArrowRight, Zap, Lock, Gem, Shield, Clock, Star, CheckCircle } from 'lucide-react';
+import { getSiteSettings } from '@/lib/server-data';
 
 export const metadata: Metadata = {
   title: 'PIYROX — Premium Digital Marketplace',
@@ -72,17 +70,15 @@ export default async function HomePage() {
   let aiTools: Awaited<ReturnType<typeof getFeatured>> = [];
   let gaming: Awaited<ReturnType<typeof getFeatured>> = [];
   let software: Awaited<ReturnType<typeof getFeatured>> = [];
-  let dealsData: Awaited<ReturnType<typeof getDealsData>> = { deals: [], resetAt: new Date().toISOString() };
   let siteSettings: Awaited<ReturnType<typeof getSiteSettings>> = {};
 
   try {
-    [featured, streaming, aiTools, gaming, software, dealsData, siteSettings] = await Promise.all([
+    [featured, streaming, aiTools, gaming, software, siteSettings] = await Promise.all([
       getFeatured(),
       getProductsByCategory('STREAMING', 4),
       getProductsByCategory('AI_TOOLS', 4),
       getProductsByCategory('GAMING', 4),
       getProductsByCategory('SOFTWARE', 4),
-      getDealsData(),
       getSiteSettings(),
     ]);
   } catch (error) {
@@ -93,10 +89,6 @@ export default async function HomePage() {
   const telegramUrl = siteSettings['telegram_url'] || '';
   const discordMembers = siteSettings['discord_members'] || '1,000+';
   const telegramMembers = siteSettings['telegram_members'] || '';
-  const dealsEnabled = siteSettings['deals_enabled'] !== 'false';
-
-  const hotDeals = dealsData.deals.slice(0, 4);
-  const dealsResetAt = dealsData.resetAt;
 
   const categorySections = [
     { id: 'STREAMING', label: 'Streaming', products: streaming },
@@ -113,8 +105,7 @@ export default async function HomePage() {
       {/* ── 2. Trust Badges ── */}
       <TrustBadges />
 
-      {/* ── 3. Live Order Ticker ── */}
-      <LiveOrderTicker />
+
 
       {/* ── 4. How It Works ── */}
       <section className="border-t border-white/10">
@@ -211,51 +202,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── 6. Hot Deals ── */}
-      {dealsEnabled && hotDeals.length > 0 && (
-        <section
-          className="border-t border-white/10"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                <div>
-                  <h2 className="text-2xl font-black text-white flex items-center gap-2">
-                    HOT DEALS
-                    <span
-                      className="text-xs font-normal px-2 py-0.5 rounded-full text-white/70"
-                      style={{
-                        background: 'rgba(255,255,255,0.06)',
-                        border: '1px solid rgba(255,255,255,0.10)',
-                      }}
-                    >
-                      LIMITED TIME
-                    </span>
-                  </h2>
-                  <p className="text-xs mt-0.5 text-white/60">
-                    Deals refresh daily at midnight UTC
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <DealCountdown resetAt={dealsResetAt} />
-                <Link
-                  href="/deals"
-                  className="flex items-center gap-1.5 text-sm font-semibold text-white/60 hover:text-white transition-colors"
-                >
-                  View All <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {hotDeals.map((deal) => (
-                <DealCard key={deal.id} {...deal} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+
 
       {/* ── 7. Category Sections ── */}
       {categorySections.map((section) => (

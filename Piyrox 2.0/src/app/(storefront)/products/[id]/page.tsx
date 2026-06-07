@@ -14,10 +14,10 @@ const CATEGORY_LABELS: Record<string, string> = {
   STREAMING: "Streaming", AI_TOOLS: "AI Tools", SOFTWARE: "Software", GAMING: "Gaming",
 };
 const CATEGORY_COLORS: Record<string, string> = {
-  STREAMING: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-  AI_TOOLS: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
-  SOFTWARE: "text-orange-400 bg-orange-500/10 border-orange-500/20",
-  GAMING: "text-amber-300 bg-amber-400/10 border-amber-400/20",
+  STREAMING: "text-white bg-white/5 border-white/10",
+  AI_TOOLS: "text-zinc-300 bg-white/5 border-white/10",
+  SOFTWARE: "text-zinc-300 bg-white/5 border-white/10",
+  GAMING: "text-zinc-300 bg-white/5 border-white/10",
 };
 
 // Generate feature bullets from description
@@ -137,7 +137,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (!product) notFound();
 
   const features = getFeatures(product.description, product.category);
-  const catColor = CATEGORY_COLORS[product.category] ?? "text-gray-400 bg-gray-500/10 border-gray-500/20";
+  const catColor = CATEGORY_COLORS[product.category] ?? "text-zinc-400 bg-white/5 border-white/10";
   const reviewCount = product.reviews.length;
   const avgRating = product.avgRating;
   const appUrl = "https://piyrox.xyz";
@@ -190,32 +190,32 @@ export default async function ProductDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-xs text-gray-600 mb-6">
-        <a href="/" className="hover:text-gray-400 transition-colors">Home</a>
+      <nav className="flex items-center gap-2 text-xs text-zinc-500 mb-6">
+        <a href="/" className="hover:text-white transition-colors">Home</a>
         <span>/</span>
-        <a href="/products" className="hover:text-gray-400 transition-colors">Products</a>
+        <a href="/products" className="hover:text-white transition-colors">Products</a>
         <span>/</span>
-        <a href={`/products?category=${product.category}`} className="hover:text-gray-400 transition-colors">{CATEGORY_LABELS[product.category]}</a>
+        <a href={`/products?category=${product.category}`} className="hover:text-white transition-colors">{CATEGORY_LABELS[product.category]}</a>
         <span>/</span>
-        <span className="text-gray-400 truncate max-w-[200px]">{product.title}</span>
+        <span className="text-zinc-400 truncate max-w-[200px]">{product.title}</span>
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
         {/* Left — Image */}
         <div className="space-y-4">
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-white/[0.02] border border-white/5 backdrop-blur-md">
             {product.imageUrl ? (
               <Image src={product.imageUrl} alt={product.title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" priority />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                <Package size={64} className="text-amber-400/40" />
-                <span className="text-gray-600 text-sm">{CATEGORY_LABELS[product.category]}</span>
+                <Package size={64} className="text-white/40" />
+                <span className="text-zinc-500 text-sm">{CATEGORY_LABELS[product.category]}</span>
               </div>
             )}
             {/* Best seller badge */}
             <div className="absolute top-3 left-3">
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold text-white" style={{ background: "rgba(167,139,250,0.2)", border: "1px solid rgba(167,139,250,0.3)" }}>
-                🔥 BEST SELLER
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold text-black bg-white border border-white/10 shadow-sm">
+                BEST SELLER
               </span>
             </div>
           </div>
@@ -223,13 +223,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {/* Trust badges under image */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { icon: Zap, label: "Instant Delivery", color: "text-yellow-400" },
-              { icon: Shield, label: "Secure Payment", color: "text-green-400" },
-              { icon: RefreshCw, label: "Replacement Guarantee", color: "text-amber-400" },
+              { icon: Zap, label: "Instant Delivery", color: "text-white" },
+              { icon: Shield, label: "Secure Payment", color: "text-white" },
+              { icon: RefreshCw, label: "Replacement Guarantee", color: "text-white" },
             ].map((b) => (
-              <div key={b.label} className="flex flex-col items-center gap-1.5 p-3 rounded-xl text-center" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div key={b.label} className="flex flex-col items-center gap-1.5 p-3 rounded-xl text-center bg-white/[0.02] border border-white/5 backdrop-blur-md">
                 <b.icon size={16} className={b.color} />
-                <span className="text-xs text-gray-500 leading-tight">{b.label}</span>
+                <span className="text-xs text-zinc-400 leading-tight">{b.label}</span>
               </div>
             ))}
           </div>
@@ -251,11 +251,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-0.5">
               {[1,2,3,4,5].map((s) => (
-                <Star key={s} size={16} className={s <= Math.round(avgRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-700"} />
+                <Star key={s} size={16} className={s <= Math.round(avgRating) ? "fill-white text-white" : "text-zinc-700"} />
               ))}
             </div>
-            <span className="text-sm text-yellow-400 font-medium">{avgRating.toFixed(1)}</span>
-            <span className="text-sm text-gray-500">({reviewCount} review{reviewCount !== 1 ? "s" : ""})</span>
+            <span className="text-sm text-white font-medium">{avgRating.toFixed(1)}</span>
+            <span className="text-sm text-zinc-500">({reviewCount} review{reviewCount !== 1 ? "s" : ""})</span>
           </div>
 
           {/* Price — shown as range if variants exist, otherwise base price */}
@@ -265,21 +265,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 <span className="text-4xl font-black text-white">
                   ${Math.min(...product.variants.map((v) => v.price)).toFixed(2)}
                   {Math.min(...product.variants.map((v) => v.price)) !== Math.max(...product.variants.map((v) => v.price)) && (
-                    <span className="text-2xl font-bold text-gray-400"> – ${Math.max(...product.variants.map((v) => v.price)).toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-zinc-400"> – ${Math.max(...product.variants.map((v) => v.price)).toFixed(2)}</span>
                   )}
                 </span>
-                <span className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>select plan below</span>
+                <span className="text-sm text-zinc-500">select plan below</span>
               </>
             ) : (
               <>
                 <span className="text-4xl font-black text-white"><PriceDisplay usdAmount={product.price} /></span>
-                <span className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>USD</span>
+                <span className="text-sm text-zinc-500">USD</span>
               </>
             )}
           </div>
 
           {/* Description */}
-          <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
+          <p className="text-zinc-400 text-sm leading-relaxed">{product.description}</p>
 
           {/* SEO keyword content — hidden visually, readable by Google */}
           <div className="sr-only" aria-hidden="false">
@@ -296,8 +296,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <p className="text-sm font-semibold text-white">What&apos;s included:</p>
             <ul className="space-y-1.5">
               {features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm text-gray-400">
-                  <CheckCircle size={14} className="text-green-400 shrink-0 mt-0.5" />
+                <li key={f} className="flex items-start gap-2 text-sm text-zinc-400">
+                  <CheckCircle size={14} className="text-white shrink-0 mt-0.5" />
                   {f}
                 </li>
               ))}
@@ -322,27 +322,27 @@ export default async function ProductDetailPage({ params }: PageProps) {
       {product.reviews.length > 0 && (
         <section className="mb-16">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <Star size={18} className="text-yellow-400 fill-yellow-400" />
+            <Star size={18} className="text-white fill-white" />
             Customer Reviews ({product.reviews.length})
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {product.reviews.map((review) => (
-              <div key={review.id} className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div key={review.id} className="rounded-xl p-5 bg-white/[0.02] border border-white/5 backdrop-blur-md">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: "rgba(167,139,250,0.2)", border: "1px solid rgba(167,139,250,0.3)" }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-black bg-white">
                       {review.user.name?.[0]?.toUpperCase() ?? "U"}
                     </div>
                     <span className="text-sm font-medium text-white">{review.user.name ?? "Anonymous"}</span>
                   </div>
                   <div className="flex items-center gap-0.5">
                     {[1,2,3,4,5].map((s) => (
-                      <Star key={s} size={12} className={s <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-700"} />
+                      <Star key={s} size={12} className={s <= review.rating ? "fill-white text-white" : "text-zinc-700"} />
                     ))}
                   </div>
                 </div>
-                {review.comment && <p className="text-sm text-gray-400">{review.comment}</p>}
-                <p className="text-xs text-gray-600 mt-2">{new Date(review.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
+                {review.comment && <p className="text-sm text-zinc-400">{review.comment}</p>}
+                <p className="text-xs text-zinc-500 mt-2">{new Date(review.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
               </div>
             ))}
           </div>

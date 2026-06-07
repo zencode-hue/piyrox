@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   Menu, X, Search, ShoppingCart, User,
-  Home, Package, Star, Activity, BookOpen, LogIn
+  Home, Package, Activity, BookOpen, LogIn
 } from "lucide-react";
 import PIYROXLogo from "@/components/PIYROXLogo";
 import { useCart } from "@/contexts/CartContext";
@@ -15,7 +15,6 @@ import CartDrawer from "@/components/storefront/CartDrawer";
 const NAV_LINKS = [
   { href: "/", label: "Home", icon: Home },
   { href: "/products", label: "Products", icon: Package },
-  { href: "/deals", label: "Deals", icon: Star },
   { href: "/affiliate", label: "Affiliate", icon: Activity },
   { href: "/blog", label: "Blog", icon: BookOpen },
 ];

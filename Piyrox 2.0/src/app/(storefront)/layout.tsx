@@ -1,8 +1,6 @@
 import Navbar from "@/components/storefront/Navbar";
 import Providers from "@/components/storefront/Providers";
 import PageViewTracker from "@/components/PageViewTracker";
-import RecentPurchasePopupWrapper from "@/components/storefront/RecentPurchasePopupWrapper";
-import ExitIntentPopup from "@/components/storefront/ExitIntentPopup";
 import Link from "next/link";
 import {
   MessageCircle,
@@ -28,7 +26,6 @@ const productLinks = [
   ["AI Tools", "/products?category=AI_TOOLS"],
   ["Software", "/products?category=SOFTWARE"],
   ["Gaming", "/products?category=GAMING"],
-  ["Hot Deals", "/deals"],
 ] as const;
 
 const companyLinks = [
@@ -264,8 +261,6 @@ export default function StorefrontLayout({
           <Navbar />
           <main className="min-h-screen bg-black">{children}</main>
           <Footer />
-          <RecentPurchasePopupWrapper />
-          <ExitIntentPopup />
         </CartProvider>
       </CurrencyProvider>
     </Providers>
