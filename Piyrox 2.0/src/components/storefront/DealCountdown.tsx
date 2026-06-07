@@ -14,7 +14,7 @@ function getTimeLeft(resetAt: string) {
 
 function pad(n: number) { return String(n).padStart(2, "0"); }
 
-export default function DealCountdown({ resetAt, neon = false }: { resetAt: string; neon?: boolean }) {
+export default function DealCountdown({ resetAt }: { resetAt: string; neon?: boolean }) {
   const [time, setTime] = useState(getTimeLeft(resetAt));
 
   useEffect(() => {
@@ -22,15 +22,10 @@ export default function DealCountdown({ resetAt, neon = false }: { resetAt: stri
     return () => clearInterval(id);
   }, [resetAt]);
 
-  // Always gold — neon prop kept for API compatibility but ignored
-  const accentColor = "#f59e0b";
-  const bgColor = "rgba(245,158,11,0.1)";
-  const borderColor = "rgba(245,158,11,0.3)";
-
   return (
     <div className="flex items-center gap-3">
-      <Clock size={16} style={{ color: accentColor }} className="shrink-0" />
-      <span className="text-sm text-gray-400">Resets in</span>
+      <Clock size={16} className="text-zinc-400 shrink-0" />
+      <span className="text-sm text-zinc-500">Resets in</span>
       <div className="flex items-center gap-1.5">
         {[
           { label: "h", value: time.h },
@@ -38,13 +33,15 @@ export default function DealCountdown({ resetAt, neon = false }: { resetAt: stri
           { label: "s", value: time.s },
         ].map(({ label, value }, i) => (
           <span key={label} className="flex items-center gap-1">
-            {i > 0 && <span className="font-bold" style={{ color: accentColor, opacity: 0.5 }}>:</span>}
+            {i > 0 && <span className="font-bold text-zinc-600">:</span>}
             <span className="inline-flex flex-col items-center">
-              <span className="font-mono font-bold text-white text-lg leading-none px-2 py-1 rounded-lg"
-                style={{ background: bgColor, border: `1px solid ${borderColor}`, color: accentColor }}>
+              <span
+                className="font-mono font-bold text-white text-lg leading-none px-2 py-1 rounded-lg"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+              >
                 {pad(value)}
               </span>
-              <span className="text-[9px] text-gray-600 mt-0.5 uppercase tracking-wider">{label}</span>
+              <span className="text-[9px] text-zinc-600 mt-0.5 uppercase tracking-wider">{label}</span>
             </span>
           </span>
         ))}
