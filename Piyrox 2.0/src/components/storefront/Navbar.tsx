@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   Menu, X, Search, ShoppingCart, User,
@@ -21,9 +21,11 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
   const { count } = useCart();
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -36,6 +38,13 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileOpen(false);
+    }
+  };
 
   return (
     <>
@@ -72,8 +81,11 @@ export default function Navbar() {
                 <Search size={14} className="absolute left-3 text-white/60" />
                 <input 
                   type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearch}
                   placeholder="Search For Products..." 
-                  className="pl-9 pr-4 py-2 w-[240px] bg-white/[0.05] border border-white/10 rounded-xl text-[13px] text-white placeholder-white/40 focus:outline-none focus:bg-white/08 transition-all"
+                  className="pl-9 pr-4 py-2 w-[240px] bg-white/[0.05] border border-white/10 rounded-xl text-[13px] text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] transition-all"
                 />
               </div>
             )}
@@ -115,8 +127,11 @@ export default function Navbar() {
               <Search size={16} className="absolute left-4 text-white/60" />
               <input 
                 type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
                 placeholder="Search For Products..." 
-                className="w-full pl-11 pr-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none"
+                className="w-full pl-11 pr-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] transition-all"
               />
             </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
 import CategoryNav, { type CategoryOption } from "./CategoryNav";
 import ProductCard, { type ProductCardProps } from "./ProductCard";
@@ -14,12 +15,17 @@ export default function ProductGrid({
   products,
   initialCategory = "ALL",
 }: ProductGridProps) {
-  const [activeCategory, setActiveCategory] =
-    useState<CategoryOption>(initialCategory);
+  const searchParams = useSearchParams();
+  const [activeCategory, setActiveCategory] = useState<CategoryOption>(initialCategory);
   const [search, setSearch] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    const q = searchParams.get("search");
+    if (q) setSearch(q);
+  }, [searchParams]);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {

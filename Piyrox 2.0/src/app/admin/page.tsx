@@ -51,11 +51,11 @@ export default async function AdminDashboard() {
   ]);
 
   const STATUS_BADGE: Record<string, { label: string; color: string }> = {
-    PAID: { label: "Paid", color: "#4ade80" },
-    PENDING: { label: "Pending", color: "#fbbf24" },
-    PENDING_STOCK: { label: "Processing", color: "#fb923c" },
-    FAILED: { label: "Failed", color: "#f87171" },
-    REFUNDED: { label: "Refunded", color: "#c4b5fd" },
+    PAID: { label: "Paid", color: "#ffffff" },
+    PENDING: { label: "Pending", color: "#a1a1aa" },
+    PENDING_STOCK: { label: "Processing", color: "#d4d4d8" },
+    FAILED: { label: "Failed", color: "#71717a" },
+    REFUNDED: { label: "Refunded", color: "#52525b" },
   };
 
   return (
@@ -68,10 +68,10 @@ export default async function AdminDashboard() {
       {/* Revenue cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
-          { label: "All Time Revenue", value: `$${Number(revenue._sum.amount ?? 0).toFixed(2)}`, icon: DollarSign, color: "#fbbf24", sub: `${totalOrders} total orders` },
-          { label: "Today", value: `$${Number(revenueToday._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#4ade80", sub: `${revenueToday._count} orders, ${ordersToday} placed` },
-          { label: "This Week", value: `$${Number(revenueWeek._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#60a5fa", sub: `${revenueWeek._count} orders` },
-          { label: "This Month", value: `$${Number(revenueMonth._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#c4b5fd", sub: `${revenueMonth._count} orders` },
+          { label: "All Time Revenue", value: `$${Number(revenue._sum.amount ?? 0).toFixed(2)}`, icon: DollarSign, color: "#ffffff", sub: `${totalOrders} total orders` },
+          { label: "Today", value: `$${Number(revenueToday._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#ffffff", sub: `${revenueToday._count} orders, ${ordersToday} placed` },
+          { label: "This Week", value: `$${Number(revenueWeek._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#ffffff", sub: `${revenueWeek._count} orders` },
+          { label: "This Month", value: `$${Number(revenueMonth._sum.amount ?? 0).toFixed(2)}`, icon: TrendingUp, color: "#ffffff", sub: `${revenueMonth._count} orders` },
         ].map(({ label, value, icon: Icon, color, sub }) => (
           <div key={label} className="glass-card p-4 sm:p-5 flex flex-col justify-center">
             <div className="flex items-center gap-2 text-[11px] sm:text-xs text-gray-400 mb-2 sm:mb-3">
@@ -88,9 +88,9 @@ export default async function AdminDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {pendingPartnerPayouts > 0 && (
             <Link href="/admin/partners/payouts"
-              className="glass-card p-4 flex items-center justify-between border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
+              className="glass-card p-4 flex items-center justify-between border-white/10 hover:border-white/30 transition-colors">
               <div className="flex items-center gap-3">
-                <UserCheck size={16} className="text-yellow-400" />
+                <UserCheck size={16} className="text-white" />
                 <div>
                   <p className="text-sm font-medium text-white">{pendingPartnerPayouts} payout request{pendingPartnerPayouts !== 1 ? "s" : ""}</p>
                   <p className="text-xs text-gray-500">Awaiting approval</p>
@@ -100,9 +100,9 @@ export default async function AdminDashboard() {
             </Link>
           )}
           {(lowStockProducts as { id: string; title: string; stockCount: number }[]).length > 0 && (
-            <div className="glass-card p-4 border-orange-500/20">
+            <div className="glass-card p-4 border-white/10">
               <div className="flex items-center gap-2 mb-3">
-                <AlertTriangle size={14} className="text-orange-400" />
+                <AlertTriangle size={14} className="text-zinc-400" />
                 <span className="text-sm font-medium text-white">Low Stock Alert</span>
               </div>
               <div className="space-y-1.5">
@@ -111,7 +111,7 @@ export default async function AdminDashboard() {
                     <Link href={`/admin/products/${p.id}/inventory`} className="text-gray-400 hover:text-white transition-colors truncate max-w-[180px]">
                       {p.title}
                     </Link>
-                    <span className={p.stockCount === 0 ? "text-red-400 font-medium" : "text-orange-400"}>
+                    <span className={p.stockCount === 0 ? "text-zinc-500 font-medium" : "text-white"}>
                       {p.stockCount === 0 ? "Out of stock" : `${p.stockCount} left`}
                     </span>
                   </div>
@@ -129,9 +129,9 @@ export default async function AdminDashboard() {
       <div className="glass-card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-            <ShoppingCart size={14} style={{ color: "#f59e0b" }} /> Recent Orders
+            <ShoppingCart size={14} className="text-white" /> Recent Orders
           </h2>
-          <Link href="/admin/orders" className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1">
+          <Link href="/admin/orders" className="text-xs text-white hover:text-zinc-300 flex items-center gap-1">
             View all <ArrowRight size={11} />
           </Link>
         </div>
@@ -163,10 +163,10 @@ export default async function AdminDashboard() {
       {/* Quick actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { href: "/admin/products/new", label: "Add Product", icon: Package, color: "#f59e0b" },
-          { href: "/admin/discounts", label: "Discounts", icon: Tag, color: "#fbbf24" },
-          { href: "/admin/analytics", label: "Analytics", icon: TrendingUp, color: "#4ade80" },
-          { href: "/admin/ai", label: "AI Assistant", icon: CheckCircle, color: "#a78bfa" },
+          { href: "/admin/products/new", label: "Add Product", icon: Package, color: "#ffffff" },
+          { href: "/admin/discounts", label: "Discounts", icon: Tag, color: "#ffffff" },
+          { href: "/admin/analytics", label: "Analytics", icon: TrendingUp, color: "#ffffff" },
+          { href: "/admin/ai", label: "AI Assistant", icon: CheckCircle, color: "#ffffff" },
         ].map(({ href, label, icon: Icon, color }) => (
           <Link key={href} href={href}
             className="glass-card p-4 flex flex-col items-center gap-2 text-center hover:border-white/20 transition-all hover:-translate-y-0.5">

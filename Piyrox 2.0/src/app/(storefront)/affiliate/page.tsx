@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, DollarSign, Users, Zap, Share2, Handshake, TrendingUp } from "lucide-react";
 
@@ -17,12 +17,12 @@ export default function AffiliatePage() {
       {/* Hero */}
       <div className="text-center mb-20">
         <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mb-6"
-          style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)", color: "#fbbf24" }}>
+          style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "#ffffff" }}>
           <DollarSign size={13} /> Two Affiliate Programs
         </span>
         <h1 className="text-4xl sm:text-6xl font-black text-white mb-5 leading-tight tracking-tight">
           Earn by Sharing<br />
-          <span style={{ background: "linear-gradient(135deg, #fde68a, #d97706)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+          <span style={{ background: "linear-gradient(135deg, #ffffff, #a1a1aa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
             PIYROX
           </span>
         </h1>
@@ -32,7 +32,7 @@ export default function AffiliatePage() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/auth/register"
             className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-black text-sm"
-            style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", boxShadow: "0 0 24px rgba(245,158,11,0.25)" }}>
+            style={{ background: "linear-gradient(135deg, #ffffff, #e4e4e7)", boxShadow: "0 0 24px rgba(255,255,255,0.25)" }}>
             Join Promo Affiliate <ArrowRight size={15} />
           </Link>
           <Link href="/dashboard/partner"
@@ -46,11 +46,11 @@ export default function AffiliatePage() {
       {/* Two program cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-20">
         {/* Promo */}
-        <div className="rounded-2xl p-7 relative overflow-hidden" style={{ background: G, border: `1px solid rgba(245,158,11,0.15)` }}>
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10" style={{ background: "#f59e0b" }} />
+        <div className="rounded-2xl p-7 relative overflow-hidden" style={{ background: G, border: `1px solid rgba(255,255,255,0.15)` }}>
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-5" style={{ background: "#ffffff" }} />
           <div className="relative">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
-              <Users size={20} style={{ color: "#fbbf24" }} />
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
+              <Users size={20} style={{ color: "#ffffff" }} />
             </div>
             <h2 className="text-xl font-bold text-white mb-2">Promo Affiliate</h2>
             <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
@@ -59,7 +59,7 @@ export default function AffiliatePage() {
             <div className="space-y-2 mb-6">
               {["10% commission as store credit", "Instant tracking in dashboard", "No minimum threshold", "Use credit to buy any product"].map((f) => (
                 <div key={f} className="flex items-center gap-2 text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#f59e0b" }} />
+                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#ffffff" }} />
                   {f}
                 </div>
               ))}
@@ -69,11 +69,11 @@ export default function AffiliatePage() {
         </div>
 
         {/* Partner */}
-        <div className="rounded-2xl p-7 relative overflow-hidden" style={{ background: G, border: `1px solid rgba(245,158,11,0.15)` }}>
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-10" style={{ background: "#d97706" }} />
+        <div className="rounded-2xl p-7 relative overflow-hidden" style={{ background: G, border: `1px solid rgba(255,255,255,0.15)` }}>
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-5" style={{ background: "#ffffff" }} />
           <div className="relative">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
-              <TrendingUp size={20} style={{ color: "#fbbf24" }} />
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}>
+              <TrendingUp size={20} style={{ color: "#ffffff" }} />
             </div>
             <h2 className="text-xl font-bold text-white mb-2">Partner Program</h2>
             <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.45)" }}>
@@ -82,7 +82,7 @@ export default function AffiliatePage() {
             <div className="space-y-2 mb-6">
               {["15%+ commission in real cash", "Crypto wallet payouts (BTC, ETH, USDT)", "Custom commission rates", "Dedicated partner dashboard"].map((f) => (
                 <div key={f} className="flex items-center gap-2 text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#f59e0b" }} />
+                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#ffffff" }} />
                   {f}
                 </div>
               ))}

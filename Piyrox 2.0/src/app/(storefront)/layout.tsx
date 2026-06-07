@@ -259,7 +259,7 @@ export default function StorefrontLayout({
         <CartProvider>
           <PageViewTracker />
           <Navbar />
-          <main className="min-h-screen bg-black">{children}</main>
+          <main className="min-h-screen bg-black pt-24">{children}</main>
           <Footer />
         </CartProvider>
       </CurrencyProvider>
