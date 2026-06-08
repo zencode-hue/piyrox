@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
 
 const outfit = Outfit({
@@ -158,6 +159,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-background text-white antialiased">
         {children}
         <CustomerAIChat />
+        <SpeedInsights />
       </body>
     </html>
   );
