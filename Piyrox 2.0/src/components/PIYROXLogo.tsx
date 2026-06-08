@@ -14,17 +14,39 @@ export default function PIYROXLogo({ size = 32, className = "" }: PIYROXLogoProp
       className={className}
     >
       <defs>
-        <linearGradient id="mg1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="100%" stopColor="#a1a1aa" />
+        <linearGradient id="codeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00ff88" />
+          <stop offset="50%" stopColor="#00ccff" />
+          <stop offset="100%" stopColor="#8844ff" />
+        </linearGradient>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0a0a0a" />
+          <stop offset="100%" stopColor="#1a1a2e" />
         </linearGradient>
       </defs>
-      {/* Rounded background */}
-      <rect x="4" y="4" width="92" height="92" rx="22" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-      {/* Abstract Design: Interlocking shapes */}
-      <circle cx="40" cy="40" r="18" fill="url(#mg1)" fillOpacity="0.8" />
-      <rect x="42" y="42" width="30" height="30" rx="8" fill="url(#mg1)" fillOpacity="0.6" />
-      <circle cx="65" cy="35" r="12" fill="url(#mg1)" fillOpacity="0.9" />
+      {/* Background with gradient */}
+      <rect x="0" y="0" width="100" height="100" rx="20" fill="url(#bgGradient)" />
+      
+      {/* Abstract coding-themed design */}
+      {/* Left bracket */}
+      <path d="M20 30 L20 70 L30 70 L30 40 L70 40 L70 30 Z" fill="url(#codeGradient)" opacity="0.9" />
+      
+      {/* Right bracket */}
+      <path d="M80 30 L80 70 L70 70 L70 40 L30 40 L30 30 Z" fill="url(#codeGradient)" opacity="0.7" />
+      
+      {/* Central code slash */}
+      <path d="M45 25 L55 75 L50 75 L40 25 Z" fill="url(#codeGradient)" opacity="0.8" />
+      
+      {/* Binary dots pattern */}
+      <circle cx="25" cy="25" r="2" fill="#00ff88" opacity="0.8" />
+      <circle cx="35" cy="25" r="2" fill="#00ccff" opacity="0.8" />
+      <circle cx="65" cy="25" r="2" fill="#00ccff" opacity="0.8" />
+      <circle cx="75" cy="25" r="2" fill="#8844ff" opacity="0.8" />
+      
+      <circle cx="25" cy="75" r="2" fill="#8844ff" opacity="0.8" />
+      <circle cx="35" cy="75" r="2" fill="#00ccff" opacity="0.8" />
+      <circle cx="65" cy="75" r="2" fill="#00ccff" opacity="0.8" />
+      <circle cx="75" cy="75" r="2" fill="#00ff88" opacity="0.8" />
     </svg>
   );
 }
