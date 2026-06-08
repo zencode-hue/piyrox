@@ -91,7 +91,7 @@ function NavLinks({ pathname, onClick }: { pathname: string; onClick?: () => voi
             <button
               onClick={() => setCollapsed((prev) => ({ ...prev, [group.label]: !prev[group.label] }))}
               className="w-full flex items-center justify-between px-2 py-1.5 text-[10px] font-semibold uppercase tracking-widest transition-colors"
-              style={{ color: hasActive ? "rgba(245,158,11,0.7)" : "rgba(255,255,255,0.2)" }}>
+              style={{ color: hasActive ? "#000" : "rgba(0,0,0,0.4)" }}>
               {group.label}
               {isCollapsed ? <ChevronRight size={10} /> : <ChevronDown size={10} />}
             </button>
@@ -105,14 +105,14 @@ function NavLinks({ pathname, onClick }: { pathname: string; onClick?: () => voi
                     padding: "8px 10px", borderRadius: "10px",
                     fontSize: "12.5px", fontWeight: 500,
                     transition: "all 0.15s ease",
-                    color: active ? "#fff" : "rgba(255,255,255,0.45)",
-                    background: active ? "rgba(245,158,11,0.12)" : "transparent",
-                    border: active ? "1px solid rgba(245,158,11,0.2)" : "1px solid transparent",
+                    color: active ? "#000" : "rgba(0,0,0,0.6)",
+                    background: active ? "#fff" : "transparent",
+                    border: active ? "1px solid #000" : "1px solid transparent",
                     marginBottom: "1px",
                   }}>
-                  <Icon size={14} style={{ color: active ? "#f59e0b" : "rgba(255,255,255,0.3)", flexShrink: 0 }} />
+                  <Icon size={14} style={{ color: active ? "#000" : "rgba(0,0,0,0.4)", flexShrink: 0 }} />
                   {label}
-                  {active && <div style={{ marginLeft: "auto", width: "5px", height: "5px", borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }} />}
+                  {active && <div style={{ marginLeft: "auto", width: "5px", height: "5px", borderRadius: "50%", background: "#000", flexShrink: 0 }} />}
                 </Link>
               );
             })}
@@ -135,19 +135,19 @@ export default function AdminSidebar() {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-60 shrink-0 flex-col fixed h-full z-30"
-        style={{ background: "rgba(6,6,6,0.97)", borderRight: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(24px)" }}>
-        <div className="h-14 flex items-center gap-2.5 px-4 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        style={{ background: "#fff", borderRight: "1px solid #e5e5e5", backdropFilter: "blur(24px)" }}>
+        <div className="h-14 flex items-center gap-2.5 px-4 shrink-0" style={{ borderBottom: "1px solid #e5e5e5" }}>
           <PIYROXLogo size={24} />
-          <span className="font-bold text-white text-sm">PIYROX</span>
+          <span className="font-bold text-black text-sm">PIYROX</span>
           <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-            style={{ background: "rgba(245,158,11,0.15)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.25)" }}>
+            style={{ background: "#000", color: "#fff", border: "1px solid #000" }}>
             ADMIN
           </span>
         </div>
         <NavLinks pathname={pathname} />
-        <div className="p-3 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-          <Link href="/" target="_blank" className="flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-all hover:bg-white/5"
-            style={{ color: "rgba(255,255,255,0.3)" }}>
+        <div className="p-3 shrink-0" style={{ borderTop: "1px solid #e5e5e5" }}>
+          <Link href="/" target="_blank" className="flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg transition-all hover:bg-gray-100"
+            style={{ color: "#666" }}>
             <ExternalLink size={11} /> View Store
           </Link>
         </div>
@@ -156,20 +156,20 @@ export default function AdminSidebar() {
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 h-16"
         style={{ 
-          background: "rgba(0,0,0,0.85)", 
-          borderBottom: "1px solid rgba(255,255,255,0.08)", 
+          background: "#fff", 
+          borderBottom: "1px solid #e5e5e5", 
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)"
         }}>
         <div className="flex items-center gap-2.5">
           <PIYROXLogo size={22} />
           <div className="flex flex-col">
-            <span className="font-bold text-white text-[13px] leading-tight">PIYROX</span>
-            <span className="text-[10px] text-amber-500 font-bold uppercase tracking-widest opacity-80">Admin Console</span>
+            <span className="font-bold text-black text-[13px] leading-tight">PIYROX</span>
+            <span className="text-[10px] text-black font-bold uppercase tracking-widest opacity-80">Admin Console</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setOpen(true)} className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 active:scale-90 transition-transform">
+          <button onClick={() => setOpen(true)} className="w-9 h-9 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-gray-600 active:scale-90 transition-transform">
             <Menu size={18} />
           </button>
         </div>
@@ -179,7 +179,7 @@ export default function AdminSidebar() {
 
       {/* Mobile Bottom Nav (Native Style) */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-6 pb-6 pt-2 pointer-events-none">
-        <div className="max-w-md mx-auto pointer-events-auto h-16 glass-card border-white/10 flex items-center justify-around px-2 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
+        <div className="max-w-md mx-auto pointer-events-auto h-16 glass-card border-gray-200 flex items-center justify-around px-2 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
           {[
             { href: "/admin", icon: LayoutDashboard, label: "Home", active: pathname === "/admin" },
             { href: "/admin/orders", icon: ShoppingCart, label: "Orders", active: pathname.startsWith("/admin/orders") },
@@ -187,12 +187,12 @@ export default function AdminSidebar() {
             { href: "/admin/ai", icon: Bot, label: "AI", active: pathname.startsWith("/admin/ai") },
           ].map((item) => (
             <Link key={item.href} href={item.href} 
-              className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all ${item.active ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20 scale-110" : "text-gray-500"}`}>
+              className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all ${item.active ? "bg-black text-white shadow-lg shadow-black/20 scale-110" : "text-gray-500"}`}>
               <item.icon size={20} strokeWidth={item.active ? 2.5 : 2} />
               <span className={`text-[9px] mt-0.5 font-bold uppercase tracking-tighter ${item.active ? "flex" : "hidden"}`}>{item.label}</span>
             </Link>
           ))}
-          <button onClick={() => setOpen(true)} className="flex flex-col items-center justify-center w-12 h-12 text-gray-500 rounded-xl active:bg-white/5">
+          <button onClick={() => setOpen(true)} className="flex flex-col items-center justify-center w-12 h-12 text-gray-500 rounded-xl active:bg-gray-100">
             <Menu size={20} />
           </button>
         </div>
@@ -203,21 +203,21 @@ export default function AdminSidebar() {
         <div className="lg:hidden fixed inset-0 z-[100] flex animate-in fade-in duration-300">
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md" onClick={() => setOpen(false)} />
           <aside className="relative w-[280px] flex flex-col z-50 h-full animate-in slide-in-from-left duration-300 shadow-2xl"
-            style={{ background: "rgba(6,6,6,0.99)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
-            <div className="h-16 flex items-center justify-between px-5 shrink-0" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            style={{ background: "#fff", borderRight: "1px solid #e5e5e5" }}>
+            <div className="h-16 flex items-center justify-between px-5 shrink-0" style={{ borderBottom: "1px solid #e5e5e5" }}>
               <div className="flex items-center gap-2.5">
                 <PIYROXLogo size={22} />
-                <span className="font-bold text-white text-sm">PIYROX <span className="text-amber-500">Admin</span></span>
+                <span className="font-bold text-black text-sm">PIYROX <span className="text-black">Admin</span></span>
               </div>
-              <button onClick={() => setOpen(false)} className="text-gray-500 p-1">
+              <button onClick={() => setOpen(false)} className="text-gray-600 p-1">
                 <ChevronDown size={20} className="rotate-90" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
               <NavLinks pathname={pathname} onClick={() => setOpen(false)} />
             </div>
-            <div className="p-5 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-              <Link href="/" target="_blank" className="btn-secondary w-full py-2.5 text-xs gap-2">
+            <div className="p-5 shrink-0" style={{ borderTop: "1px solid #e5e5e5" }}>
+              <Link href="/" target="_blank" className="btn-secondary w-full py-2.5 text-xs gap-2" style={{ backgroundColor: "#000", color: "#fff" }}>
                 <ExternalLink size={14} /> View Storefront
               </Link>
             </div>

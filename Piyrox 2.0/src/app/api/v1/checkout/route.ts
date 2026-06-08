@@ -13,7 +13,7 @@ const bodySchema = z.object({
   productId: z.string().min(1),
   variantId: z.string().optional(),
   discountCode: z.string().optional(),
-  paymentProvider: z.enum(["nowpayments", "discord", "balance", "binance_gift_card", "flutterwave"]),
+  paymentProvider: z.enum(["nowpayments", "paymento", "discord", "balance", "binance_gift_card", "flutterwave"]),
   guestEmail: z.string().email().optional(),
 });
 
@@ -231,6 +231,39 @@ export async function POST(req: NextRequest) {
       const npData = await npRes.json() as { invoice_url?: string; id?: string };
       await db.order.update({ where: { id: order.id }, data: { paymentRef: String(npData.id ?? "") } });
       return NextResponse.json({ data: { redirectUrl: npData.invoice_url }, error: null, meta: {} });
+    }
+
+    if (paymentProvider === "paymento") {
+      const apiKey = process.env.PAYMENTO_API_KEY;
+      if (!apiKey) {
+        return NextResponse.json({ data: null, error: "Crypto payments not configured", meta: {} }, { status: 503 });
+      }
+
+      const paymentoRes = await fetch("https://app.paymento.io/api/v1/payments", {
+        method: "POST",
+        headers: { 
+          "Authorization": `Bearer ${apiKey}`, 
+          "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+          amount: finalAmount,
+          currency: "USD",
+          order_id: order.id,
+          description: product.title,
+          callback_url: `${appUrl}/api/webhooks/paymento`,
+          success_url: `${appUrl}/checkout/success?orderId=${order.id}${!userId ? `&email=${encodeURIComponent(deliveryEmail ?? "")}` : ""}`,
+          cancel_url: `${appUrl}/checkout/cancel?orderId=${order.id}`,
+        }),
+      });
+
+      if (!paymentoRes.ok) {
+        console.error("[checkout] Paymento error:", await paymentoRes.text());
+        return NextResponse.json({ data: null, error: "Failed to create crypto payment", meta: {} }, { status: 502 });
+      }
+
+      const paymentoData = await paymentoRes.json() as { payment_url?: string; id?: string };
+      await db.order.update({ where: { id: order.id }, data: { paymentRef: String(paymentoData.id ?? "") } });
+      return NextResponse.json({ data: { redirectUrl: paymentoData.payment_url }, error: null, meta: {} });
     }
 
     if (paymentProvider === "discord") {

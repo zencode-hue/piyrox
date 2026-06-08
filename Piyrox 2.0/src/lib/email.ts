@@ -2,10 +2,10 @@
  * Email service - Resend (primary) with Nodemailer SMTP fallback.
  */
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 const APP_NAME = "PIYROX";
-const FROM = process.env.EMAIL_FROM ?? "PIYROX <noreply@piyrox.xyz>";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "noreply@piyrox.xyz";
+const FROM = process.env.EMAIL_FROM ?? "PIYROX <noreply@piyrox.sbs>";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "noreply@piyrox.sbs";
 
 async function send(to: string, subject: string, htmlBody: string): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY;
@@ -60,7 +60,7 @@ function footer(): string {
     <tr>
       <td style="padding:24px 36px;border-top:1px solid rgba(255,255,255,0.06);">
         <p style="margin:0 0 8px;font-size:12px;color:#4b5563;text-align:center;font-family:system-ui,sans-serif;">
-          &copy; ${new Date().getFullYear()} ${APP_NAME} &middot; <a href="${APP_URL}" style="color:#f59e0b;text-decoration:none;">piyrox.xyz</a>
+          &copy; ${new Date().getFullYear()} ${APP_NAME} &middot; <a href="${APP_URL}" style="color:#f59e0b;text-decoration:none;">piyrox.sbs</a>
         </p>
         <p style="margin:0;font-size:11px;color:#374151;text-align:center;font-family:system-ui,sans-serif;">
           You received this email because you have an account or placed an order at PIYROX.
@@ -275,6 +275,7 @@ export async function sendInvoiceCreatedEmail(
 
   const paymentLabels: Record<string, string> = {
     nowpayments: "Crypto (NOWPayments)",
+    paymento: "Crypto (Paymento.io)",
     balance: "Wallet Balance",
     binance_gift_card: "Binance Gift Card",
     discord: "Discord Manual",
@@ -282,6 +283,7 @@ export async function sendInvoiceCreatedEmail(
 
   const paymentInstructions: Record<string, string> = {
     nowpayments: "Click the button below to complete your crypto payment. Your product will be delivered instantly once confirmed.",
+    paymento: "Click the button below to complete your crypto payment. Your product will be delivered instantly once confirmed.",
     binance_gift_card: "Follow the instructions on your invoice to purchase and submit a Binance USDT Gift Card.",
     discord: "Join our Discord server and share your order reference to complete payment.",
     balance: "Your wallet balance has been charged. Your product is being delivered now.",
