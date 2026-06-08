@@ -9,6 +9,7 @@ This guide provides step-by-step instructions for implementing the recent update
 4. [Payment Provider Migration](#payment-provider-migration)
 5. [Environment Variables Configuration](#environment-variables-configuration)
 6. [Testing and Verification](#testing-and-verification)
+7. [Webhook Configuration](#webhook-configuration)
 
 ## New Logo Implementation
 
@@ -91,6 +92,9 @@ To complete the payment provider migration, you need to configure the following 
 PAYMENTO_SECRET=your_paymento_secret_key
 PAYMENTO_API_KEY=your_paymento_api_key
 
+# Google Analytics Configuration
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-SNVM2YNX2W
+
 # Remove or update these if you're no longer using NowPayments
 # NOWPAYMENTS_IPN_SECRET=your_old_nowpayments_secret
 # NOWPAYMENTS_API_KEY=your_old_nowpayments_api_key
@@ -101,6 +105,27 @@ PAYMENTO_API_KEY=your_paymento_api_key
 2. Navigate to API settings in your dashboard
 3. Generate your API key and secret
 4. Add these to your environment variables
+
+## Webhook Configuration
+
+### IPN (Instant Payment Notification) URLs
+The system automatically uses the correct webhook URLs for each payment provider:
+
+#### Paymento.io Webhook
+- **URL**: `https://yourdomain.com/api/webhooks/paymento`
+- **Purpose**: Handles payment confirmations and order updates
+- **Signature Verification**: HMAC-SHA256 using `PAYMENTO_SECRET`
+
+#### NOWPayments Webhook (Legacy)
+- **URL**: `https://yourdomain.com/api/webhooks/nowpayments`
+- **Status**: Still available but no longer the primary payment method
+
+### Webhook Setup in Paymento.io:
+1. Log in to your Paymento.io dashboard
+2. Navigate to Webhook settings
+3. Add the webhook URL: `https://yourdomain.com/api/webhooks/paymento`
+4. Set the webhook secret to your `PAYMENTO_SECRET` value
+5. Enable webhook notifications for payment events
 
 ## Testing and Verification
 
@@ -130,12 +155,17 @@ PAYMENTO_API_KEY=your_paymento_api_key
 - Verify order status changes in the database
 - Confirm balance updates for top-up transactions
 
+### 6. Google Analytics Test
+- Install Google Analytics Debugger Chrome extension
+- Verify that tracking events are being sent correctly
+- Check that page views are being recorded
+
 ## Troubleshooting
 
 ### Common Issues:
 
 1. **Webhook Signature Verification Fails**
-   - Verify the PAYMENTO_SECRET is correctly set in your environment
+   - Verify the `PAYMENTO_SECRET` is correctly set in your environment
    - Ensure the webhook URL is correctly configured in Paymento.io dashboard
    - Check that the request headers include the correct signature
 
@@ -148,6 +178,11 @@ PAYMENTO_API_KEY=your_paymento_api_key
    - Check that the PIYROXLogo component is properly imported
    - Verify CSS classes are not overriding the logo styling
    - Ensure the component is being used with appropriate size props
+
+4. **Google Analytics Not Tracking**
+   - Verify the `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID` is set correctly
+   - Check that the Google Analytics script is loading in the browser
+   - Ensure the domain is properly configured in Google Analytics
 
 ## Support
 
