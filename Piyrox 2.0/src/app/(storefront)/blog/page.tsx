@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { FileText } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Blog � PIYROX",
+  title: "Blog — PIYROX",
   description: "Tips, guides, and news about digital products, streaming, AI tools, and more.",
 };
 
