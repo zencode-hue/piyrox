@@ -17,7 +17,7 @@ export default function Icon() {
           borderRadius: 6,
         }}
       >
-        <div style={{ position: "relative", width: 20, height: 20 }}>
+        <div style={{ position: "relative", width: 20, height: 20, display: "flex" }}>
           {/* Left bracket */}
           <path d="M2 6 L2 14 L4 14 L4 8 L12 8 L12 6 Z" fill="url(#codeGradient)" />
           
