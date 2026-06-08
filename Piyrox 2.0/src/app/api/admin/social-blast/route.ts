@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
                 body: JSON.stringify({
                   model: m,
                   messages: [
-                    { role: "system", content: `You are the Metra AI Marketing Director. Tone: ${tone}. Length: ${length}. Generate JSON ads for: ${Object.keys(requestedPlatforms).join(", ")}. Include {{TRACKING_LINK}}.` },
+                    { role: "system", content: `You are the Piyrox AI Marketing Director. Tone: ${tone}. Length: ${length}. Generate JSON ads for: ${Object.keys(requestedPlatforms).join(", ")}. Include {{TRACKING_LINK}}.` },
                     { role: "user", content: `Product: ${product.title}\nDescription: ${product.description}\nPrice: $${Number(product.price).toFixed(2)}` }
                   ],
                   temperature: 0.8,

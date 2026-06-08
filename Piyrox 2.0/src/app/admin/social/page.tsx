@@ -115,7 +115,7 @@ export default function SocialMarketingPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-white">Advanced Zapier Integration</h3>
-                <p className="text-xs text-gray-400">Connect Metra AI to 5,000+ apps</p>
+                <p className="text-xs text-gray-400">Connect Piyrox AI to 5,000+ apps</p>
               </div>
             </div>
             <button onClick={() => setShowGuide(false)} className="text-gray-500 hover:text-white transition-colors">

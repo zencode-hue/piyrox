@@ -120,7 +120,7 @@ export default function MarketingPage() {
               <p className="text-xs text-gray-500">
                 {activeTab === "campaign" && "Describe your new product or sale to generate a full launch plan."}
                 {activeTab === "social" && "What is the vibe or topic for your next social media blast?"}
-                {activeTab === "blast" && "Metra AI will pick a hot product and blast a generated ad to your social channels."}
+                {activeTab === "blast" && "Piyrox AI will pick a hot product and blast a generated ad to your social channels."}
                 {activeTab === "promo" && "What are your goals? (e.g. clear old stock, increase average order value)"}
               </p>
               
@@ -135,7 +135,7 @@ export default function MarketingPage() {
                     {loading ? <Loader2 size={24} className="animate-spin" /> : <Send size={24} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
                     ACTIVATE SOCIAL BLAST
                   </div>
-                  <span className="relative z-10 text-[10px] opacity-70 font-bold uppercase tracking-widest">Powered by Metra AI Marketing</span>
+                  <span className="relative z-10 text-[10px] opacity-70 font-bold uppercase tracking-widest">Powered by Piyrox AI Marketing</span>
                 </button>
               ) : (
                 <>
@@ -219,7 +219,7 @@ export default function MarketingPage() {
               </div>
               <h3 className="text-xl font-bold text-white/40 mb-2">Ready to scale?</h3>
               <p className="text-sm text-gray-600 max-w-md">
-                Select a tab and provide some details. Metra AI will build your next breakthrough marketing campaign in seconds.
+                Select a tab and provide some details. Piyrox AI will build your next breakthrough marketing campaign in seconds.
               </p>
             </div>
           )}

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -35,7 +35,7 @@ export default function SuccessClient({ pendingStock }: { pendingStock?: boolean
           <p className="text-sm text-gray-500 mb-6">Join our Discord and share your Order ID to claim your product manually.</p>
 
           <div className="rounded-xl p-4 mb-4" style={{ background: "rgba(17,17,17,0.9)", border: "1px solid rgba(249,115,22,0.2)" }}>
-            <p className="text-xs text-gray-500 mb-2">Your Order Reference — share this in Discord</p>
+            <p className="text-xs text-gray-500 mb-2">Your Order Reference � share this in Discord</p>
             <div className="flex items-center gap-2 justify-between">
               <p className="font-mono text-lg font-bold text-orange-300">{displayId}</p>
               <button onClick={copyOrderId} className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"

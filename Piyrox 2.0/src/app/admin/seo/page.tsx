@@ -851,7 +851,7 @@ export default function AdminSEOPage() {
                   <div className="mt-10 p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/10">
                     <div className="flex items-center gap-3 mb-2 text-amber-500">
                       <Cpu size={18} />
-                      <span className="text-xs font-bold uppercase tracking-widest">Metra AI Prediction</span>
+                      <span className="text-xs font-bold uppercase tracking-widest">Piyrox AI Prediction</span>
                     </div>
                     <p className="text-xs text-gray-400 leading-relaxed">
                       Implementing these 3 recommendations is predicted to increase organic impressions by <span className="text-amber-500 font-bold">14-18%</span> within the next 45 days.
@@ -884,7 +884,7 @@ export default function AdminSEOPage() {
                     <Briefcase size={40} className="text-gray-600" />
                   </div>
                   <p className="text-sm text-gray-500 max-w-sm mx-auto">
-                    Click the button above to let Metra AI analyze your niche and create a custom strategic growth plan.
+                    Click the button above to let Piyrox AI analyze your niche and create a custom strategic growth plan.
                   </p>
                 </div>
               )}

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { MessageCircle, Mail, Clock, CheckCircle, Send } from "lucide-react";
 import { db } from "@/lib/db";
@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Support — PIYROX",
+  title: "Support � PIYROX",
   description: "Get help with your PIYROX orders, account, and products. Live chat, Discord, and email support available.",
 };
 
@@ -15,7 +15,7 @@ const faqs = [
   { q: "What if my credentials don't work?", a: "Contact us on Discord immediately with your order ID. We'll replace your order within 24 hours, no questions asked." },
   { q: "Can I get a refund?", a: "Due to the digital nature of our products, all sales are final. However, if you receive invalid credentials, we will replace them." },
   { q: "How do I pay with crypto?", a: "Select 'Crypto Payment' at checkout. You'll be redirected to NOWPayments where you can pay with BTC, ETH, USDT, and 100+ other coins." },
-  { q: "What is Card Payment (Key)?", a: "Card Payment (Key) lets you pay using a Binance USDT Gift Card. At checkout, click 'Card Payment (Key)' and you'll be redirected to Eneba to purchase the exact gift card amount. After purchase, come back and enter the card code — we'll verify it and deliver your order." },
+  { q: "What is Card Payment (Key)?", a: "Card Payment (Key) lets you pay using a Binance USDT Gift Card. At checkout, click 'Card Payment (Key)' and you'll be redirected to Eneba to purchase the exact gift card amount. After purchase, come back and enter the card code � we'll verify it and deliver your order." },
   { q: "What is the wallet balance?", a: "Your wallet balance can be used to purchase any product instantly without going through a payment gateway. Top up via Card Payment (Key), crypto, or Discord." },
   { q: "How does the affiliate program work?", a: "Join from your dashboard, get a unique referral link, and earn 10% commission on every sale you refer. Earnings go directly to your wallet balance." },
   { q: "Is my data secure?", a: "Yes. All inventory credentials are encrypted with AES-256-GCM. We never store plain-text passwords or credentials." },
@@ -49,7 +49,7 @@ export default async function SupportPage() {
           <MessageCircle size={28} className="text-amber-400 mx-auto mb-3" />
           <h3 className="font-bold text-white mb-1">Discord</h3>
           <p className="text-xs text-gray-500">Fastest response. Join our server and open a ticket.</p>
-          <span className="inline-block mt-3 text-xs text-amber-400 group-hover:text-amber-300">Open Discord →</span>
+          <span className="inline-block mt-3 text-xs text-amber-400 group-hover:text-amber-300">Open Discord ?</span>
         </a>
         {telegramUrl ? (
           <a href={telegramUrl} target="_blank" rel="noopener noreferrer"
@@ -57,7 +57,7 @@ export default async function SupportPage() {
             <Send size={28} className="text-sky-400 mx-auto mb-3" />
             <h3 className="font-bold text-white mb-1">Telegram</h3>
             <p className="text-xs text-gray-500">Message us on Telegram for quick support.</p>
-            <span className="inline-block mt-3 text-xs text-sky-400 group-hover:text-sky-300">Open Telegram →</span>
+            <span className="inline-block mt-3 text-xs text-sky-400 group-hover:text-sky-300">Open Telegram ?</span>
           </a>
         ) : (
           <div className="rounded-xl border border-white/8 p-6 text-center" style={{ background: "rgba(255,255,255,0.02)" }}>
@@ -71,7 +71,7 @@ export default async function SupportPage() {
           <Clock size={28} className="text-green-400 mx-auto mb-3" />
           <h3 className="font-bold text-white mb-1">Hours</h3>
           <p className="text-xs text-gray-500">24/7 automated delivery</p>
-          <span className="inline-block mt-3 text-xs text-gray-600">Human support: Mon–Fri</span>
+          <span className="inline-block mt-3 text-xs text-gray-600">Human support: Mon�Fri</span>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export default async function SupportPage() {
           <details key={item.q} className="group rounded-xl border border-white/8 hover:border-amber-500/20 transition-all" style={{ background: "rgba(255,255,255,0.02)" }}>
             <summary className="p-5 cursor-pointer font-semibold text-white text-sm flex items-center justify-between list-none">
               <span className="flex items-center gap-2"><CheckCircle size={14} className="text-amber-400 shrink-0" />{item.q}</span>
-              <span className="text-gray-500 group-open:rotate-180 transition-transform shrink-0 ml-2">▾</span>
+              <span className="text-gray-500 group-open:rotate-180 transition-transform shrink-0 ml-2">?</span>
             </summary>
             <p className="px-5 pb-5 text-sm text-gray-500 leading-relaxed">{item.a}</p>
           </details>

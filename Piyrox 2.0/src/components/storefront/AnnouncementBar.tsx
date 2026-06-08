@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import { X, Zap } from "lucide-react";
 
 export default function AnnouncementBar() {
   const [visible, setVisible] = useState(true);
-  const [text, setText] = useState("🎉 New products added daily — Browse now · Instant delivery on all orders");
+  const [text, setText] = useState("?? New products added daily � Browse now � Instant delivery on all orders");
   const [link, setLink] = useState("/products");
   const [enabled, setEnabled] = useState(true);
 

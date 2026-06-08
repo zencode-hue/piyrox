@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -142,7 +142,7 @@ function ConfirmPageInner() {
     if (!res.ok) { setPayErr(data.error); return; }
 
     if (selectedPayment === "binance_gift_card" && data.data?.orderId) {
-      // Redirect to invoice — InvoiceClient handles the full gift card flow inline
+      // Redirect to invoice � InvoiceClient handles the full gift card flow inline
       window.location.href = `/invoice/${data.data.orderId}`;
       return;
     }
@@ -188,12 +188,12 @@ function ConfirmPageInner() {
     <div className="min-h-screen px-4 py-12" style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.06) 0%, transparent 50%)" }}>
       <div className="max-w-2xl mx-auto">
         <Link href={product ? `/products/${product.id}` : "/products"} className="text-sm text-gray-500 hover:text-white transition-colors flex items-center gap-1 mb-8">
-          ← Back to product
+          ? Back to product
         </Link>
 
         <StepIndicator step={step} />
 
-        {/* Product summary — always visible */}
+        {/* Product summary � always visible */}
         <div className="rounded-2xl p-4 mb-6 flex gap-4 items-center" style={{ background: "rgba(17,17,17,0.8)", border: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 relative" style={{ background: "linear-gradient(135deg, #1a1a2e, #0f3460)" }}>
             {product.imageUrl ? (
@@ -213,7 +213,7 @@ function ConfirmPageInner() {
           </div>
         </div>
 
-        {/* ── STEP 1: Order Information ── */}
+        {/* -- STEP 1: Order Information -- */}
         {step === 1 && (
           <div className="space-y-4">
             {/* Email */}
@@ -233,7 +233,7 @@ function ConfirmPageInner() {
                   />
                   <p className="text-xs text-gray-600 mt-2">Your credentials will be delivered to this email instantly after payment.</p>
                   <Link href="/auth/login" className="text-xs text-purple-400 hover:text-purple-300 mt-1 inline-block">
-                    Sign in for faster checkout →
+                    Sign in for faster checkout ?
                   </Link>
                 </>
               ) : (
@@ -266,7 +266,7 @@ function ConfirmPageInner() {
               {discountErr && <p className="text-red-400 text-xs mt-2">{discountErr}</p>}
               {discountInfo && (
                 <p className="text-green-400 text-xs mt-2 flex items-center gap-1">
-                  <CheckCircle size={11} /> Discount applied — saving ${discountInfo.discountAmount.toFixed(2)}
+                  <CheckCircle size={11} /> Discount applied � saving ${discountInfo.discountAmount.toFixed(2)}
                 </p>
               )}
             </div>
@@ -307,7 +307,7 @@ function ConfirmPageInner() {
           </div>
         )}
 
-        {/* ── STEP 2: Confirm & Pay ── */}
+        {/* -- STEP 2: Confirm & Pay -- */}
         {step === 2 && (
           <div className="space-y-4">
             <div className="rounded-2xl p-5" style={{ background: "rgba(17,17,17,0.9)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -364,14 +364,14 @@ function ConfirmPageInner() {
             <div className="flex gap-3">
               <button onClick={() => setStep(1)}
                 className="px-5 py-3.5 rounded-xl font-medium text-gray-400 border border-white/10 hover:text-white hover:border-white/20 transition-all text-sm">
-                ← Back
+                ? Back
               </button>
               <button
                 onClick={handlePay}
                 disabled={paying || !selectedPayment}
                 className="flex-1 py-3.5 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                 style={{ background: "linear-gradient(135deg, #ea580c, #f97316)", boxShadow: selectedPayment ? "0 4px 20px rgba(234,88,12,0.3)" : "none" }}>
-                {paying ? <><Loader2 size={16} className="animate-spin" /> Processing…</> : <>Proceed to Payment <ArrowRight size={16} /></>}
+                {paying ? <><Loader2 size={16} className="animate-spin" /> Processing�</> : <>Proceed to Payment <ArrowRight size={16} /></>}
               </button>
             </div>
             {payErr && <p className="text-red-400 text-sm text-center">{payErr}</p>}
@@ -379,7 +379,7 @@ function ConfirmPageInner() {
           </div>
         )}
 
-        {/* ── STEP 3: Receive Items ── */}
+        {/* -- STEP 3: Receive Items -- */}
         {step === 3 && invoiceId && (
           <div className="space-y-4">
             <div className="rounded-2xl p-6 text-center" style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)" }}>
@@ -401,7 +401,7 @@ function ConfirmPageInner() {
                   {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} className="text-gray-400" />}
                 </button>
               </div>
-              <p className="text-xs text-gray-600 mt-2">Save this — you can use it to track your order or get support.</p>
+              <p className="text-xs text-gray-600 mt-2">Save this � you can use it to track your order or get support.</p>
             </div>
 
             <div className="flex gap-3">

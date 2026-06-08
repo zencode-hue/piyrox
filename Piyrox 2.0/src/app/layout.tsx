@@ -10,7 +10,7 @@ const outfit = Outfit({
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 const APP_NAME = "PIYROX";
-const APP_DESCRIPTION = "PIYROX is your #1 digital marketplace for Netflix, Spotify, ChatGPT Plus, gaming keys and software licenses. Instant automated delivery. Secure crypto payments. Best prices guaranteed.";
+const APP_DESCRIPTION = "PIYROX is your #1 premium digital marketplace for Netflix, Spotify, ChatGPT Plus, gaming keys and software licenses. Featuring Piyrox AI for instant support. Automated delivery. Secure crypto payments. Unbeatable prices.";
 const OG_IMAGE = `${APP_URL}/opengraph-image`;
 
 export const metadata: Metadata = {
@@ -21,15 +21,16 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   keywords: [
-    "buy digital products", "streaming subscriptions", "Netflix subscription",
-    "Spotify premium discount", "affordable IPTV", "ChatGPT Plus cheap",
-    "gaming keys", "software licenses", "instant delivery digital goods",
-    "crypto payment digital store", "buy Netflix account", "buy Spotify account",
-    "digital marketplace", "PIYROX", "piyrox.sbs",
-    "digital subscriptions", "best price subscriptions", "instant digital delivery",
-    "buy Disney Plus cheap", "buy IPTV subscription", "cheap AI tools",
-    "buy Midjourney subscription", "buy Claude Pro", "buy Xbox Game Pass",
-    "digital goods instant delivery", "crypto digital store", "buy software license",
+    "buy digital products", "streaming subscriptions", "Netflix subscription cheap",
+    "Spotify premium discount", "affordable IPTV", "ChatGPT Plus account cheap",
+    "gaming keys instant", "software licenses online", "instant delivery digital goods",
+    "crypto payment digital store", "buy Netflix account online", "buy Spotify account 2026",
+    "digital marketplace", "PIYROX", "piyrox.sbs", "Piyrox AI",
+    "digital subscriptions instant", "best price subscriptions", "instant digital delivery crypto",
+    "buy Disney Plus cheap", "buy IPTV subscription online", "cheap AI tools subscription",
+    "buy Midjourney subscription", "buy Claude Pro online", "buy Xbox Game Pass cheap",
+    "digital goods instant delivery", "crypto digital store", "buy software license cheap",
+    "Netflix UHD cheap", "Spotify premium lifetime",
   ],
   authors: [{ name: "PIYROX", url: APP_URL }],
   creator: "PIYROX",
@@ -77,9 +78,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/icon",
-    shortcut: "/icon",
-    apple: "/icon",
+    icon: "/piyrox_icon.png",
+    shortcut: "/piyrox_icon.png",
+    apple: "/piyrox_apple_icon.png",
   },
   alternates: {
     canonical: APP_URL,
@@ -95,12 +96,12 @@ const jsonLd = [
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "PIYROX",
-    alternateName: "PIYROX",
+    alternateName: "PIYROX Marketplace",
     url: APP_URL,
     description: APP_DESCRIPTION,
     potentialAction: {
       "@type": "SearchAction",
-      target: { "@type": "EntryPoint", urlTemplate: `${APP_URL}/search?q={search_term_string}` },
+      target: `${APP_URL}/products?search={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   },
@@ -109,13 +110,12 @@ const jsonLd = [
     "@type": "Organization",
     name: "PIYROX",
     url: APP_URL,
-    logo: {
-      "@type": "ImageObject",
-      url: `${APP_URL}/icon`,
-      width: 32,
-      height: 32,
-    },
-    sameAs: [],
+    logo: `${APP_URL}/piyrox_icon.png`,
+    sameAs: [
+      "https://twitter.com/piyrox",
+      "https://discord.gg/piyrox",
+    ],
+    description: APP_DESCRIPTION,
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer support",

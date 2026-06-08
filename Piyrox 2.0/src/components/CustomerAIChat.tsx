@@ -15,7 +15,7 @@ export default function CustomerAIChat({ productId }: { productId?: string }) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi! I'm Metra AI. How can I help you today? 😊" }
+    { role: "assistant", content: "Hi! I'm Piyrox AI. How can I help you today? 😊" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +70,7 @@ export default function CustomerAIChat({ productId }: { productId?: string }) {
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-sm">Metra AI Support</h3>
+                <h3 className="font-bold text-white text-sm">Piyrox AI Support</h3>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
                   <span className="text-[10px] text-zinc-300 uppercase tracking-wider font-bold">Online</span>
@@ -102,7 +102,7 @@ export default function CustomerAIChat({ productId }: { productId?: string }) {
               <div className="flex justify-start">
                 <div className="bg-white/10 border border-white/10 p-3 rounded-2xl rounded-tl-none flex items-center gap-2">
                   <Loader2 className="w-4 h-4 text-white animate-spin" />
-                  <span className="text-xs text-zinc-400 font-medium italic">Metra AI is thinking...</span>
+                  <span className="text-xs text-zinc-400 font-medium italic">Piyrox AI is thinking...</span>
                 </div>
               </div>
             )}

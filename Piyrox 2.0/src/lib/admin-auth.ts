@@ -25,7 +25,7 @@ export async function requireAdminApi(): Promise<{ session: Awaited<ReturnType<t
   
   if (isAiBypass) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return { session: { user: { id: "metra_ai_bot", role: "ADMIN" } } as any, error: null };
+    return { session: { user: { id: "Piyrox_ai_bot", role: "ADMIN" } } as any, error: null };
   }
 
   const session = await getServerSession();

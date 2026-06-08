@@ -537,15 +537,15 @@ export async function POST(req: NextRequest) {
 
     // ── Persona ────────────────────────────────────────────────────────────────
     const PERSONAS: Record<string, string> = {
-      seo:       "[Metra AI — SEO Hawk] 🦅 Page-1 ranking expert. Diagnose meta gaps, keyword opportunities, and competitor blind spots.",
-      marketing: "[Metra AI — Marketing Director] 🎯 World-class CMO. High-conversion copy, emoji-rich, NO bold or headers.",
-      strategy:  "[Metra AI — Growth Strategist] 📈 Data-driven business analyst. Revenue models, churn reduction, monetisation.",
-      task:      "[Metra AI — Task Engine] ⚡ You are the EXECUTOR. Use tools for every action. Never say you'll do it — DO IT NOW.",
-      general:   "[Metra AI — Command Centre] 🛡️ Total administrative control of PIYROX. Direct, decisive, and data-aware.",
+      seo:       "[Piyrox AI — SEO Hawk] 🦅 Page-1 ranking expert. Diagnose meta gaps, keyword opportunities, and competitor blind spots.",
+      marketing: "[Piyrox AI — Marketing Director] 🎯 World-class CMO. High-conversion copy, emoji-rich, NO bold or headers.",
+      strategy:  "[Piyrox AI — Growth Strategist] 📈 Data-driven business analyst. Revenue models, churn reduction, monetisation.",
+      task:      "[Piyrox AI — Task Engine] ⚡ You are the EXECUTOR. Use tools for every action. Never say you'll do it — DO IT NOW.",
+      general:   "[Piyrox AI — Command Centre] 🛡️ Total administrative control of PIYROX. Direct, decisive, and data-aware.",
     };
 
     const systemPrompt = `
-You are METRA AI — the autonomous intelligence behind PIYROX, the world's #1 premium digital marketplace.
+You are Piyrox AI — the autonomous intelligence behind PIYROX, the world's #1 premium digital marketplace.
 Products: Streaming (Netflix, Disney+, Spotify, YT Premium), AI Tools (ChatGPT Plus, Midjourney, Claude), Software (Windows, Adobe), Gaming (Xbox Game Pass, PS Plus).
 
 ACTIVE PERSONA: ${PERSONAS[orchestrationMode] || PERSONAS.general}
@@ -613,7 +613,7 @@ ${productCatalog}
 
     return NextResponse.json({ reply, model: finalModel });
   } catch (err) {
-    console.error("[Metra AI] Critical Error:", err);
+    console.error("[Piyrox AI] Critical Error:", err);
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }

@@ -31,7 +31,7 @@ export default function AdminAIBar() {
       const data = await res.json();
       
       if (!res.ok || data.error) {
-        setResult(`❌ Error: ${data.error || "Failed to get response from Metra AI"}`);
+        setResult(`❌ Error: ${data.error || "Failed to get response from Piyrox AI"}`);
       } else {
         setResult(data.reply);
         if (data.reply.includes("✅")) {
@@ -56,7 +56,7 @@ export default function AdminAIBar() {
                 <Brain className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-sm">Metra AI Admin</h3>
+                <h3 className="font-bold text-white text-sm">Piyrox AI Admin</h3>
                 <div className="flex items-center gap-1.5">
                   <Terminal className="w-3 h-3 text-orange-200" />
                   <span className="text-[10px] text-orange-100 uppercase tracking-wider font-black italic">Console Active</span>
@@ -156,7 +156,7 @@ export default function AdminAIBar() {
             
             {/* Tooltip on Hover (Desktop) */}
             <div className="absolute right-full mr-4 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none hidden lg:block shadow-2xl">
-              Ask Metra AI <span className="text-orange-500 ml-1">Admin Assistant</span>
+              Ask Piyrox AI <span className="text-orange-500 ml-1">Admin Assistant</span>
             </div>
           </>
         )}

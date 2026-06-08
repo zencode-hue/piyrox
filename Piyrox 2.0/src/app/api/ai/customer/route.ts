@@ -62,7 +62,7 @@ YOUR MISSION:
 7. Use EMOJIS to make the chat friendly.
 8. NO markdown bold (**) or headers (#). Plain text and emojis only.
 
-MANDATORY: You are Metra AI, the official support for PIYROX.`;
+MANDATORY: You are Piyrox AI, the official support for PIYROX.`;
 
     // openrouter/free first — strictly routes to free-tier models only, never paid
     const modelsToTry = [

@@ -34,7 +34,7 @@ const config: Config = {
       },
       backgroundImage: {
         "glass-shine": "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%)",
-        "violet-glow": "radial-gradient(ellipse at center, rgba(245,158,11,0.15) 0%, transparent 70%)",
+        "violet-glow": "radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, transparent 70%)",
       },
     },
   },

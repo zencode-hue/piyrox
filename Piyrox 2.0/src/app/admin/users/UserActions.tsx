@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Edit2, Trash2, DollarSign, X, Check, Ban, ShieldCheck } from "lucide-react";
@@ -116,7 +116,7 @@ export default function UserActions({ userId, email, name, role, balance, isBann
           <div className="flex gap-2">
             <button onClick={() => setMode("idle")} className="btn-secondary flex-1 text-sm py-2">Cancel</button>
             <button onClick={confirmBan} disabled={loading} className="flex-1 text-sm py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition-colors">
-              {loading ? "Banningâ€¦" : "Ban User"}
+              {loading ? "Banning…" : "Ban User"}
             </button>
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function UserActions({ userId, email, name, role, balance, isBann
           {err && <p className="text-red-400 text-xs">{err}</p>}
           <div className="flex gap-2">
             <button onClick={() => setMode("idle")} className="btn-secondary flex-1 text-sm py-2">Cancel</button>
-            <button onClick={handleEdit} disabled={loading} className="btn-primary flex-1 text-sm py-2">{loading ? "Savingâ€¦" : "Save"}</button>
+            <button onClick={handleEdit} disabled={loading} className="btn-primary flex-1 text-sm py-2">{loading ? "Saving…" : "Save"}</button>
           </div>
         </div>
       </div>
@@ -184,7 +184,7 @@ export default function UserActions({ userId, email, name, role, balance, isBann
           {err && <p className="text-red-400 text-xs">{err}</p>}
           <div className="flex gap-2">
             <button onClick={() => setMode("idle")} className="btn-secondary flex-1 text-sm py-2">Cancel</button>
-            <button onClick={handleBalance} disabled={loading} className="btn-primary flex-1 text-sm py-2">{loading ? "Savingâ€¦" : "Apply"}</button>
+            <button onClick={handleBalance} disabled={loading} className="btn-primary flex-1 text-sm py-2">{loading ? "Saving…" : "Apply"}</button>
           </div>
         </div>
       </div>
@@ -201,7 +201,7 @@ export default function UserActions({ userId, email, name, role, balance, isBann
           <div className="flex gap-2">
             <button onClick={() => setMode("idle")} className="btn-secondary flex-1 text-sm py-2">Cancel</button>
             <button onClick={handleDelete} disabled={loading} className="flex-1 text-sm py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors flex items-center justify-center gap-1">
-              <Check size={13} /> {loading ? "Deletingâ€¦" : "Delete"}
+              <Check size={13} /> {loading ? "Deleting…" : "Delete"}
             </button>
           </div>
         </div>

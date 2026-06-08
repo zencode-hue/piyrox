@@ -31,7 +31,7 @@ export default function OGImage() {
             width: 600,
             height: 400,
             borderRadius: "50%",
-            background: "radial-gradient(ellipse, rgba(245,158,11,0.15) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, rgba(255,255,255,0.1) 0%, transparent 70%)",
           }}
         />
 
@@ -42,21 +42,23 @@ export default function OGImage() {
               width: 56,
               height: 56,
               borderRadius: 16,
-              background: "rgba(245,158,11,0.2)",
-              border: "2px solid rgba(245,158,11,0.4)",
+              background: "rgba(255,255,255,0.1)",
+              border: "2px solid rgba(255,255,255,0.2)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 28,
             }}
           >
-            ⚡
+            <div style={{ display: "flex", position: "relative", width: 24, height: 24 }}>
+              <div style={{ position: "absolute", left: 0, top: 0, width: 16, height: 16, borderRadius: 8, background: "rgba(255,255,255,0.8)" }} />
+              <div style={{ position: "absolute", left: 8, top: 8, width: 16, height: 16, borderRadius: 3, background: "rgba(255,255,255,0.6)" }} />
+            </div>
           </div>
           <span
             style={{
               fontSize: 48,
               fontWeight: 800,
-              background: "linear-gradient(135deg, #fde68a, #d97706)",
+              background: "linear-gradient(135deg, #ffffff, #a1a1aa)",
               backgroundClip: "text",
               color: "transparent",
               letterSpacing: "-1px",
@@ -98,9 +100,9 @@ export default function OGImage() {
               style={{
                 padding: "8px 20px",
                 borderRadius: 100,
-                background: "rgba(245,158,11,0.12)",
-                border: "1px solid rgba(245,158,11,0.3)",
-                color: "#fde68a",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "#ffffff",
                 fontSize: 16,
                 fontWeight: 500,
               }}

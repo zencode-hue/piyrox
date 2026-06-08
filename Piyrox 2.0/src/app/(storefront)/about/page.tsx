@@ -1,9 +1,9 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Zap, Shield, Users, Star, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "About Us — PIYROX",
+  title: "About Us � PIYROX",
   description: "Learn about PIYROX, the premium digital marketplace for streaming, AI tools, software, and gaming products.",
 };
 
@@ -40,7 +40,7 @@ export default function AboutPage() {
           PIYROX was founded with a simple mission: make premium digital products accessible to everyone, delivered instantly, at fair prices.
         </p>
         <p className="text-gray-400 leading-relaxed mb-4">
-          We source and verify every product before listing it. Our automated delivery system means you get your credentials the moment your payment clears — no waiting, no manual processing, no hassle.
+          We source and verify every product before listing it. Our automated delivery system means you get your credentials the moment your payment clears � no waiting, no manual processing, no hassle.
         </p>
         <p className="text-gray-400 leading-relaxed">
           We accept crypto payments (BTC, ETH, USDT, and 100+ coins) and Discord manual payments, making us accessible to customers worldwide regardless of their banking situation.
@@ -52,7 +52,7 @@ export default function AboutPage() {
           { value: "500+", label: "Products" },
           { value: "10k+", label: "Orders Delivered" },
           { value: "50+", label: "Countries" },
-          { value: "4.8★", label: "Avg Rating" },
+          { value: "4.8?", label: "Avg Rating" },
         ].map((stat) => (
           <div key={stat.label} className="rounded-xl p-5 text-center" style={{ background: "rgba(17,17,17,0.9)", border: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="text-2xl font-black mb-1" style={{ background: "linear-gradient(135deg, #fbbf24, #ea580c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>

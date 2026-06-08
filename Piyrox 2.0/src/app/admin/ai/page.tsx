@@ -237,7 +237,7 @@ export default function AdminAIPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Bot size={22} style={{ color: "#f59e0b" }} /> Metra AI
+          <Bot size={22} style={{ color: "#f59e0b" }} /> Piyrox AI
         </h1>
         <div className="flex items-center gap-2">
           <button
@@ -360,7 +360,7 @@ export default function AdminAIPage() {
             >
               <Bot size={28} style={{ color: "#f59e0b", opacity: 0.6 }} />
             </div>
-            <h2 className="text-lg font-semibold text-white mb-1">Metra AI</h2>
+            <h2 className="text-lg font-semibold text-white mb-1">Piyrox AI</h2>
             <p className="text-gray-500 text-sm mb-6">
               I can write content, publish blog posts, push deals to Discord, send emails, and more.
             </p>
@@ -395,7 +395,7 @@ export default function AdminAIPage() {
                   >
                     <Bot size={11} style={{ color: "#f59e0b" }} />
                   </div>
-                  <span className="text-[10px] text-gray-600">Metra</span>
+                  <span className="text-[10px] text-gray-600">Piyrox</span>
                 </div>
               )}
               <div
@@ -468,7 +468,7 @@ export default function AdminAIPage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "150ms" }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "300ms" }} />
                 </div>
-                <span className="text-xs text-gray-500 ml-1">Metra AI is thinking...</span>
+                <span className="text-xs text-gray-500 ml-1">Piyrox AI is thinking...</span>
               </div>
             </div>
           </div>
@@ -525,7 +525,7 @@ export default function AdminAIPage() {
                 send();
               }
             }}
-            placeholder={apiKey ? "Ask Metra AI anything... (Enter to send)" : "Set your API key first →"}
+            placeholder={apiKey ? "Ask Piyrox AI anything... (Enter to send)" : "Set your API key first →"}
             rows={1}
             className="input-field flex-1 text-sm resize-none"
             style={{ minHeight: "48px", maxHeight: "120px" }}

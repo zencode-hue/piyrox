@@ -125,7 +125,7 @@ export default async function SearchPage({ searchParams }: Props) {
           {mapped.length === 0 ? (
             <div className="text-center py-20 bg-zinc-900/50 rounded-3xl border border-zinc-800 border-dashed mb-10">
               <p className="text-lg mb-2 text-white">No exact matches for &quot;{q}&quot;</p>
-              <p className="text-sm text-zinc-500 mb-6">But don&apos;t worry, Metra AI is here to help!</p>
+              <p className="text-sm text-zinc-500 mb-6">But don&apos;t worry, Piyrox AI is here to help!</p>
               <div className="max-w-md mx-auto p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl">
                 <p className="text-xs font-bold text-orange-500 uppercase tracking-widest mb-3">AI Suggestion</p>
                 <p className="text-sm text-zinc-300 leading-relaxed italic mb-4">
