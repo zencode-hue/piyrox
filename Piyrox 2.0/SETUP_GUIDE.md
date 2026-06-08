@@ -10,6 +10,7 @@ This guide provides step-by-step instructions for implementing the recent update
 5. [Environment Variables Configuration](#environment-variables-configuration)
 6. [Testing and Verification](#testing-and-verification)
 7. [Webhook Configuration](#webhook-configuration)
+8. [Deployment Setup](#deployment-setup)
 
 ## New Logo Implementation
 
@@ -127,6 +128,37 @@ The system automatically uses the correct webhook URLs for each payment provider
 4. Set the webhook secret to your `PAYMENTO_SECRET` value
 5. Enable webhook notifications for payment events
 
+## Deployment Setup
+
+### Dependencies
+The following dependencies have been added to `package.json` for deployment:
+
+```json
+{
+  "dependencies": {
+    "@tanstack/react-query": "^5.51.1",
+    "@tanstack/react-query-devtools": "^5.51.1",
+    "sonner": "^1.5.0"
+  }
+}
+```
+
+### Vercel Deployment Steps:
+1. Push your code to your Git repository
+2. Connect your repository to Vercel
+3. Configure environment variables in Vercel dashboard:
+   - `PAYMENTO_SECRET`
+   - `PAYMENTO_API_KEY`
+   - `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID`
+4. Deploy your application
+
+### Build Process:
+The build process will automatically:
+- Generate Prisma client
+- Build Next.js application
+- Generate dynamic favicon
+- Process all TypeScript files
+
 ## Testing and Verification
 
 ### 1. Logo Display Test
@@ -164,22 +196,27 @@ The system automatically uses the correct webhook URLs for each payment provider
 
 ### Common Issues:
 
-1. **Webhook Signature Verification Fails**
+1. **Build Errors on Vercel**
+   - Ensure all dependencies are listed in `package.json`
+   - Check that the build command is `prisma generate && next build`
+   - Verify Node.js version is >= 20.0.0
+
+2. **Webhook Signature Verification Fails**
    - Verify the `PAYMENTO_SECRET` is correctly set in your environment
    - Ensure the webhook URL is correctly configured in Paymento.io dashboard
    - Check that the request headers include the correct signature
 
-2. **Payment Not Processed**
+3. **Payment Not Processed**
    - Verify the payment status in Paymento.io dashboard
    - Check webhook logs for any processing errors
    - Ensure the order ID format matches expected patterns
 
-3. **Logo Display Issues**
+4. **Logo Display Issues**
    - Check that the PIYROXLogo component is properly imported
    - Verify CSS classes are not overriding the logo styling
    - Ensure the component is being used with appropriate size props
 
-4. **Google Analytics Not Tracking**
+5. **Google Analytics Not Tracking**
    - Verify the `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID` is set correctly
    - Check that the Google Analytics script is loading in the browser
    - Ensure the domain is properly configured in Google Analytics
