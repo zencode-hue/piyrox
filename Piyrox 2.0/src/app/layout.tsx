@@ -14,31 +14,7 @@ export const metadata = {
   description: "Get instant access to premium digital products - streaming subscriptions, AI tools, software licenses, and gaming products at the best prices.",
 };
 
-// Google Analytics
-export const GoogleAnalytics = () => {
-  if (process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID) {
-    return (
-      <>
-        {/* Google tag (gtag.js) */}
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
-            `,
-          }}
-        />
-      </>
-    );
-  }
-  return null;
-};
+
 
 export default function RootLayout({
   children,
@@ -48,7 +24,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <GoogleAnalytics />
       </head>
       <body className={inter.className}>
         <Providers>
