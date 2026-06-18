@@ -36,15 +36,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ data: null, error: "Crypto payments not configured", meta: {} }, { status: 503 });
     }
 
-    const npRes = await fetch("https://api.paymento.io/v1/invoice", {
+    const npRes = await fetch("https://app.paymento.io/api/v1/payments", {
       method: "POST",
-      headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        price_amount: amount,
-        price_currency: "usd",
+        amount: amount,
+        currency: "USD",
         order_id: topupRef,
-        order_description: `PIYROX Balance Top-Up $${amount}`,
-        ipn_callback_url: `${appUrl}/api/webhooks/paymento`,
+        description: `PIYROX Balance Top-Up $${amount}`,
+        callback_url: `${appUrl}/api/webhooks/paymento`,
         success_url: `${appUrl}/dashboard?topup=success`,
         cancel_url: `${appUrl}/dashboard?topup=cancelled`,
       }),
@@ -54,8 +54,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ data: null, error: "Failed to create payment", meta: {} }, { status: 502 });
     }
 
-    const npData = await npRes.json() as { invoice_url?: string; id?: string };
-    return NextResponse.json({ data: { redirectUrl: npData.invoice_url, ref: topupRef }, error: null, meta: {} });
+    const npData = await npRes.json() as { payment_url?: string; id?: string };
+    return NextResponse.json({ data: { redirectUrl: npData.payment_url, ref: topupRef }, error: null, meta: {} });
   }
 
   if (paymentProvider === "binance_gift_card") {

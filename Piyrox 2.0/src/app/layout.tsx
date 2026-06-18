@@ -53,11 +53,8 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <Suspense fallback={null}>
-            <AdminLayout>
-              <StorefrontLayout>{children}</StorefrontLayout>
-            </AdminLayout>
+            {children}
           </Suspense>
-          <AdminAIBar />
           <Toaster />
         </Providers>
       </body>

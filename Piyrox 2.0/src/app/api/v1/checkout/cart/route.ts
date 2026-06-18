@@ -191,22 +191,22 @@ export async function POST(req: NextRequest) {
       // Create ONE Paymento.io invoice for the total
       // Use the cartGroupId as the order_id so the webhook can find all orders
       const productTitles = resolvedItems.map((i) => i.title).join(", ");
-      const npRes = await fetch("https://api.paymento.io/v1/invoice", {
+      const npRes = await fetch("https://app.paymento.io/api/v1/payments", {
         method: "POST",
-        headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
+        headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          price_amount: finalAmount,
-          price_currency: "usd",
+          amount: finalAmount,
+          currency: "USD",
           order_id: cartGroupId,
-          order_description: `Cart: ${productTitles.slice(0, 100)}`,
-          ipn_callback_url: `${appUrl}/api/webhooks/paymento`,
+          description: `Cart: ${productTitles.slice(0, 100)}`,
+          callback_url: `${appUrl}/api/webhooks/paymento`,
           success_url: `${appUrl}/checkout/success?cart=1&orderIds=${orderIds.join(",")}`,
           cancel_url: `${appUrl}/cart`,
         }),
       });
 
       if (!npRes.ok) {
-        console.error("[cart-checkout] Paymento.io error:", await npRes.text());
+        console.error("[cart-checkout] Paymento error:", await npRes.text());
         // Clean up pending orders
         for (const id of orderIds) {
           await db.order.delete({ where: { id } }).catch(() => {});
@@ -214,7 +214,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Failed to create crypto payment" }, { status: 502 });
       }
 
-      const npData = await npRes.json() as { invoice_url?: string; id?: string };
+      const npData = await npRes.json() as { payment_url?: string; id?: string };
       const paymentRef = String(npData.id ?? "");
 
       // Store paymentRef on all orders
@@ -234,7 +234,7 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json({
-        data: { redirectUrl: npData.invoice_url, orderIds, cartGroupId },
+        data: { redirectUrl: npData.payment_url, orderIds, cartGroupId },
         error: null,
       });
     }
