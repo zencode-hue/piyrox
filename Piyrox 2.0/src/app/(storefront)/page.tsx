@@ -341,7 +341,7 @@ export default async function HomePage() {
               },
               {
                 q: 'What payment methods do you accept?',
-                a: 'We accept crypto via NOWPayments (BTC, ETH, USDT, 100+ coins), Binance gift cards, Discord manual payment, and wallet balance.',
+                a: 'We accept crypto via Paymento.io (BTC, ETH, USDT, 100+ coins), Binance gift cards, Discord manual payment, and wallet balance.',
               },
               {
                 q: 'Why are your prices cheaper than official plans?',

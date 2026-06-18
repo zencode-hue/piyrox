@@ -7,7 +7,7 @@ import { getServerSession } from "@/lib/auth";
 
 const bodySchema = z.object({
   amount: z.number().min(1).max(500),
-  paymentProvider: z.enum(["nowpayments", "discord", "binance_gift_card", "flutterwave"]),
+  paymentProvider: z.enum(["paymento", "discord", "binance_gift_card", "flutterwave"]),
 });
 
 export async function POST(req: NextRequest) {
@@ -30,13 +30,13 @@ export async function POST(req: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
   const topupRef = `TOPUP-${session.user.id}-${Date.now()}`;
 
-  if (paymentProvider === "nowpayments") {
-    const apiKey = process.env.NOWPAYMENTS_API_KEY;
+  if (paymentProvider === "paymento") {
+    const apiKey = process.env.PAYMENTO_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ data: null, error: "Crypto payments not configured", meta: {} }, { status: 503 });
     }
 
-    const npRes = await fetch("https://api.nowpayments.io/v1/invoice", {
+    const npRes = await fetch("https://api.paymento.io/v1/invoice", {
       method: "POST",
       headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
         price_currency: "usd",
         order_id: topupRef,
         order_description: `PIYROX Balance Top-Up $${amount}`,
-        ipn_callback_url: `${appUrl}/api/webhooks/nowpayments`,
+        ipn_callback_url: `${appUrl}/api/webhooks/paymento`,
         success_url: `${appUrl}/dashboard?topup=success`,
         cancel_url: `${appUrl}/dashboard?topup=cancelled`,
       }),

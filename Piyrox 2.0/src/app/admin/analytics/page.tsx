@@ -6,10 +6,10 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 const PAYMENT_LABELS: Record<string, string> = {
-  nowpayments: "Crypto", balance: "Wallet", binance_gift_card: "Gift Card", discord: "Discord",
+  paymento: "Crypto", balance: "Wallet", binance_gift_card: "Gift Card", discord: "Discord",
 };
 const PAYMENT_COLORS: Record<string, string> = {
-  nowpayments: "#fb923c", balance: "#fbbf24", binance_gift_card: "#f59e0b", discord: "#d97706",
+  paymento: "#fb923c", balance: "#fbbf24", binance_gift_card: "#f59e0b", discord: "#d97706",
 };
 
 function StatCard({ label, value, sub, color, icon: Icon, trend }: {

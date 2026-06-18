@@ -12,7 +12,7 @@ const bodySchema = z.object({
     productId: z.string().min(1),
     variantId: z.string().optional(),
   })).min(1).max(20),
-  paymentProvider: z.enum(["nowpayments", "balance", "binance_gift_card"]),
+  paymentProvider: z.enum(["paymento", "balance", "binance_gift_card"]),
   discountCode: z.string().optional(),
   guestEmail: z.string().email().optional(),
 });
@@ -158,9 +158,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ── Crypto (NOWPayments) — one invoice for the total ──────────────────────
-    if (paymentProvider === "nowpayments") {
-      const apiKey = process.env.NOWPAYMENTS_API_KEY;
+    // ── Crypto (Paymento.io) — one invoice for the total ──────────────────────
+    if (paymentProvider === "paymento") {
+      const apiKey = process.env.PAYMENTO_API_KEY;
       if (!apiKey) {
         return NextResponse.json({ error: "Crypto payments not configured" }, { status: 503 });
       }
@@ -181,17 +181,17 @@ export async function POST(req: NextRequest) {
             amount: item.price,
             discountAmount: 0,
             status: "PENDING",
-            paymentProvider: "nowpayments",
+            paymentProvider: "paymento",
             adminNote: cartGroupId,
           },
         });
         orderIds.push(order.id);
       }
 
-      // Create ONE NOWPayments invoice for the total
+      // Create ONE Paymento.io invoice for the total
       // Use the cartGroupId as the order_id so the webhook can find all orders
       const productTitles = resolvedItems.map((i) => i.title).join(", ");
-      const npRes = await fetch("https://api.nowpayments.io/v1/invoice", {
+      const npRes = await fetch("https://api.paymento.io/v1/invoice", {
         method: "POST",
         headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -199,14 +199,14 @@ export async function POST(req: NextRequest) {
           price_currency: "usd",
           order_id: cartGroupId,
           order_description: `Cart: ${productTitles.slice(0, 100)}`,
-          ipn_callback_url: `${appUrl}/api/webhooks/nowpayments`,
+          ipn_callback_url: `${appUrl}/api/webhooks/paymento`,
           success_url: `${appUrl}/checkout/success?cart=1&orderIds=${orderIds.join(",")}`,
           cancel_url: `${appUrl}/cart`,
         }),
       });
 
       if (!npRes.ok) {
-        console.error("[cart-checkout] NOWPayments error:", await npRes.text());
+        console.error("[cart-checkout] Paymento.io error:", await npRes.text());
         // Clean up pending orders
         for (const id of orderIds) {
           await db.order.delete({ where: { id } }).catch(() => {});
@@ -229,7 +229,7 @@ export async function POST(req: NextRequest) {
           orderIds[0],
           productTitles.slice(0, 80),
           finalAmount,
-          "nowpayments"
+          "paymento"
         ).catch(() => {});
       }
 

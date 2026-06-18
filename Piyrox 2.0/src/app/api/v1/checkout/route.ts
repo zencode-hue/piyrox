@@ -13,7 +13,7 @@ const bodySchema = z.object({
   productId: z.string().min(1),
   variantId: z.string().optional(),
   discountCode: z.string().optional(),
-  paymentProvider: z.enum(["nowpayments", "paymento", "discord", "balance", "binance_gift_card", "flutterwave"]),
+  paymentProvider: z.enum(["paymento", "paymento", "discord", "balance", "binance_gift_card", "flutterwave"]),
   guestEmail: z.string().email().optional(),
 });
 
@@ -203,13 +203,13 @@ export async function POST(req: NextRequest) {
       ).catch((e) => console.error("[checkout] invoice email failed:", e));
     }
 
-    if (paymentProvider === "nowpayments") {
-      const apiKey = process.env.NOWPAYMENTS_API_KEY;
+    if (paymentProvider === "paymento") {
+      const apiKey = process.env.PAYMENTO_API_KEY;
       if (!apiKey) {
         return NextResponse.json({ data: null, error: "Crypto payments not configured", meta: {} }, { status: 503 });
       }
 
-      const npRes = await fetch("https://api.nowpayments.io/v1/invoice", {
+      const npRes = await fetch("https://api.paymento.io/v1/invoice", {
         method: "POST",
         headers: { "x-api-key": apiKey, "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -217,14 +217,14 @@ export async function POST(req: NextRequest) {
           price_currency: "usd",
           order_id: order.id,
           order_description: product.title,
-          ipn_callback_url: `${appUrl}/api/webhooks/nowpayments`,
+          ipn_callback_url: `${appUrl}/api/webhooks/paymento`,
           success_url: `${appUrl}/checkout/success?orderId=${order.id}${!userId ? `&email=${encodeURIComponent(deliveryEmail ?? "")}` : ""}`,
           cancel_url: `${appUrl}/checkout/cancel?orderId=${order.id}`,
         }),
       });
 
       if (!npRes.ok) {
-        console.error("[checkout] NOWPayments error:", await npRes.text());
+        console.error("[checkout] Paymento.io error:", await npRes.text());
         return NextResponse.json({ data: null, error: "Failed to create crypto payment", meta: {} }, { status: 502 });
       }
 

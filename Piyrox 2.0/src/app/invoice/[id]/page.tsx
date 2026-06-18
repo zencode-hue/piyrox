@@ -20,7 +20,7 @@ const STATUS_CONFIG: Record<string, { icon: typeof CheckCircle; color: string; b
 };
 
 const PAYMENT_LABELS: Record<string, string> = {
-  nowpayments: "Crypto (NOWPayments)",
+  paymento: "Crypto (Paymento.io)",
   balance: "Wallet Balance",
   binance_gift_card: "Binance Gift Card",
   discord: "Discord Manual",

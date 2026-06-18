@@ -63,7 +63,7 @@ const spec = {
                 properties: {
                   productId: { type: "string" },
                   discountCode: { type: "string" },
-                  paymentProvider: { type: "string", enum: ["stripe", "nowpayments", "cryptomus"] },
+                  paymentProvider: { type: "string", enum: ["stripe", "paymento", "cryptomus"] },
                 },
               },
             },

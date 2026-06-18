@@ -274,7 +274,7 @@ export async function sendInvoiceCreatedEmail(
   const invoiceNum = `MMT-${orderId.slice(-6).toUpperCase()}`;
 
   const paymentLabels: Record<string, string> = {
-    nowpayments: "Crypto (NOWPayments)",
+    paymento: "Crypto (Paymento.io)",
     paymento: "Crypto (Paymento.io)",
     balance: "Wallet Balance",
     binance_gift_card: "Binance Gift Card",
@@ -282,7 +282,7 @@ export async function sendInvoiceCreatedEmail(
   };
 
   const paymentInstructions: Record<string, string> = {
-    nowpayments: "Click the button below to complete your crypto payment. Your product will be delivered instantly once confirmed.",
+    paymento: "Click the button below to complete your crypto payment. Your product will be delivered instantly once confirmed.",
     paymento: "Click the button below to complete your crypto payment. Your product will be delivered instantly once confirmed.",
     binance_gift_card: "Follow the instructions on your invoice to purchase and submit a Binance USDT Gift Card.",
     discord: "Join our Discord server and share your order reference to complete payment.",

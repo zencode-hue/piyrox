@@ -11,7 +11,7 @@ export default function BalanceSection({ balance }: { balance: number }) {
 
   const PRESETS = [5, 10, 25, 50, 100];
 
-  async function handleTopup(provider: "nowpayments" | "discord" | "binance_gift_card" | "flutterwave") {
+  async function handleTopup(provider: "paymento" | "discord" | "binance_gift_card" | "flutterwave") {
     const amt = parseFloat(amount);
     if (!amt || amt < 1) { setErr("Minimum top-up is $1"); return; }
     setLoading(true); setErr(null);
@@ -83,7 +83,7 @@ export default function BalanceSection({ balance }: { balance: number }) {
               </div>
             </button>
             <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => handleTopup("nowpayments")} disabled={loading}
+            <button onClick={() => handleTopup("paymento")} disabled={loading}
               className="flex items-center gap-3 p-3 rounded-xl border border-white/5 hover:border-orange-500/40 hover:bg-orange-500/5 transition-all text-left">
               <Bitcoin size={18} className="text-orange-400 shrink-0" />
               <div>

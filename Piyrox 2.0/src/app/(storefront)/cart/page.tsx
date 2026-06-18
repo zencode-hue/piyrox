@@ -16,7 +16,7 @@ const CAT: Record<string, string> = {
   GAMING: "Gaming",
 };
 
-type Provider = "nowpayments" | "balance" | "binance_gift_card";
+type Provider = "paymento" | "balance" | "binance_gift_card";
 
 // ── Gift Card Modal ───────────────────────────────────────────────────────────
 function GiftCardModal({
@@ -159,7 +159,7 @@ function GiftCardModal({
 // ── Cart Page ─────────────────────────────────────────────────────────────────
 export default function CartPage() {
   const { items, total, removeItem, clearCart } = useCart();
-  const [selectedPayment, setSelectedPayment] = useState<Provider>("nowpayments");
+  const [selectedPayment, setSelectedPayment] = useState<Provider>("paymento");
   const [balance, setBalance] = useState<number | null>(null);
   const [isNorthAmerica, setIsNorthAmerica] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
@@ -364,9 +364,9 @@ export default function CartPage() {
             <p className="text-sm font-medium text-white mb-3">Payment Method</p>
             <div className="space-y-2">
               {/* Crypto */}
-              <button onClick={() => setSelectedPayment("nowpayments")}
+              <button onClick={() => setSelectedPayment("paymento")}
                 className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
-                  selectedPayment === "nowpayments" ? "bg-white/10 border-white/20" : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                  selectedPayment === "paymento" ? "bg-white/10 border-white/20" : "bg-white/[0.02] border-white/5 hover:border-white/10"
                 }`}>
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
                   <Bitcoin size={18} className="text-white" />
@@ -375,7 +375,7 @@ export default function CartPage() {
                   <p className="text-sm font-medium text-white">Crypto Payment</p>
                   <p className="text-xs text-zinc-500">BTC, ETH, USDT, 100+ coins — one payment for everything</p>
                 </div>
-                {selectedPayment === "nowpayments" && <CheckCircle size={16} className="text-white shrink-0" />}
+                {selectedPayment === "paymento" && <CheckCircle size={16} className="text-white shrink-0" />}
               </button>
 
               {/* Gift Card — hidden for North America */}

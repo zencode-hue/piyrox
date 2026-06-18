@@ -12,7 +12,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 const PAYMENT_SHORT: Record<string, string> = {
-  nowpayments: "Crypto", balance: "Wallet",
+  paymento: "Crypto", balance: "Wallet",
   binance_gift_card: "Gift Card", discord: "Discord",
 };
 

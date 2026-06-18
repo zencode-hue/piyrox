@@ -244,7 +244,7 @@ model Referral {
 
 model WebhookLog {
   id        String   @id @default(cuid())
-  provider  String   // "stripe" | "nowpayments" | "cryptomus"
+  provider  String   // "stripe" | "paymento" | "cryptomus"
   eventType String
   payload   Json
   status    String   // "processed" | "failed"

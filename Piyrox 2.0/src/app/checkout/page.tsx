@@ -222,7 +222,7 @@ function CheckoutPageInner() {
     setDiscountInfo(data.data);
   }
 
-  async function handlePay(provider: "nowpayments" | "discord" | "balance" | "binance_gift_card" | "flutterwave") {
+  async function handlePay(provider: "paymento" | "discord" | "balance" | "binance_gift_card" | "flutterwave") {
     if (!productId) return;
     if (balance === null && !guestEmail.trim()) {
       setPayErr("Please enter your email address to continue.");
@@ -388,7 +388,7 @@ function CheckoutPageInner() {
 
             {/* Crypto */}
             <button
-              onClick={() => handlePay("nowpayments")}
+              onClick={() => handlePay("paymento")}
               disabled={paying}
               className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-orange-500/40 hover:bg-orange-500/5 transition-all text-left group"
             >
@@ -397,7 +397,7 @@ function CheckoutPageInner() {
               </div>
               <div className="flex-1">
                 <p className="font-medium text-white text-sm">Crypto Payment</p>
-                <p className="text-xs text-gray-500">BTC, ETH, USDT, and 100+ coins via NOWPayments</p>
+                <p className="text-xs text-gray-500">BTC, ETH, USDT, and 100+ coins via Paymento.io</p>
               </div>
               <ArrowRight size={16} className="text-gray-600 group-hover:text-orange-400 transition-colors" />
             </button>

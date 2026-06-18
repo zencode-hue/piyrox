@@ -16,7 +16,7 @@ const STATUS_CONFIG: Record<string, { color: string; label: string; icon: typeof
 };
 
 const PAYMENT_LABELS: Record<string, string> = {
-  nowpayments: "Crypto", balance: "Wallet", binance_gift_card: "Gift Card", discord: "Discord", flutterwave: "Card",
+  paymento: "Crypto", balance: "Wallet", binance_gift_card: "Gift Card", discord: "Discord", flutterwave: "Card",
 };
 
 export default async function StaffOrderDetailPage({ params }: { params: { id: string } }) {

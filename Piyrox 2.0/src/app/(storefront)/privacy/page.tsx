@@ -9,7 +9,7 @@ export default function PrivacyPage() {
       <p className="text-gray-500 text-sm mb-10">Last updated: March 2025</p>
       <div className="space-y-8 text-gray-400 text-sm leading-relaxed">
         {[
-          { title: "1. Information We Collect", body: "We collect your email address, name, and order history when you create an account. We also collect anonymous page view data to improve our service. We do not collect payment card information — all crypto payments are processed by NOWPayments." },
+          { title: "1. Information We Collect", body: "We collect your email address, name, and order history when you create an account. We also collect anonymous page view data to improve our service. We do not collect payment card information — all crypto payments are processed by Paymento.io." },
           { title: "2. How We Use Your Information", body: "We use your information to process orders, deliver products, send order confirmations, and provide customer support. We may send promotional emails if you opt in. You can unsubscribe at any time." },
           { title: "3. Data Security", body: "All inventory credentials are encrypted with AES-256-GCM before storage. Passwords are hashed using bcrypt. We use HTTPS for all communications. We take security seriously and regularly review our practices." },
           { title: "4. Data Sharing", body: "We do not sell your personal data to third parties. We share data only with service providers necessary to operate our platform (email delivery, payment processing). All providers are bound by confidentiality agreements." },

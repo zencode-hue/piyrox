@@ -22,7 +22,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 const PAYMENT_SHORT: Record<string, string> = {
-  nowpayments: "Crypto", balance: "Wallet", binance_gift_card: "Gift Card", discord: "Discord",
+  paymento: "Crypto", balance: "Wallet", binance_gift_card: "Gift Card", discord: "Discord",
 };
 
 export default function StaffOrdersPage() {

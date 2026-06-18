@@ -22,11 +22,11 @@ const CATEGORY_LABELS: Record<string, string> = {
 const PAYMENT_METHODS = [
   { id: "balance", label: "Wallet Balance", sub: "", icon: Wallet, color: "cyan" },
   { id: "binance_gift_card", label: "Card Payment (Key)", sub: "Binance USDT Gift Card via Eneba", icon: CreditCard, color: "yellow" },
-  { id: "nowpayments", label: "Crypto", sub: "BTC, ETH, USDT, 100+ coins", icon: Bitcoin, color: "orange" },
+  { id: "paymento", label: "Crypto", sub: "BTC, ETH, USDT, 100+ coins", icon: Bitcoin, color: "orange" },
   { id: "discord", label: "Discord Manual", sub: "Pay manually via Discord", icon: MessageCircle, color: "indigo" },
 ] as const;
 
-type PaymentProvider = "nowpayments" | "discord" | "balance" | "binance_gift_card";
+type PaymentProvider = "paymento" | "discord" | "balance" | "binance_gift_card";
 
 function StepIndicator({ step }: { step: 1 | 2 | 3 }) {
   const steps = [

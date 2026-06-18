@@ -39,7 +39,7 @@ export default function InvoiceClient({ orderId, status, paymentProvider, amount
 
   return (
     <>
-      {paymentProvider === "nowpayments" && <CryptoSection orderId={orderId} paymentRef={paymentRef} />}
+      {paymentProvider === "paymento" && <CryptoSection orderId={orderId} paymentRef={paymentRef} />}
       {paymentProvider === "binance_gift_card" && <GiftCardSection orderId={orderId} amount={amount} denomination={giftCardDenomination ?? amount} />}
       {paymentProvider === "discord" && <DiscordSection orderId={orderId} amount={amount} />}
       {paymentProvider === "balance" && <BalanceSection />}
@@ -88,7 +88,7 @@ function GiftCardPendingSection({ orderId }: { orderId: string }) {
   );
 }
 
-// ── Crypto (NOWPayments) ──────────────────────────────────────────────────────
+// ── Crypto (Paymento.io) ──────────────────────────────────────────────────────
 function CryptoSection({ orderId: _orderId, paymentRef }: { orderId: string; paymentRef?: string | null }) {
   return (
     <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -102,7 +102,7 @@ function CryptoSection({ orderId: _orderId, paymentRef }: { orderId: string; pay
         </div>
       </div>
       {paymentRef ? (
-        <a href={`https://nowpayments.io/payment/?iid=${paymentRef}`} target="_blank" rel="noopener noreferrer"
+        <a href={`https://paymento.io/payment/?iid=${paymentRef}`} target="_blank" rel="noopener noreferrer"
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white"
           style={{ background: "rgba(251,146,60,0.12)", border: "1px solid rgba(251,146,60,0.25)" }}>
           <ExternalLink size={14} /> Continue to Payment

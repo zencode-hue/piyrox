@@ -54,7 +54,7 @@ The changes are made in `src/components/CustomerAIChat.tsx`. The AI now introduc
 
 ## Payment Provider Migration
 
-The crypto payment provider has been migrated from NowPayments to Paymento.io.
+The crypto payment provider has been migrated from Paymento.io to Paymento.io.
 
 ### What Changed:
 - Created new webhook endpoint for Paymento.io at `/api/webhooks/paymento`
@@ -96,9 +96,9 @@ PAYMENTO_API_KEY=your_paymento_api_key
 # Google Analytics Configuration
 NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-SNVM2YNX2W
 
-# Remove or update these if you're no longer using NowPayments
-# NOWPAYMENTS_IPN_SECRET=your_old_nowpayments_secret
-# NOWPAYMENTS_API_KEY=your_old_nowpayments_api_key
+# Remove or update these if you're no longer using Paymento.io
+# PAYMENTO_IPN_SECRET=your_old_paymento_secret
+# PAYMENTO_API_KEY=your_old_paymento_api_key
 ```
 
 ### Getting Paymento.io Credentials:
@@ -117,8 +117,8 @@ The system automatically uses the correct webhook URLs for each payment provider
 - **Purpose**: Handles payment confirmations and order updates
 - **Signature Verification**: HMAC-SHA256 using `PAYMENTO_SECRET`
 
-#### NOWPayments Webhook (Legacy)
-- **URL**: `https://yourdomain.com/api/webhooks/nowpayments`
+#### Paymento.io Webhook (Legacy)
+- **URL**: `https://yourdomain.com/api/webhooks/paymento`
 - **Status**: Still available but no longer the primary payment method
 
 ### Webhook Setup in Paymento.io:

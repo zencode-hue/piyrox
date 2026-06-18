@@ -5,13 +5,13 @@ import { deliverOrder } from "@/lib/delivery";
 
 export const dynamic = "force-dynamic";
 
-const IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET!;
+const IPN_SECRET = process.env.PAYMENTO_IPN_SECRET!;
 
 /**
- * Verify NOWPayments HMAC-SHA512 signature.
+ * Verify Paymento.io HMAC-SHA512 signature.
  * The signature is computed over the sorted JSON body using the IPN secret.
  */
-function verifyNowPaymentsSignature(rawBody: string, signature: string): boolean {
+function verifyPaymento.ioSignature(rawBody: string, signature: string): boolean {
   try {
     const parsed = JSON.parse(rawBody);
     // Sort keys alphabetically and re-serialize
@@ -46,13 +46,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: false }, { status: 400 });
   }
 
-  const signature = req.headers.get("x-nowpayments-sig");
+  const signature = req.headers.get("x-paymento-sig");
   if (!signature) {
     return NextResponse.json({ received: false }, { status: 400 });
   }
 
-  if (!verifyNowPaymentsSignature(rawBody, signature)) {
-    console.error("[NOWPayments Webhook] Invalid signature");
+  if (!verifyPaymento.ioSignature(rawBody, signature)) {
+    console.error("[Paymento.io Webhook] Invalid signature");
     return NextResponse.json({ received: false }, { status: 400 });
   }
 
@@ -67,40 +67,40 @@ export async function POST(req: NextRequest) {
   const paymentId = payload.payment_id as string | undefined;
   const orderId = (payload.order_id ?? payload.order_description ?? payload.payment_id) as string | undefined;
 
-  console.log(`[NOWPayments Webhook] Received ${paymentStatus} for Order ${orderId} (Payment ID: ${paymentId})`);
+  console.log(`[Paymento.io Webhook] Received ${paymentStatus} for Order ${orderId} (Payment ID: ${paymentId})`);
 
   let logStatus = "processed";
 
   try {
-    await processNowPaymentsEvent(paymentStatus, orderId, paymentId);
+    await processPaymento.ioEvent(paymentStatus, orderId, paymentId);
   } catch (err) {
-    console.error("[NOWPayments Webhook] Processing error:", err);
+    console.error("[Paymento.io Webhook] Processing error:", err);
     logStatus = "failed";
   }
 
   try {
     await db.webhookLog.create({
       data: {
-        provider: "nowpayments",
+        provider: "paymento",
         eventType: paymentStatus ?? "unknown",
         payload: payload as import("@prisma/client").Prisma.InputJsonValue,
         status: logStatus,
       },
     });
   } catch (err) {
-    console.error("[NOWPayments Webhook] Failed to write WebhookLog:", err);
+    console.error("[Paymento.io Webhook] Failed to write WebhookLog:", err);
   }
 
   return NextResponse.json({ received: true }, { status: 200 });
 }
 
-async function processNowPaymentsEvent(
+async function processPaymento.ioEvent(
   paymentStatus: string | undefined,
   orderId: string | undefined,
   paymentId: string | undefined
 ) {
   if (!orderId) {
-    console.warn("[NOWPayments Webhook] Missing order reference");
+    console.warn("[Paymento.io Webhook] Missing order reference");
     return;
   }
 
@@ -118,7 +118,7 @@ async function processNowPaymentsEvent(
       await processCartPayment(orderId, paymentId);
     } else if (paymentStatus === "failed" || paymentStatus === "expired") {
       await db.order.updateMany({
-        where: { adminNote: orderId, paymentProvider: "nowpayments" },
+        where: { adminNote: orderId, paymentProvider: "paymento" },
         data: { status: "FAILED" },
       });
     }
@@ -132,12 +132,12 @@ async function processNowPaymentsEvent(
         { id: orderId },
         { paymentRef: paymentId ?? orderId },
       ],
-      paymentProvider: "nowpayments",
+      paymentProvider: "paymento",
     },
   });
 
   if (!order) {
-    console.warn(`[NOWPayments Webhook] Order not found for ref: ${orderId}`);
+    console.warn(`[Paymento.io Webhook] Order not found for ref: ${orderId}`);
     return;
   }
 
@@ -156,12 +156,12 @@ async function processNowPaymentsEvent(
  */
 async function processCartPayment(cartGroupId: string, paymentId: string | undefined): Promise<void> {
   const orders = await db.order.findMany({
-    where: { adminNote: cartGroupId, paymentProvider: "nowpayments", status: "PENDING" },
+    where: { adminNote: cartGroupId, paymentProvider: "paymento", status: "PENDING" },
     select: { id: true },
   });
 
   if (orders.length === 0) {
-    console.warn(`[NOWPayments Webhook] No pending orders for cart group: ${cartGroupId}`);
+    console.warn(`[Paymento.io Webhook] No pending orders for cart group: ${cartGroupId}`);
     return;
   }
 
@@ -170,45 +170,45 @@ async function processCartPayment(cartGroupId: string, paymentId: string | undef
     try {
       await deliverOrder(order.id);
     } catch (err) {
-      console.error(`[NOWPayments Webhook] Cart delivery failed for order ${order.id}:`, err);
+      console.error(`[Paymento.io Webhook] Cart delivery failed for order ${order.id}:`, err);
     }
   }
 }
 
 /**
- * Credits a user's balance after a successful NOWPayments top-up.
+ * Credits a user's balance after a successful Paymento.io top-up.
  * topupRef format: TOPUP-{userId}-{timestamp}
  */
 async function processTopupPayment(topupRef: string, paymentId: string | undefined): Promise<void> {
   // Parse userId and amount from the ref — ref is TOPUP-{userId}-{timestamp}
-  // Amount is stored in the NOWPayments payload as price_amount, but we need to
+  // Amount is stored in the Paymento.io payload as price_amount, but we need to
   // look it up from the webhook log or re-derive it. Instead we store a pending
   // topup record. Since we don't have a TopupRequest table, we use the
-  // WebhookLog to detect duplicates and fetch the amount from NOWPayments API.
+  // WebhookLog to detect duplicates and fetch the amount from Paymento.io API.
   const parts = topupRef.split("-");
   // TOPUP-{cuid}-{timestamp} — cuid can contain hyphens, so userId is everything between first and last segment
   const userId = parts.slice(1, -1).join("-");
   if (!userId) {
-    console.warn(`[NOWPayments Webhook] Could not parse userId from topupRef: ${topupRef}`);
+    console.warn(`[Paymento.io Webhook] Could not parse userId from topupRef: ${topupRef}`);
     return;
   }
 
   // Idempotency: check if this topupRef was already processed
   const alreadyProcessed = await db.webhookLog.findFirst({
-    where: { provider: "nowpayments", eventType: "topup_credited", payload: { path: ["ref"], equals: topupRef } },
+    where: { provider: "paymento", eventType: "topup_credited", payload: { path: ["ref"], equals: topupRef } },
   });
   if (alreadyProcessed) {
-    console.log(`[NOWPayments Webhook] Topup already processed: ${topupRef}`);
+    console.log(`[Paymento.io Webhook] Topup already processed: ${topupRef}`);
     return;
   }
 
-  // Fetch payment details from NOWPayments to get the actual amount
-  const apiKey = process.env.NOWPAYMENTS_API_KEY;
+  // Fetch payment details from Paymento.io to get the actual amount
+  const apiKey = process.env.PAYMENTO_API_KEY;
   let amount = 0;
 
   if (apiKey && paymentId) {
     try {
-      const res = await fetch(`https://api.nowpayments.io/v1/payment/${paymentId}`, {
+      const res = await fetch(`https://api.paymento.io/v1/payment/${paymentId}`, {
         headers: { "x-api-key": apiKey },
       });
       if (res.ok) {
@@ -216,18 +216,18 @@ async function processTopupPayment(topupRef: string, paymentId: string | undefin
         amount = Number(data.price_amount ?? 0);
       }
     } catch (err) {
-      console.error("[NOWPayments Webhook] Failed to fetch payment details:", err);
+      console.error("[Paymento.io Webhook] Failed to fetch payment details:", err);
     }
   }
 
   if (amount <= 0) {
-    console.warn(`[NOWPayments Webhook] Could not determine topup amount for ref: ${topupRef}`);
+    console.warn(`[Paymento.io Webhook] Could not determine topup amount for ref: ${topupRef}`);
     return;
   }
 
   const user = await db.user.findUnique({ where: { id: userId }, select: { id: true } });
   if (!user) {
-    console.warn(`[NOWPayments Webhook] User not found for topup: ${userId}`);
+    console.warn(`[Paymento.io Webhook] User not found for topup: ${userId}`);
     return;
   }
 
@@ -243,7 +243,7 @@ async function processTopupPayment(topupRef: string, paymentId: string | undefin
         userId,
         type: "TOPUP",
         amount,
-        description: `Balance top-up via NOWPayments (ref: ${topupRef})`,
+        description: `Balance top-up via Paymento.io (ref: ${topupRef})`,
       },
     });
   });
@@ -251,12 +251,12 @@ async function processTopupPayment(topupRef: string, paymentId: string | undefin
   // Log as processed for idempotency
   await db.webhookLog.create({
     data: {
-      provider: "nowpayments",
+      provider: "paymento",
       eventType: "topup_credited",
       payload: { ref: topupRef, userId, amount } as import("@prisma/client").Prisma.InputJsonValue,
       status: "processed",
     },
   });
 
-  console.log(`[NOWPayments Webhook] Topup credited: ${amount} USD to user ${userId}`);
+  console.log(`[Paymento.io Webhook] Topup credited: ${amount} USD to user ${userId}`);
 }

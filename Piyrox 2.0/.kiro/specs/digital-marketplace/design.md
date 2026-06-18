@@ -17,7 +17,7 @@ The system is organized around five core concerns:
 - **Single repo, monolith**: No microservices. All logic lives in one Next.js app. This keeps deployment simple for a self-hosted product.
 - **Prisma as the single source of truth**: All DB access goes through Prisma. No raw SQL except for analytics aggregations.
 - **AES-256-GCM for credentials**: Inventory credentials are encrypted at rest. Decryption happens only in the delivery path, never in list views.
-- **Webhook-first payment confirmation**: Orders are never marked paid from the client. Only verified webhook callbacks from Stripe/NOWPayments/Cryptomus trigger state transitions.
+- **Webhook-first payment confirmation**: Orders are never marked paid from the client. Only verified webhook callbacks from Stripe/Paymento.io/Cryptomus trigger state transitions.
 
 ---
 
@@ -31,7 +31,7 @@ graph TD
     Auth["NextAuth.js"]
     DB["PostgreSQL (Prisma)"]
     Stripe["Stripe"]
-    Crypto["NOWPayments / Cryptomus"]
+    Crypto["Paymento.io / Cryptomus"]
     Resend["Resend / Nodemailer"]
     Discord["Discord Webhook"]
     DeliveryEngine["Delivery Engine"]
@@ -101,7 +101,7 @@ src/
     email.ts              # Email sending abstraction
     discord.ts            # Discord webhook dispatch
     stripe.ts             # Stripe client + helpers
-    payments/             # NOWPayments / Cryptomus adapters
+    payments/             # Paymento.io / Cryptomus adapters
     rate-limit.ts         # IP-based rate limiter
   types/                  # Shared TypeScript types
 prisma/
@@ -125,7 +125,7 @@ prisma/
 - `CheckoutButton` — initiates checkout, calls `POST /api/v1/checkout`
 - `DiscountCodeInput` — validates and applies discount codes via `POST /api/v1/discount/validate`
 - Stripe Checkout: redirect to Stripe-hosted page
-- Crypto Checkout: redirect to NOWPayments/Cryptomus hosted page
+- Crypto Checkout: redirect to Paymento.io/Cryptomus hosted page
 
 ### Delivery Engine (`lib/delivery.ts`)
 
@@ -186,7 +186,7 @@ All responses use the envelope:
 ### Webhook Handlers
 
 - `POST /api/webhooks/stripe` — verifies `stripe-signature` header, processes `checkout.session.completed` and `payment_intent.payment_failed`
-- `POST /api/webhooks/nowpayments` — verifies HMAC-SHA512 signature
+- `POST /api/webhooks/paymento` — verifies HMAC-SHA512 signature
 - `POST /api/webhooks/cryptomus` — verifies MD5 signature
 
 ---
@@ -266,7 +266,7 @@ model Order {
   amount          Decimal       @db.Decimal(10, 2)
   discountAmount  Decimal       @default(0) @db.Decimal(10, 2)
   status          OrderStatus   @default(PENDING)
-  paymentProvider String        // "stripe" | "nowpayments" | "cryptomus"
+  paymentProvider String        // "stripe" | "paymento" | "cryptomus"
   paymentRef      String?       // External payment session/invoice ID
   discountCodeId  String?
   createdAt       DateTime      @default(now())

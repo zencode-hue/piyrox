@@ -82,7 +82,7 @@ Velxo is a premium SaaS-level digital product marketplace for selling streaming 
 #### Acceptance Criteria
 
 1. THE System SHALL support card payments via Stripe Checkout.
-2. THE System SHALL support cryptocurrency payments via a NOWPayments or Cryptomus integration.
+2. THE System SHALL support cryptocurrency payments via a Paymento.io or Cryptomus integration.
 3. WHEN a customer initiates checkout, THE System SHALL create a pending Order record before redirecting to the Payment_Processor.
 4. WHEN the Payment_Processor sends a confirmed payment Webhook, THE System SHALL update the Order status to "paid" and trigger the Delivery_Engine within 5 seconds of receiving the Webhook.
 5. IF the Payment_Processor sends a failed or cancelled payment Webhook, THEN THE System SHALL update the Order status to "failed" and release any reserved InventoryItem back to available stock.
