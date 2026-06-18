@@ -43,8 +43,7 @@ export async function POST(req: NextRequest) {
         fiatAmount: String(amount),
         fiatCurrency: "USD",
         orderId: topupRef,
-        ReturnUrl: `${appUrl}/dashboard?topup=success`,
-        additionalData: { cancelUrl: `${appUrl}/dashboard?topup=cancelled`, description: `PIYROX Balance Top-Up $${amount}` },
+        returnUrl: `${appUrl}/dashboard?topup=success`,
       }),
     });
 

@@ -221,8 +221,7 @@ export async function POST(req: NextRequest) {
           fiatAmount: String(finalAmount),
           fiatCurrency: "USD",
           orderId: order.id,
-          ReturnUrl: `${appUrl}/checkout/success?orderId=${order.id}${!userId ? `&email=${encodeURIComponent(deliveryEmail ?? "")}` : ""}`,
-          additionalData: { cancelUrl: `${appUrl}/checkout/cancel?orderId=${order.id}` },
+          returnUrl: `${appUrl}/checkout/success?orderId=${order.id}${!userId ? `&email=${encodeURIComponent(deliveryEmail ?? "")}` : ""}`,
         }),
       });
 

@@ -198,8 +198,7 @@ export async function POST(req: NextRequest) {
           fiatAmount: String(finalAmount),
           fiatCurrency: "USD",
           orderId: cartGroupId,
-          ReturnUrl: `${appUrl}/checkout/success?cart=1&orderIds=${orderIds.join(",")}`,
-          additionalData: { cancelUrl: `${appUrl}/cart`, description: `Cart: ${productTitles.slice(0, 100)}` },
+          returnUrl: `${appUrl}/checkout/success?cart=1&orderIds=${orderIds.join(",")}`,
         }),
       });
 
