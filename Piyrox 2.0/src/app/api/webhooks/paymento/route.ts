@@ -208,12 +208,12 @@ async function processTopupPayment(topupRef: string, paymentId: string | undefin
 
   if (apiKey && paymentId) {
     try {
-      const res = await fetch(`https://app.paymento.io/api/v1/payments/${paymentId}`, {
-        headers: { "Authorization": `Bearer ${apiKey}` },
+      const res = await fetch(`https://api.paymento.io/v1/payment/verify?token=${paymentId}`, {
+        headers: { "Api-key": apiKey },
       });
       if (res.ok) {
-        const data = await res.json() as { amount?: number };
-        amount = Number(data.amount ?? 0);
+        const data = await res.json() as { fiatAmount?: number; amount?: number };
+        amount = Number(data.fiatAmount ?? data.amount ?? 0);
       }
     } catch (err) {
       console.error("[Paymento Webhook] Failed to fetch payment details:", err);

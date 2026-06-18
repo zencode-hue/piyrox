@@ -210,20 +210,19 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ data: null, error: "Crypto payments not configured", meta: {} }, { status: 503 });
       }
 
-      const paymentoRes = await fetch("https://app.paymento.io/api/v1/payments", {
+      const paymentoRes = await fetch("https://api.paymento.io/v1/payment/request", {
         method: "POST",
         headers: { 
-          "Authorization": `Bearer ${apiKey}`, 
-          "Content-Type": "application/json" 
+          "Api-key": apiKey, 
+          "Content-Type": "application/json",
+          "Accept": "text/plain",
         },
         body: JSON.stringify({
-          amount: finalAmount,
-          currency: "USD",
-          order_id: order.id,
-          description: product.title,
-          callback_url: `${appUrl}/api/webhooks/paymento`,
-          success_url: `${appUrl}/checkout/success?orderId=${order.id}${!userId ? `&email=${encodeURIComponent(deliveryEmail ?? "")}` : ""}`,
-          cancel_url: `${appUrl}/checkout/cancel?orderId=${order.id}`,
+          fiatAmount: String(finalAmount),
+          fiatCurrency: "USD",
+          orderId: order.id,
+          ReturnUrl: `${appUrl}/checkout/success?orderId=${order.id}${!userId ? `&email=${encodeURIComponent(deliveryEmail ?? "")}` : ""}`,
+          additionalData: { cancelUrl: `${appUrl}/checkout/cancel?orderId=${order.id}` },
         }),
       });
 
@@ -232,9 +231,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ data: null, error: "Failed to create crypto payment", meta: {} }, { status: 502 });
       }
 
-      const paymentoData = await paymentoRes.json() as { payment_url?: string; id?: string };
-      await db.order.update({ where: { id: order.id }, data: { paymentRef: String(paymentoData.id ?? "") } });
-      return NextResponse.json({ data: { redirectUrl: paymentoData.payment_url }, error: null, meta: {} });
+      const token = await paymentoRes.text();
+      const redirectUrl = `https://app.paymento.io/gateway?token=${token.trim()}`;
+      await db.order.update({ where: { id: order.id }, data: { paymentRef: token.trim() } });
+      return NextResponse.json({ data: { redirectUrl }, error: null, meta: {} });
     }
 
     if (paymentProvider === "discord") {

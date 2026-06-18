@@ -191,17 +191,15 @@ export async function POST(req: NextRequest) {
       // Create ONE Paymento.io invoice for the total
       // Use the cartGroupId as the order_id so the webhook can find all orders
       const productTitles = resolvedItems.map((i) => i.title).join(", ");
-      const npRes = await fetch("https://app.paymento.io/api/v1/payments", {
+      const npRes = await fetch("https://api.paymento.io/v1/payment/request", {
         method: "POST",
-        headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        headers: { "Api-key": apiKey, "Content-Type": "application/json", "Accept": "text/plain" },
         body: JSON.stringify({
-          amount: finalAmount,
-          currency: "USD",
-          order_id: cartGroupId,
-          description: `Cart: ${productTitles.slice(0, 100)}`,
-          callback_url: `${appUrl}/api/webhooks/paymento`,
-          success_url: `${appUrl}/checkout/success?cart=1&orderIds=${orderIds.join(",")}`,
-          cancel_url: `${appUrl}/cart`,
+          fiatAmount: String(finalAmount),
+          fiatCurrency: "USD",
+          orderId: cartGroupId,
+          ReturnUrl: `${appUrl}/checkout/success?cart=1&orderIds=${orderIds.join(",")}`,
+          additionalData: { cancelUrl: `${appUrl}/cart`, description: `Cart: ${productTitles.slice(0, 100)}` },
         }),
       });
 
@@ -214,8 +212,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Failed to create crypto payment" }, { status: 502 });
       }
 
-      const npData = await npRes.json() as { payment_url?: string; id?: string };
-      const paymentRef = String(npData.id ?? "");
+      const token = await npRes.text();
+      const paymentRef = token.trim();
+      const gatewayUrl = `https://app.paymento.io/gateway?token=${paymentRef}`;
 
       // Store paymentRef on all orders
       for (const orderId of orderIds) {
@@ -234,7 +233,7 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json({
-        data: { redirectUrl: npData.payment_url, orderIds, cartGroupId },
+        data: { redirectUrl: gatewayUrl, orderIds, cartGroupId },
         error: null,
       });
     }
