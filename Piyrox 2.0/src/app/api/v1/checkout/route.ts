@@ -230,9 +230,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ data: null, error: "Failed to create crypto payment", meta: {} }, { status: 502 });
       }
 
-      const token = await paymentoRes.text();
-      const redirectUrl = `https://app.paymento.io/gateway?token=${token.trim()}`;
-      await db.order.update({ where: { id: order.id }, data: { paymentRef: token.trim() } });
+      const paymentoJson = await paymentoRes.json() as { body?: string; success?: boolean };
+      if (!paymentoJson.success || !paymentoJson.body) {
+        console.error("[checkout] Paymento returned failure:", paymentoJson);
+        return NextResponse.json({ data: null, error: "Failed to create crypto payment", meta: {} }, { status: 502 });
+      }
+      const token = paymentoJson.body;
+      const redirectUrl = `https://app.paymento.io/gateway?token=${token}`;
+      await db.order.update({ where: { id: order.id }, data: { paymentRef: token } });
       return NextResponse.json({ data: { redirectUrl }, error: null, meta: {} });
     }
 

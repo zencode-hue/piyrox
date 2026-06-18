@@ -211,8 +211,15 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Failed to create crypto payment" }, { status: 502 });
       }
 
-      const token = await npRes.text();
-      const paymentRef = token.trim();
+      const npJson = await npRes.json() as { body?: string; success?: boolean };
+      if (!npJson.success || !npJson.body) {
+        console.error("[cart-checkout] Paymento returned failure:", npJson);
+        for (const id of orderIds) {
+          await db.order.delete({ where: { id } }).catch(() => {});
+        }
+        return NextResponse.json({ error: "Failed to create crypto payment" }, { status: 502 });
+      }
+      const paymentRef = npJson.body;
       const gatewayUrl = `https://app.paymento.io/gateway?token=${paymentRef}`;
 
       // Store paymentRef on all orders

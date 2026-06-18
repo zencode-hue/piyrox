@@ -51,8 +51,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ data: null, error: "Failed to create payment", meta: {} }, { status: 502 });
     }
 
-    const token = await npRes.text();
-    const gatewayUrl = `https://app.paymento.io/gateway?token=${token.trim()}`;
+    const npJson = await npRes.json() as { body?: string; success?: boolean };
+    if (!npJson.success || !npJson.body) {
+      console.error("[topup] Paymento returned failure:", npJson);
+      return NextResponse.json({ data: null, error: "Failed to create payment", meta: {} }, { status: 502 });
+    }
+    const gatewayUrl = `https://app.paymento.io/gateway?token=${npJson.body}`;
     return NextResponse.json({ data: { redirectUrl: gatewayUrl, ref: topupRef }, error: null, meta: {} });
   }
 
