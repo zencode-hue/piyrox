@@ -27,7 +27,7 @@ export default function EditProductPage() {
   const [form, setFormState] = useState({
     title: "", description: "", price: "",
     category: "STREAMING", imageUrl: "",
-    isActive: true, unlimitedStock: true, stockCount: "0",
+    isActive: true, isFeatured: false, unlimitedStock: true, stockCount: "0",
   });
 
   useEffect(() => {
@@ -44,6 +44,7 @@ export default function EditProductPage() {
           category: p.category ?? "STREAMING",
           imageUrl: p.imageUrl ?? "",
           isActive: p.isActive ?? true,
+          isFeatured: p.isFeatured ?? false,
           unlimitedStock: p.unlimitedStock ?? true,
           stockCount: String(p.stockCount ?? 0),
         });
@@ -183,6 +184,12 @@ export default function EditProductPage() {
             <input type="checkbox" checked={form.isActive}
               onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-purple-500" />
             <span className="text-sm text-gray-400">Active (visible in store)</span>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={form.isFeatured}
+              onChange={(e) => set("isFeatured", e.target.checked)} className="w-4 h-4 accent-orange-500" />
+            <span className="text-sm text-orange-300 font-medium">⭐ Top Product (shown in Top Products section)</span>
           </label>
         </div>
 

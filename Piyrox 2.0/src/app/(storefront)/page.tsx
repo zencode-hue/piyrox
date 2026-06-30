@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import HeroSection from '@/components/storefront/HeroSection';
 import ProductCard from '@/components/storefront/ProductCard';
 import TabbedCategories from '@/components/storefront/TabbedCategories';
+import TopProductsSection from '@/components/storefront/TopProductsSection';
 import FeaturedCategories from '@/components/storefront/FeaturedCategories';
 import TrustBadges from '@/components/storefront/TrustBadges';
 import NewsletterSection from '@/components/storefront/NewsletterSection';
@@ -105,6 +106,9 @@ export default async function HomePage() {
 
       {/* ── 2. Trust Badges ── */}
       <TrustBadges />
+
+      {/* ── 3. Top Products (admin-curated) ── */}
+      <TopProductsSection />
 
 
 

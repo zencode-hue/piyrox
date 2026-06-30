@@ -1,6 +1,7 @@
 import Navbar from "@/components/storefront/Navbar";
 import Providers from "@/components/storefront/Providers";
 import PageViewTracker from "@/components/PageViewTracker";
+import CustomerAIChat from "@/components/CustomerAIChat";
 import Link from "next/link";
 import {
   MessageCircle,
@@ -261,6 +262,7 @@ export default function StorefrontLayout({
           <Navbar />
           <main className="min-h-screen bg-black pt-24">{children}</main>
           <Footer />
+          <CustomerAIChat />
         </CartProvider>
       </CurrencyProvider>
     </Providers>
