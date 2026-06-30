@@ -45,50 +45,52 @@ export default function CreateDiscountForm() {
   }
 
   return (
-    <div className="glass-card p-6">
-      <h2 className="text-base font-semibold text-white mb-5">Create Discount Code</h2>
+    <div className="admin-card p-6 h-full">
+      <h2 className="text-sm font-bold text-white mb-5 uppercase tracking-widest">Create Discount Code</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-xs text-gray-500 block mb-1">Code</label>
+          <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 block mb-1.5">Code</label>
           <input value={form.code} onChange={(e) => set("code", e.target.value)} required
-            placeholder="SUMMER20" className="input-field text-sm uppercase" />
+            placeholder="SUMMER20" className="input-field text-sm uppercase font-mono tracking-wider" />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Type</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 block mb-1.5">Type</label>
             <select value={form.type} onChange={(e) => set("type", e.target.value)}
-              className="input-field text-sm">
+              className="input-field text-sm font-medium">
               <option value="PERCENTAGE">Percentage (%)</option>
               <option value="FIXED">Fixed ($)</option>
             </select>
           </div>
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Value</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 block mb-1.5">Value</label>
             <input type="number" min="0" step="0.01" value={form.value}
               onChange={(e) => set("value", e.target.value)} required
               placeholder={form.type === "PERCENTAGE" ? "20" : "5.00"}
-              className="input-field text-sm" />
+              className="input-field text-sm tabular-nums font-bold" />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Usage Limit</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 block mb-1.5">Usage Limit</label>
             <input type="number" min="1" value={form.usageLimit}
               onChange={(e) => set("usageLimit", e.target.value)} required
-              className="input-field text-sm" />
+              className="input-field text-sm tabular-nums" />
           </div>
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Expires At</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 block mb-1.5">Expires At</label>
             <input type="date" value={form.expiresAt}
               onChange={(e) => set("expiresAt", e.target.value)} required
-              className="input-field text-sm" />
+              className="input-field text-sm text-zinc-300" />
           </div>
         </div>
         {status && (
-          <p className={`text-sm ${status.startsWith("✅") ? "text-green-400" : "text-red-400"}`}>{status}</p>
+          <div className={`p-3 rounded-xl text-sm font-medium ${status.startsWith("✅") ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
+            {status}
+          </div>
         )}
-        <button type="submit" disabled={loading} className="btn-primary text-sm px-5 py-2.5 gap-2 w-full">
-          <Plus size={15} />{loading ? "Creating…" : "Create Code"}
+        <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-black font-bold transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 mt-2">
+          <Plus size={18} />{loading ? "Creating…" : "Create Code"}
         </button>
       </form>
     </div>

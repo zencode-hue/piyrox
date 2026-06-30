@@ -1,7 +1,9 @@
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
-import { Tag } from "lucide-react";
+import { Tag, Ticket } from "lucide-react";
 import CreateDiscountForm from "./CreateDiscountForm";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminDiscountsPage() {
   await requireAdmin();
@@ -12,50 +14,100 @@ export default async function AdminDiscountsPage() {
   });
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">
-        <Tag size={22} className="text-purple-400" /> Discount Codes
-      </h1>
+    <div className="space-y-6 pb-8">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <Tag size={24} className="text-orange-400" />
+            Discount Codes
+          </h1>
+          <p className="text-zinc-500 text-sm mt-0.5">
+            Manage your store's active promotional codes
+          </p>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <CreateDiscountForm />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+        {/* Create form */}
+        <div className="lg:col-span-5 xl:col-span-4">
+          <CreateDiscountForm />
+        </div>
 
-        <div className="glass-card overflow-hidden">
-          <div className="px-5 py-4 border-b border-white/5">
-            <h2 className="text-base font-semibold text-white">Existing Codes</h2>
+        {/* List of codes */}
+        <div className="lg:col-span-7 xl:col-span-8">
+          <div className="admin-card overflow-hidden h-full flex flex-col">
+            <div className="px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <Ticket size={16} className="text-orange-400" /> Active & Expired Codes
+              </h2>
+            </div>
+            
+            {codes.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center p-12">
+                <Tag size={40} className="text-zinc-700 mb-4" />
+                <p className="text-zinc-400 font-medium text-lg">No codes yet</p>
+                <p className="text-zinc-500 text-sm mt-1">Create a discount code to start your first promotion.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-zinc-500 text-xs uppercase tracking-wider" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                      <th className="text-left px-5 py-4 font-semibold">Code</th>
+                      <th className="text-left px-5 py-4 font-semibold">Type</th>
+                      <th className="text-right px-5 py-4 font-semibold">Value</th>
+                      <th className="text-right px-5 py-4 font-semibold">Usage</th>
+                      <th className="text-left px-5 py-4 font-semibold">Status / Expires</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                    {codes.map((c) => {
+                      const isExpired = new Date(c.expiresAt) < new Date();
+                      const isMaxedOut = c.usageCount >= c.usageLimit;
+                      const isActive = !isExpired && !isMaxedOut;
+
+                      return (
+                        <tr key={c.id} className={`hover:bg-white/[0.02] transition-colors ${!isActive ? 'opacity-60' : ''}`}>
+                          <td className="px-5 py-4">
+                            <span className="font-mono text-[13px] font-bold text-orange-400 tracking-wider bg-orange-500/10 px-2 py-1 rounded">
+                              {c.code}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 text-zinc-400 text-xs font-semibold tracking-wider">
+                            {c.type}
+                          </td>
+                          <td className="px-5 py-4 text-right text-white font-bold tabular-nums">
+                            {c.type === "PERCENTAGE" ? `${Number(c.value)}%` : `$${Number(c.value).toFixed(2)}`}
+                          </td>
+                          <td className="px-5 py-4 text-right tabular-nums">
+                            <div className="flex items-center justify-end gap-2">
+                              <div className="w-16 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-full bg-orange-400 rounded-full" style={{ width: `${Math.min(100, (c.usageCount / c.usageLimit) * 100)}%` }} />
+                              </div>
+                              <span className="text-zinc-400 font-medium">{c.usageCount}/{c.usageLimit}</span>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4">
+                            {isExpired ? (
+                              <span className="text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-red-500/10 text-red-400 tracking-wider">Expired</span>
+                            ) : isMaxedOut ? (
+                              <span className="text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-zinc-500/20 text-zinc-400 tracking-wider">Limit Reached</span>
+                            ) : (
+                              <div className="flex flex-col">
+                                <span className="text-[10px] font-bold uppercase px-2 py-1 rounded-full bg-green-500/10 text-green-400 tracking-wider w-max mb-1">Active</span>
+                                <span className="text-[11px] text-zinc-500">til {new Date(c.expiresAt).toLocaleDateString()}</span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-          {codes.length === 0 ? (
-            <p className="text-center text-gray-600 py-10">No discount codes yet.</p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/5 text-gray-500 text-xs uppercase">
-                  <th className="text-left px-4 py-3">Code</th>
-                  <th className="text-left px-4 py-3">Type</th>
-                  <th className="text-right px-4 py-3">Value</th>
-                  <th className="text-right px-4 py-3">Used</th>
-                  <th className="text-left px-4 py-3">Expires</th>
-                </tr>
-              </thead>
-              <tbody>
-                {codes.map((c) => (
-                  <tr key={c.id} className="border-b border-white/5 hover:bg-white/2">
-                    <td className="px-4 py-3 font-mono text-purple-300">{c.code}</td>
-                    <td className="px-4 py-3 text-gray-400">{c.type}</td>
-                    <td className="px-4 py-3 text-right text-white">
-                      {c.type === "PERCENTAGE" ? `${Number(c.value)}%` : `$${Number(c.value).toFixed(2)}`}
-                    </td>
-                    <td className="px-4 py-3 text-right text-gray-400">{c.usageCount}/{c.usageLimit}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
-                      {new Date(c.expiresAt) < new Date()
-                        ? <span className="text-red-400">Expired</span>
-                        : new Date(c.expiresAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
         </div>
       </div>
     </div>

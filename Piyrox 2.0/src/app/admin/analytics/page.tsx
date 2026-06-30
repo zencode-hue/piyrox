@@ -9,7 +9,7 @@ const PAYMENT_LABELS: Record<string, string> = {
   paymento: "Crypto", balance: "Wallet", binance_gift_card: "Gift Card", discord: "Discord",
 };
 const PAYMENT_COLORS: Record<string, string> = {
-  paymento: "#fb923c", balance: "#fbbf24", binance_gift_card: "#f59e0b", discord: "#d97706",
+  paymento: "#f97316", balance: "#fbbf24", binance_gift_card: "#f59e0b", discord: "#d97706",
 };
 
 function StatCard({ label, value, sub, color, icon: Icon, trend }: {
@@ -17,20 +17,20 @@ function StatCard({ label, value, sub, color, icon: Icon, trend }: {
   icon: React.ElementType; trend?: number;
 }) {
   return (
-    <div className="glass-card p-5">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <Icon size={13} style={{ color }} /> {label}
+    <div className="admin-card p-5">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+          <Icon size={14} style={{ color }} /> {label}
         </div>
         {trend !== undefined && (
-          <span className={`text-xs flex items-center gap-0.5 ${trend >= 0 ? "text-green-400" : "text-red-400"}`}>
+          <span className={`text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-0.5 ${trend >= 0 ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"}`}>
             <ArrowUpRight size={11} style={{ transform: trend < 0 ? "rotate(90deg)" : undefined }} />
             {Math.abs(trend)}%
           </span>
         )}
       </div>
-      <div className="text-2xl font-bold" style={{ color }}>{value}</div>
-      {sub && <div className="text-xs text-gray-600 mt-1">{sub}</div>}
+      <div className="text-3xl font-black tabular-nums tracking-tight" style={{ color: "#fff" }}>{value}</div>
+      {sub && <div className="text-xs text-zinc-500 mt-2 font-medium">{sub}</div>}
     </div>
   );
 }
@@ -38,7 +38,7 @@ function StatCard({ label, value, sub, color, icon: Icon, trend }: {
 function MiniBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
-    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+    <div className="h-1.5 rounded-full overflow-hidden mt-1" style={{ background: "rgba(255,255,255,0.05)" }}>
       <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
     </div>
   );
@@ -131,37 +131,44 @@ export default async function AdminAnalyticsPage() {
   type GroupRow = { _count: { id: number } };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <BarChart2 size={22} style={{ color: "#f59e0b" }} /> Analytics
-        </h1>
-        <span className="text-xs text-gray-600">Last updated: {now.toLocaleTimeString()}</span>
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <BarChart2 size={24} className="text-orange-400" /> Analytics
+          </h1>
+          <p className="text-zinc-500 text-sm mt-0.5">
+            Store performance and traffic insights
+          </p>
+        </div>
+        <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-600 bg-white/5 px-3 py-1.5 rounded-full">
+          Live: {now.toLocaleTimeString()}
+        </span>
       </div>
 
       {/* Revenue KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Today's Revenue" value={`$${Number(revenueToday._sum.amount ?? 0).toFixed(2)}`}
           sub={`${ordersToday} orders`} color="#4ade80" icon={DollarSign} />
         <StatCard label="This Week" value={`$${Number(revenueWeek._sum.amount ?? 0).toFixed(2)}`}
-          sub={`${ordersWeek} orders`} color="#f59e0b" icon={TrendingUp} />
+          sub={`${ordersWeek} orders`} color="#f97316" icon={TrendingUp} />
         <StatCard label="This Month" value={`$${thisMonthRevenue.toFixed(2)}`}
-          sub={`${ordersMonth} orders`} color="#f59e0b" icon={ShoppingCart} trend={momChange} />
+          sub={`${ordersMonth} orders`} color="#3b82f6" icon={ShoppingCart} trend={momChange} />
         <StatCard label="All Time" value={`$${Number(revenueTotal._sum.amount ?? 0).toFixed(2)}`}
-          sub={`${ordersTotal} paid orders`} color="#fbbf24" icon={DollarSign} />
+          sub={`${ordersTotal} paid orders`} color="#a855f7" icon={DollarSign} />
       </div>
 
       {/* Traffic KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Views (24h)" value={views24h.toLocaleString()} color="#f59e0b" icon={Eye} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Views (24h)" value={views24h.toLocaleString()} color="#f97316" icon={Eye} />
         <StatCard label="Views (7d)" value={views7d.toLocaleString()} color="#fbbf24" icon={BarChart2} />
-        <StatCard label="Views (30d)" value={views30d.toLocaleString()} color="#d97706" icon={TrendingUp} />
+        <StatCard label="Views (30d)" value={views30d.toLocaleString()} color="#2dd4bf" icon={TrendingUp} />
         <StatCard label="Unique Visitors (30d)" value={uniqueIPs30d.toLocaleString()}
           sub={`${conversionRate}% conversion`} color="#4ade80" icon={Users} />
       </div>
 
       {/* User stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="New Users Today" value={newUsersToday} color="#f472b6" icon={Users} />
         <StatCard label="New Users (Month)" value={newUsersMonth} color="#fb923c" icon={Users} />
         <StatCard label="Conversion Rate" value={`${conversionRate}%`} sub="orders / unique visitors" color="#22d3ee" icon={TrendingUp} />
@@ -169,116 +176,115 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       {/* 14-day revenue sparkline */}
-      <div className="glass-card p-5">
-        <h2 className="text-sm font-semibold text-white mb-5 flex items-center gap-2">
-          <TrendingUp size={14} className="text-green-400" /> Revenue — Last 14 Days
+      <div className="admin-card p-6">
+        <h2 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
+          <TrendingUp size={16} className="text-green-400" /> Revenue — Last 14 Days
         </h2>
-        <div className="flex items-end gap-1.5 h-24">
+        <div className="flex items-end gap-1.5 h-32">
           {dailyData.map(({ date, revenue, orders }) => {
             const height = maxRevenue > 0 ? Math.max(4, (revenue / maxRevenue) * 100) : 4;
             const label = new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
             return (
               <div key={date} className="flex-1 flex flex-col items-center gap-1 group relative">
-                <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-10 pointer-events-none">
-                  <div className="text-xs text-white px-2 py-1 rounded-lg whitespace-nowrap"
-                    style={{ background: "rgba(20,20,20,0.95)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-10 pointer-events-none">
+                  <div className="text-[11px] font-bold text-white px-3 py-1.5 rounded-lg whitespace-nowrap bg-zinc-900 border border-white/10 shadow-xl">
                     ${revenue.toFixed(2)} · {orders} orders
                   </div>
                 </div>
-                <div className="w-full rounded-t-sm transition-all"
+                <div className="w-full rounded-sm transition-all duration-300 group-hover:opacity-80"
                   style={{
                     height: `${height}%`,
                     background: revenue > 0
-                      ? "linear-gradient(180deg, #f59e0b, #d97706)"
+                      ? "linear-gradient(180deg, #f97316, #ea580c)"
                       : "rgba(255,255,255,0.05)",
                     minHeight: "4px",
                   }} />
-                <span className="text-[9px] text-gray-700 hidden sm:block">{label.split(" ")[1]}</span>
+                <span className="text-[10px] font-medium text-zinc-600 hidden sm:block mt-1">{label.split(" ")[1]}</span>
               </div>
             );
           })}
         </div>
-        <div className="flex justify-between text-xs text-gray-700 mt-1">
+        <div className="flex justify-between text-xs font-medium text-zinc-600 mt-2 border-t border-white/5 pt-2">
           <span>{new Date(dailyData[0]?.date ?? now).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
           <span>Today</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Payment methods */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <CreditCard size={14} className="text-yellow-400" /> Payment Methods
+        <div className="admin-card p-6">
+          <h2 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
+            <CreditCard size={16} className="text-orange-400" /> Payment Methods
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-5">
             {(paymentBreakdown as { paymentProvider: string; _count: { id: number }; _sum: { amount: unknown } }[]).map((p) => {
               const pct = totalPaymentOrders > 0 ? Math.round((p._count.id / totalPaymentOrders) * 100) : 0;
               const color = PAYMENT_COLORS[p.paymentProvider] ?? "#9ca3af";
               return (
                 <div key={p.paymentProvider}>
                   <div className="flex items-center justify-between text-sm mb-1.5">
-                    <span className="font-medium" style={{ color }}>{PAYMENT_LABELS[p.paymentProvider] ?? p.paymentProvider}</span>
-                    <span className="text-gray-400 text-xs">{p._count.id} orders · ${Number(p._sum.amount ?? 0).toFixed(2)}</span>
+                    <span className="font-bold tracking-wide" style={{ color }}>{PAYMENT_LABELS[p.paymentProvider] ?? p.paymentProvider}</span>
+                    <span className="text-zinc-400 text-[11px] font-medium uppercase tracking-wider">{p._count.id} orders · ${Number(p._sum.amount ?? 0).toFixed(2)}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
                       <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
                     </div>
-                    <span className="text-xs text-gray-600 w-8 text-right">{pct}%</span>
+                    <span className="text-xs font-bold text-zinc-500 tabular-nums w-8 text-right">{pct}%</span>
                   </div>
                 </div>
               );
             })}
-            {(paymentBreakdown as unknown[]).length === 0 && <p className="text-gray-600 text-xs">No paid orders yet</p>}
+            {(paymentBreakdown as unknown[]).length === 0 && <p className="text-zinc-600 text-xs italic">No paid orders yet</p>}
           </div>
         </div>
 
         {/* Top products */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Package size={14} style={{ color: "#f59e0b" }} /> Top Products
+        <div className="admin-card p-6">
+          <h2 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
+            <Package size={16} className="text-orange-400" /> Top Products
           </h2>
-          <div className="space-y-2.5">
+          <div className="space-y-4">
             {(topProducts as { productId: string; _count: { id: number }; _sum: { amount: unknown } }[]).map((p, i) => {
               const maxOrders = (topProducts as { _count: { id: number } }[])[0]?._count.id ?? 1;
               return (
                 <div key={p.productId}>
-                  <div className="flex items-center justify-between text-sm mb-1">
+                  <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs text-gray-600 w-4 shrink-0">#{i + 1}</span>
+                      <span className="text-[10px] font-bold text-zinc-500 w-4 shrink-0">#{i + 1}</span>
                       <Link href={`/admin/products/${p.productId}/inventory`}
-                        className="text-gray-300 hover:text-white transition-colors truncate text-xs">
+                        className="text-zinc-300 font-medium hover:text-white transition-colors truncate text-[13px]">
                         {titleMap[p.productId] ?? "Unknown"}
                       </Link>
                     </div>
-                    <span className="text-white font-medium text-xs shrink-0 ml-2">
+                    <span className="text-white font-bold text-xs tabular-nums shrink-0 ml-2">
                       ${Number(p._sum.amount ?? 0).toFixed(2)}
-                      <span className="text-gray-600 ml-1">({p._count.id})</span>
+                      <span className="text-zinc-600 font-medium ml-1">({p._count.id})</span>
                     </span>
                   </div>
-                  <MiniBar value={p._count.id} max={maxOrders} color="#f59e0b" />
+                  <MiniBar value={p._count.id} max={maxOrders} color="#f97316" />
                 </div>
               );
             })}
-            {(topProducts as unknown[]).length === 0 && <p className="text-gray-600 text-xs">No sales yet</p>}
+            {(topProducts as unknown[]).length === 0 && <p className="text-zinc-600 text-xs italic">No sales yet</p>}
           </div>
         </div>
 
         {/* Top pages */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Eye size={14} style={{ color: "#f59e0b" }} /> Top Pages (30d)
+        <div className="admin-card p-6">
+          <h2 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
+            <Eye size={16} className="text-orange-400" /> Top Pages (30d)
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-4">
             {(topPages as ({ path: string } & GroupRow)[]).map((p) => {
               const maxViews = (topPages as GroupRow[])[0]?._count.id ?? 1;
               return (
                 <div key={p.path}>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-gray-300 font-mono truncate max-w-[200px]">{p.path}</span>
-                    <span className="text-amber-400 font-medium ml-2">{p._count.id.toLocaleString()}</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-zinc-400 font-mono truncate max-w-[200px]">{p.path}</span>
+                    <span className="text-orange-400 font-bold tabular-nums ml-2">{p._count.id.toLocaleString()}</span>
                   </div>
-                  <MiniBar value={p._count.id} max={maxViews} color="#f59e0b" />
+                  <MiniBar value={p._count.id} max={maxViews} color="#f97316" />
                 </div>
               );
             })}
@@ -286,18 +292,18 @@ export default async function AdminAnalyticsPage() {
         </div>
 
         {/* Top countries */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Globe size={14} className="text-green-400" /> Top Countries (30d)
+        <div className="admin-card p-6">
+          <h2 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
+            <Globe size={16} className="text-green-400" /> Top Countries (30d)
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-4">
             {(topCountries as ({ country: string } & GroupRow)[]).map((c) => {
               const maxViews = (topCountries as GroupRow[])[0]?._count.id ?? 1;
               return (
                 <div key={c.country}>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-gray-300">{c.country ?? "Unknown"}</span>
-                    <span className="text-green-400 font-medium">{c._count.id.toLocaleString()}</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-zinc-300 font-medium">{c.country ?? "Unknown"}</span>
+                    <span className="text-green-400 font-bold tabular-nums">{c._count.id.toLocaleString()}</span>
                   </div>
                   <MiniBar value={c._count.id} max={maxViews} color="#34d399" />
                 </div>
@@ -307,21 +313,21 @@ export default async function AdminAnalyticsPage() {
         </div>
 
         {/* Referrers */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Link2 size={14} className="text-blue-400" /> Top Referrers (30d)
+        <div className="admin-card p-6">
+          <h2 className="text-sm font-bold text-white mb-6 uppercase tracking-widest flex items-center gap-2">
+            <Link2 size={16} className="text-blue-400" /> Top Referrers (30d)
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-4">
             {(topReferrers as ({ referrer: string } & GroupRow)[]).length === 0 && (
-              <p className="text-gray-600 text-xs">No referrer data yet — most traffic is direct</p>
+              <p className="text-zinc-600 text-xs italic">No referrer data yet — most traffic is direct</p>
             )}
             {(topReferrers as ({ referrer: string } & GroupRow)[]).map((r) => {
               let host = r.referrer;
               try { host = new URL(r.referrer).hostname.replace("www.", ""); } catch {}
               return (
-                <div key={r.referrer} className="flex items-center justify-between text-xs">
-                  <span className="text-blue-400 truncate max-w-[200px]">{host}</span>
-                  <span className="text-gray-400 font-medium ml-2">{r._count.id}</span>
+                <div key={r.referrer} className="flex items-center justify-between text-xs py-1 border-b border-white/5 last:border-0">
+                  <span className="text-blue-400 font-medium truncate max-w-[200px]">{host}</span>
+                  <span className="text-zinc-400 font-bold tabular-nums ml-2">{r._count.id}</span>
                 </div>
               );
             })}
@@ -329,30 +335,30 @@ export default async function AdminAnalyticsPage() {
         </div>
 
         {/* Devices & Browsers */}
-        <div className="glass-card p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Monitor size={14} className="text-yellow-400" /> Devices & Browsers (30d)
+        <div className="admin-card p-6 space-y-6">
+          <h2 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+            <Monitor size={16} className="text-purple-400" /> Devices & Browsers (30d)
           </h2>
           <div>
-            <p className="text-xs text-gray-500 mb-2 flex items-center gap-1"><Smartphone size={11} /> Device</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-3 flex items-center gap-1.5"><Smartphone size={12} /> Device</p>
             <div className="flex gap-2 flex-wrap">
               {(byDevice as ({ device: string } & GroupRow)[]).map((d) => (
-                <div key={d.device} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs"
+                <div key={d.device} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs"
                   style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                  <span className="text-gray-300">{d.device}</span>
-                  <span className="text-yellow-400 font-medium">{d._count.id}</span>
+                  <span className="text-zinc-300 font-medium">{d.device}</span>
+                  <span className="text-purple-400 font-bold tabular-nums">{d._count.id}</span>
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-2 flex items-center gap-1"><Chrome size={11} /> Browser</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-3 flex items-center gap-1.5"><Chrome size={12} /> Browser</p>
             <div className="flex gap-2 flex-wrap">
               {(byBrowser as ({ browser: string } & GroupRow)[]).map((b) => (
-                <div key={b.browser} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs"
+                <div key={b.browser} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs"
                   style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                  <span className="text-gray-300">{b.browser}</span>
-                  <span className="text-blue-400 font-medium">{b._count.id}</span>
+                  <span className="text-zinc-300 font-medium">{b.browser}</span>
+                  <span className="text-blue-400 font-bold tabular-nums">{b._count.id}</span>
                 </div>
               ))}
             </div>
@@ -361,16 +367,16 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       {/* Recent visits */}
-      <div className="glass-card overflow-x-auto">
-        <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-            <MapPin size={14} style={{ color: "#f59e0b" }} /> Recent Visits
+      <div className="admin-card overflow-x-auto mt-6">
+        <div className="px-6 py-5 border-b border-white/5 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+            <MapPin size={16} className="text-orange-400" /> Recent Visits
           </h2>
-          <span className="text-xs text-gray-600">Last 100 page views</span>
+          <span className="text-xs text-zinc-500 font-medium">Last 100 page views</span>
         </div>
-        <table className="w-full text-xs min-w-[700px]">
+        <table className="w-full text-xs min-w-[800px]">
           <thead>
-            <tr className="border-b border-white/5 text-gray-600 uppercase tracking-wider">
+            <tr className="border-b border-white/5 text-zinc-500 uppercase tracking-wider font-semibold">
               <th className="text-left px-5 py-3">Path</th>
               <th className="text-left px-5 py-3">Location</th>
               <th className="text-left px-5 py-3">Device / OS</th>
@@ -381,7 +387,7 @@ export default async function AdminAnalyticsPage() {
               <th className="text-left px-5 py-3">When</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-white/5">
             {(recentViews as { path: string; country: string | null; city: string | null; device: string | null; browser: string | null; os: string | null; referrer: string | null; ip: string | null; sessionId: string | null; userId: string | null; createdAt: Date }[]).map((v, i) => {
               let referrerHost = "direct";
               try { if (v.referrer) referrerHost = new URL(v.referrer).hostname.replace("www.", ""); } catch {}
@@ -391,34 +397,34 @@ export default async function AdminAnalyticsPage() {
               const timeAgo = diffMins < 1 ? "just now" : diffMins < 60 ? `${diffMins}m ago` : diffMins < 1440 ? `${Math.floor(diffMins / 60)}h ago` : `${Math.floor(diffMins / 1440)}d ago`;
               const location = [v.city, v.country].filter(Boolean).join(", ") || "Unknown";
               return (
-                <tr key={i} className="border-b border-white/5 hover:bg-white/2 transition-colors">
-                  <td className="px-5 py-2.5 font-mono text-amber-400 max-w-[160px] truncate">{v.path}</td>
-                  <td className="px-5 py-2.5 text-gray-300 text-xs">{location}</td>
-                  <td className="px-5 py-2.5 text-gray-400 text-xs">
-                    {v.device ?? "?"}{v.os ? <span className="text-gray-600"> / {v.os}</span> : null}
+                <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                  <td className="px-5 py-3 font-mono text-orange-400 max-w-[160px] truncate">{v.path}</td>
+                  <td className="px-5 py-3 text-zinc-300 font-medium">{location}</td>
+                  <td className="px-5 py-3 text-zinc-400">
+                    {v.device ?? "?"}{v.os ? <span className="text-zinc-600"> / {v.os}</span> : null}
                   </td>
-                  <td className="px-5 py-2.5 text-gray-400 text-xs">{v.browser ?? "?"}</td>
-                  <td className="px-5 py-2.5 text-xs">
-                    <span className={referrerHost === "direct" ? "text-gray-600" : "text-amber-400"}>{referrerHost}</span>
+                  <td className="px-5 py-3 text-zinc-400">{v.browser ?? "?"}</td>
+                  <td className="px-5 py-3">
+                    <span className={referrerHost === "direct" ? "text-zinc-600 font-medium" : "text-orange-400 font-medium"}>{referrerHost}</span>
                   </td>
-                  <td className="px-5 py-2.5 text-xs">
-                    {v.userId ? <span className="text-green-400">Logged in</span> : <span className="text-gray-600">Guest</span>}
+                  <td className="px-5 py-3">
+                    {v.userId ? <span className="text-[10px] font-bold uppercase tracking-widest text-green-400 bg-green-500/10 px-2 py-1 rounded-full">Logged In</span> : <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 bg-zinc-500/10 px-2 py-1 rounded-full">Guest</span>}
                   </td>
-                  <td className="px-5 py-2.5 font-mono text-gray-600 text-xs">
+                  <td className="px-5 py-3 font-mono text-zinc-500">
                     {v.ip ? (
-                      <Link href={`/admin/ip-lookup?ip=${v.ip}`} className="hover:text-amber-400 transition-colors">
+                      <Link href={`/admin/ip-lookup?ip=${v.ip}`} className="hover:text-orange-400 transition-colors">
                         {v.ip}
                       </Link>
                     ) : "—"}
                   </td>
-                  <td className="px-5 py-2.5 text-gray-500 text-xs" title={visitDate.toLocaleString()}>{timeAgo}</td>
+                  <td className="px-5 py-3 text-zinc-500 font-medium" title={visitDate.toLocaleString()}>{timeAgo}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
         {(recentViews as unknown[]).length === 0 && (
-          <p className="text-center text-gray-600 py-10">No visits recorded yet.</p>
+          <p className="text-center text-zinc-600 py-10 font-medium">No visits recorded yet.</p>
         )}
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import Link from "next/link";
-import { Users, ExternalLink } from "lucide-react";
+import { Users, ExternalLink, ShieldAlert } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -47,43 +47,68 @@ export default async function AdminCustomersPage() {
   const guests = Array.from(guestMap.values()).sort((a, b) => b.lastOrder.getTime() - a.lastOrder.getTime());
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">
-        <Users size={22} className="text-purple-400" /> Customers
-        <span className="text-sm font-normal text-gray-500 ml-2">({users.length + guests.length})</span>
-      </h1>
+    <div className="space-y-6 pb-8">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <Users size={24} className="text-orange-400" />
+            Customers
+          </h1>
+          <p className="text-zinc-500 text-sm mt-0.5">
+            Total {users.length + guests.length} customers ({users.length} registered, {guests.length} guests)
+          </p>
+        </div>
+      </div>
 
-      <h2 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Registered ({users.length})</h2>
-      <div className="glass-card overflow-x-auto mb-8">
+      <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-8 mb-4">Registered Customers ({users.length})</h2>
+      <div className="admin-card overflow-x-auto">
         <table className="w-full text-sm min-w-[700px]">
           <thead>
-            <tr className="border-b border-white/5 text-gray-500 text-xs uppercase">
-              <th className="text-left px-4 py-3">Email</th>
-              <th className="text-left px-4 py-3">Name</th>
-              <th className="text-right px-4 py-3">Balance</th>
-              <th className="text-right px-4 py-3">Orders</th>
-              <th className="text-right px-4 py-3">Spent</th>
-              <th className="text-left px-4 py-3">Joined</th>
-              <th className="text-right px-4 py-3">View</th>
+            <tr className="text-zinc-500 text-xs uppercase tracking-wider" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <th className="text-left px-5 py-4 font-semibold">Customer</th>
+              <th className="text-right px-5 py-4 font-semibold">Balance</th>
+              <th className="text-right px-5 py-4 font-semibold">Orders</th>
+              <th className="text-right px-5 py-4 font-semibold">Spent</th>
+              <th className="text-left px-5 py-4 font-semibold">Joined</th>
+              <th className="text-right px-5 py-4 font-semibold">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
             {users.map((u) => {
               const spent = u.orders.reduce((s: number, o: { amount: { toString(): string } }) => s + Number(o.amount), 0);
               return (
-                <tr key={u.id} className="border-b border-white/5 hover:bg-white/2">
-                  <td className="px-4 py-3 text-white text-xs truncate max-w-[200px]">
-                    {u.isBanned && <span className="badge-red mr-1 text-xs">BANNED</span>}
-                    {u.email}
+                <tr key={u.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      {u.isBanned && (
+                        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-red-500/20 text-red-400 shrink-0" title="Banned">
+                          <ShieldAlert size={12} />
+                        </div>
+                      )}
+                      <div>
+                        <span className={`block font-medium truncate max-w-[200px] ${u.isBanned ? "text-red-400" : "text-white"}`}>
+                          {u.email}
+                        </span>
+                        {u.name && <span className="text-zinc-500 text-[11px] block mt-0.5">{u.name}</span>}
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-400 text-xs">{u.name ?? "—"}</td>
-                  <td className="px-4 py-3 text-right text-cyan-400">${Number(u.balance).toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-white">{u.orders.length}</td>
-                  <td className="px-4 py-3 text-right text-white">${spent.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{new Date(u.createdAt).toLocaleDateString()}</td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href={`/admin/customers/${u.id}`} className="text-purple-400 hover:text-purple-300 transition-colors">
-                      <ExternalLink size={13} />
+                  <td className="px-5 py-4 text-right">
+                    <span className="text-cyan-400 font-bold tabular-nums">${Number(u.balance).toFixed(2)}</span>
+                  </td>
+                  <td className="px-5 py-4 text-right text-zinc-400 tabular-nums">
+                    {u.orders.length}
+                  </td>
+                  <td className="px-5 py-4 text-right text-white font-bold tabular-nums">
+                    ${spent.toFixed(2)}
+                  </td>
+                  <td className="px-5 py-4 text-zinc-500 text-xs">
+                    {new Date(u.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <Link href={`/admin/customers/${u.id}`} className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-zinc-500 hover:text-orange-400 hover:bg-orange-500/10 transition-all">
+                      <ExternalLink size={14} />
                     </Link>
                   </td>
                 </tr>
@@ -91,34 +116,46 @@ export default async function AdminCustomersPage() {
             })}
           </tbody>
         </table>
-        {users.length === 0 && <p className="text-center text-gray-600 py-10">No registered customers yet.</p>}
+        {users.length === 0 && (
+          <div className="text-center py-16">
+            <Users size={40} className="mx-auto text-zinc-700 mb-4" />
+            <p className="text-zinc-500 font-medium">No registered customers found.</p>
+          </div>
+        )}
       </div>
 
       {guests.length > 0 && (
         <>
-          <h2 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Guest Customers ({guests.length})</h2>
-          <div className="glass-card overflow-x-auto">
+          <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-12 mb-4">Guest Customers ({guests.length})</h2>
+          <div className="admin-card overflow-x-auto">
             <table className="w-full text-sm min-w-[600px]">
               <thead>
-                <tr className="border-b border-white/5 text-gray-500 text-xs uppercase">
-                  <th className="text-left px-4 py-3">Email</th>
-                  <th className="text-right px-4 py-3">Orders</th>
-                  <th className="text-right px-4 py-3">Spent</th>
-                  <th className="text-left px-4 py-3">Last Order</th>
-                  <th className="text-right px-4 py-3">View</th>
+                <tr className="text-zinc-500 text-xs uppercase tracking-wider" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <th className="text-left px-5 py-4 font-semibold">Email</th>
+                  <th className="text-right px-5 py-4 font-semibold">Orders</th>
+                  <th className="text-right px-5 py-4 font-semibold">Spent</th>
+                  <th className="text-left px-5 py-4 font-semibold">Last Order</th>
+                  <th className="text-right px-5 py-4 font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
                 {guests.map((g) => (
-                  <tr key={g.email} className="border-b border-white/5 hover:bg-white/2">
-                    <td className="px-4 py-3 text-white text-xs">{g.email}</td>
-                    <td className="px-4 py-3 text-right text-white">{g.orders}</td>
-                    <td className="px-4 py-3 text-right text-white">${g.spent.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{new Date(g.lastOrder).toLocaleDateString()}</td>
-                    <td className="px-4 py-3 text-right">
-                      <Link href={`/admin/customers/${encodeURIComponent(g.email)}`}
-                        className="text-purple-400 hover:text-purple-300 transition-colors">
-                        <ExternalLink size={13} />
+                  <tr key={g.email} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-5 py-4 text-white font-medium truncate max-w-[200px]">
+                      {g.email}
+                    </td>
+                    <td className="px-5 py-4 text-right text-zinc-400 tabular-nums">
+                      {g.orders}
+                    </td>
+                    <td className="px-5 py-4 text-right text-white font-bold tabular-nums">
+                      ${g.spent.toFixed(2)}
+                    </td>
+                    <td className="px-5 py-4 text-zinc-500 text-xs">
+                      {new Date(g.lastOrder).toLocaleDateString()}
+                    </td>
+                    <td className="px-5 py-4 text-right">
+                      <Link href={`/admin/customers/${encodeURIComponent(g.email)}`} className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-zinc-500 hover:text-orange-400 hover:bg-orange-500/10 transition-all">
+                        <ExternalLink size={14} />
                       </Link>
                     </td>
                   </tr>
