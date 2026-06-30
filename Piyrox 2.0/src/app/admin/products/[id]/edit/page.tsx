@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, Loader2, Package, AlertCircle, CheckCircle, Star } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
 import VariantEditor, { type VariantDraft } from "@/components/admin/VariantEditor";
 
 const CATEGORIES = [
-  { value: "STREAMING", label: "Streaming" },
-  { value: "AI_TOOLS", label: "AI Tools" },
-  { value: "SOFTWARE", label: "Software" },
-  { value: "GAMING", label: "Gaming" },
+  { value: "STREAMING", label: "🎬 Streaming" },
+  { value: "AI_TOOLS", label: "🤖 AI Tools" },
+  { value: "SOFTWARE", label: "💻 Software" },
+  { value: "GAMING", label: "🎮 Gaming" },
 ];
 
 export default function EditProductPage() {
@@ -77,7 +77,6 @@ export default function EditProductPage() {
     const data = await res.json();
     if (!res.ok) { setErr(data.error ?? "Failed to update product"); setLoading(false); return; }
 
-    // Save variants
     const variantPayload = variants.map((v, i) => ({
       ...(v.id ? { id: v.id } : {}),
       name: v.name,
@@ -105,104 +104,175 @@ export default function EditProductPage() {
     else { const d = await res.json(); setErr(d.error ?? "Failed to delete"); setConfirmDelete(false); }
   }
 
-  if (fetching) return <div className="text-gray-400 text-sm">Loading…</div>;
+  if (fetching) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="flex items-center gap-3 text-zinc-500">
+        <Loader2 size={20} className="animate-spin" />
+        <span className="text-sm font-medium">Loading product...</span>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-3xl pb-10">
+      {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <Link href="/admin/products" className="text-gray-500 hover:text-white transition-colors">
+        <div className="flex items-center gap-4">
+          <Link href="/admin/products" className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all">
             <ArrowLeft size={18} />
           </Link>
-          <h1 className="text-2xl font-bold text-white">Edit Product</h1>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+              <Package size={22} className="text-orange-400" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black text-white tracking-tight">Edit Product</h1>
+              <p className="text-zinc-500 text-xs font-medium mt-0.5 truncate max-w-[200px]">{form.title}</p>
+            </div>
+          </div>
         </div>
         <button type="button" onClick={() => setConfirmDelete(true)}
-          className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors">
-          <Trash2 size={15} /> Delete
+          className="flex items-center gap-2 text-sm font-bold text-red-400 hover:text-red-300 px-4 py-2 rounded-xl hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20">
+          <Trash2 size={16} /> Delete
         </button>
       </div>
 
+      {/* Confirm Delete Modal */}
       {confirmDelete && (
-        <div className="glass-card p-5 mb-6 border border-red-500/30">
-          <p className="text-sm text-white mb-4">Delete this product? This cannot be undone.</p>
-          <div className="flex gap-3">
-            <button onClick={() => setConfirmDelete(false)} className="btn-secondary text-sm px-4 py-2">Cancel</button>
-            <button onClick={handleDelete} disabled={deleting}
-              className="text-sm px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors">
-              {deleting ? "Deleting…" : "Yes, Delete"}
-            </button>
+        <div className="admin-card p-6 mb-6 border-red-500/30 bg-red-500/5 animate-in fade-in slide-in-from-top-4">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+              <AlertCircle size={20} className="text-red-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-black text-white mb-1">Delete this product?</h3>
+              <p className="text-sm text-zinc-500 mb-4">This action cannot be undone. All associated data will be permanently removed.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDelete(false)}
+                  className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white text-sm font-black uppercase tracking-widest transition-all">
+                  Cancel
+                </button>
+                <button onClick={handleDelete} disabled={deleting}
+                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-black uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-50">
+                  {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                  {deleting ? "Deleting…" : "Yes, Delete"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="glass-card p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Core Details */}
+        <div className="admin-card p-6 space-y-6">
+          <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+            <Package size={14} /> Product Details
+          </h2>
+
           <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Title</label>
+            <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Title</label>
             <input type="text" value={form.title} onChange={(e) => set("title", e.target.value)}
-              required className="input-field" />
+              required className="input-field w-full font-bold" />
           </div>
+
           <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Description</label>
+            <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Description</label>
             <textarea value={form.description} onChange={(e) => set("description", e.target.value)}
-              rows={3} className="input-field resize-none" />
+              rows={4} className="input-field resize-none w-full leading-relaxed" />
           </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Base Price (USD)</label>
+              <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Base Price (USD)</label>
               <input type="number" value={form.price} onChange={(e) => set("price", e.target.value)}
-                required min="0" step="0.01" className="input-field" />
-              <p className="text-xs text-gray-600 mt-1">Used when no variants are set</p>
+                required min="0" step="0.01" className="input-field w-full" />
+              <p className="text-xs text-zinc-600 mt-1.5 font-medium">Used when no variants are set</p>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Category</label>
-              <select value={form.category} onChange={(e) => set("category", e.target.value)} className="input-field">
+              <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Category</label>
+              <select value={form.category} onChange={(e) => set("category", e.target.value)} className="input-field w-full">
                 {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
           </div>
 
-          <ImageUpload value={form.imageUrl} onChange={(url) => set("imageUrl", url)} />
-
-          <div className="space-y-3 p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <p className="text-sm font-medium text-white">Base Stock</p>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={form.unlimitedStock}
-                onChange={(e) => set("unlimitedStock", e.target.checked)} className="w-4 h-4 accent-purple-500" />
-              <span className="text-sm text-gray-400">Unlimited stock</span>
-            </label>
-            {!form.unlimitedStock && (
-              <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Stock Count</label>
-                <input type="number" value={form.stockCount} onChange={(e) => set("stockCount", e.target.value)}
-                  min="0" className="input-field w-40" />
-              </div>
-            )}
+          <div>
+            <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-3">Product Image</label>
+            <ImageUpload value={form.imageUrl} onChange={(url) => set("imageUrl", url)} />
           </div>
+        </div>
 
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.isActive}
-              onChange={(e) => set("isActive", e.target.checked)} className="w-4 h-4 accent-purple-500" />
-            <span className="text-sm text-gray-400">Active (visible in store)</span>
+        {/* Stock & Visibility */}
+        <div className="admin-card p-6 space-y-4">
+          <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Stock & Visibility</h2>
+
+          <label className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/5 cursor-pointer hover:bg-white/[0.06] transition-colors">
+            <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all ${form.unlimitedStock ? "bg-orange-500" : "border-2 border-zinc-700"}`}>
+              {form.unlimitedStock && <CheckCircle size={14} className="text-black" />}
+            </div>
+            <input type="checkbox" checked={form.unlimitedStock}
+              onChange={(e) => set("unlimitedStock", e.target.checked)} className="sr-only" />
+            <div>
+              <p className="text-sm font-bold text-white">Unlimited Base Stock</p>
+              <p className="text-xs text-zinc-500 mt-0.5">Product never shows as out of stock</p>
+            </div>
           </label>
 
-          <label className="flex items-center gap-2 cursor-pointer">
+          {!form.unlimitedStock && (
+            <div className="pl-4 ml-9 border-l border-white/5">
+              <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Stock Count</label>
+              <input type="number" value={form.stockCount} onChange={(e) => set("stockCount", e.target.value)}
+                min="0" className="input-field w-40" />
+            </div>
+          )}
+
+          <label className="flex items-center gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/5 cursor-pointer hover:bg-white/[0.06] transition-colors">
+            <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all ${form.isActive ? "bg-green-500" : "border-2 border-zinc-700"}`}>
+              {form.isActive && <CheckCircle size={14} className="text-black" />}
+            </div>
+            <input type="checkbox" checked={form.isActive}
+              onChange={(e) => set("isActive", e.target.checked)} className="sr-only" />
+            <div>
+              <p className="text-sm font-bold text-white">Active & Visible</p>
+              <p className="text-xs text-zinc-500 mt-0.5">Product appears in the store for customers</p>
+            </div>
+          </label>
+
+          <label className="flex items-center gap-4 p-4 rounded-xl bg-orange-500/5 border border-orange-500/20 cursor-pointer hover:bg-orange-500/10 transition-colors">
+            <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all ${form.isFeatured ? "bg-orange-500" : "border-2 border-orange-500/30"}`}>
+              {form.isFeatured && <Star size={12} className="text-black fill-black" />}
+            </div>
             <input type="checkbox" checked={form.isFeatured}
-              onChange={(e) => set("isFeatured", e.target.checked)} className="w-4 h-4 accent-orange-500" />
-            <span className="text-sm text-orange-300 font-medium">⭐ Top Product (shown in Top Products section)</span>
+              onChange={(e) => set("isFeatured", e.target.checked)} className="sr-only" />
+            <div>
+              <p className="text-sm font-bold text-orange-400 flex items-center gap-2">
+                <Star size={14} className="fill-orange-400" /> Top Product
+              </p>
+              <p className="text-xs text-zinc-500 mt-0.5">Displayed in the featured Top Products section on homepage</p>
+            </div>
           </label>
         </div>
 
         {/* Variants */}
-        <div className="glass-card p-6">
+        <div className="admin-card p-6">
+          <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-6">Product Variants</h2>
           <VariantEditor variants={variants} onChange={setVariants} />
         </div>
 
-        {err && <p className="text-red-400 text-sm">{err}</p>}
+        {err && (
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-bold">
+            <AlertCircle size={18} className="shrink-0" /> {err}
+          </div>
+        )}
 
         <div className="flex gap-3">
-          <Link href="/admin/products" className="btn-secondary flex-1 py-2.5 text-sm text-center">Cancel</Link>
-          <button type="submit" disabled={loading} className="btn-primary flex-1 py-2.5 text-sm">
+          <Link href="/admin/products" className="flex-1 py-3 text-center text-sm font-black uppercase tracking-widest rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all">
+            Cancel
+          </Link>
+          <button type="submit" disabled={loading}
+            className="flex-1 py-3 text-sm font-black uppercase tracking-widest rounded-xl bg-orange-500 hover:bg-orange-600 text-black transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
             {loading ? "Saving…" : "Save Changes"}
           </button>
         </div>

@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Loader2, Globe, Monitor, Clock, MapPin, Link2, ShoppingCart } from "lucide-react";
+import { 
+  Search, Loader2, Globe, Monitor, Clock, MapPin, 
+  ShoppingCart, AlertCircle, Activity, Users, Eye,
+  Link2, Fingerprint, ArrowRight
+} from "lucide-react";
 
 interface PageView {
   path: string;
@@ -43,6 +47,14 @@ interface Result {
   matchedUsers: { id: string; email: string; name: string | null }[];
 }
 
+const STATUS_STYLES: Record<string, { text: string; bg: string }> = {
+  PAID: { text: "text-green-400", bg: "bg-green-500/10" },
+  PENDING: { text: "text-yellow-400", bg: "bg-yellow-500/10" },
+  FAILED: { text: "text-red-400", bg: "bg-red-500/10" },
+  PENDING_STOCK: { text: "text-orange-400", bg: "bg-orange-500/10" },
+  REFUNDED: { text: "text-purple-400", bg: "bg-purple-500/10" },
+};
+
 export default function IpLookupPage() {
   const [ip, setIp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,97 +88,118 @@ export default function IpLookupPage() {
     return `${d}d ago`;
   }
 
-  const STATUS_COLOR: Record<string, string> = {
-    PAID: "text-green-400", PENDING: "text-yellow-400", FAILED: "text-red-400",
-    PENDING_STOCK: "text-orange-400", REFUNDED: "text-purple-400",
-  };
-
   return (
-    <div className="max-w-4xl">
-      <h1 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-        <Search size={22} className="text-purple-400" /> IP Lookup
-      </h1>
-      <p className="text-gray-500 text-sm mb-8">Enter an IP address to see all visit history, device info, and any linked orders.</p>
-
-      {/* Search */}
-      <div className="flex gap-3 mb-8">
-        <input
-          value={ip}
-          onChange={(e) => setIp(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && lookup()}
-          placeholder="e.g. 192.168.1.1 or 2a02:3032:..."
-          className="input-field flex-1 font-mono text-sm py-3"
-        />
-        <button onClick={lookup} disabled={loading || !ip.trim()}
-          className="btn-primary px-6 py-3 flex items-center gap-2 shrink-0">
-          {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-          Lookup
-        </button>
+    <div className="space-y-8 pb-10 max-w-5xl">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+          <Search size={28} className="text-white" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight">IP Intelligence</h1>
+          <p className="text-zinc-500 text-sm mt-0.5">Deep-dive into any visitor's session, device, and purchase history</p>
+        </div>
       </div>
 
-      {error && <p className="text-red-400 text-sm mb-6">{error}</p>}
+      {/* Search Bar */}
+      <div className="admin-card p-6">
+        <p className="text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-3">Enter IP Address</p>
+        <div className="flex gap-3">
+          <div className="relative flex-1">
+            <Fingerprint size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              value={ip}
+              onChange={(e) => setIp(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && lookup()}
+              placeholder="e.g. 192.168.1.1 or 2a02:3032:..."
+              className="input-field pl-11 font-mono text-sm w-full"
+            />
+          </div>
+          <button onClick={lookup} disabled={loading || !ip.trim()}
+            className="bg-orange-500 hover:bg-orange-600 text-black font-black px-6 py-3 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 shrink-0">
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+            Lookup
+          </button>
+        </div>
+        {error && (
+          <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-bold">
+            <AlertCircle size={18} className="shrink-0" /> {error}
+          </div>
+        )}
+      </div>
 
       {result && (
-        <div className="space-y-6">
-          {/* Summary */}
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+          {/* Summary Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { label: "Total Visits", value: result.totalVisits, color: "text-purple-400" },
-              { label: "Unique Sessions", value: result.uniqueSessions, color: "text-blue-400" },
-              { label: "First Seen", value: timeAgo(result.firstSeen), color: "text-gray-400" },
-              { label: "Last Seen", value: timeAgo(result.lastSeen), color: "text-green-400" },
-            ].map(({ label, value, color }) => (
-              <div key={label} className="glass-card p-4">
-                <p className="text-xs text-gray-500 mb-1">{label}</p>
-                <p className={`font-bold ${color}`}>{value}</p>
+              { label: "Total Visits", value: result.totalVisits, icon: Eye, color: "text-purple-400", bg: "bg-purple-500/10" },
+              { label: "Unique Sessions", value: result.uniqueSessions, icon: Activity, color: "text-blue-400", bg: "bg-blue-500/10" },
+              { label: "First Seen", value: timeAgo(result.firstSeen), icon: Clock, color: "text-zinc-400", bg: "bg-white/5" },
+              { label: "Last Seen", value: timeAgo(result.lastSeen), icon: Clock, color: "text-green-400", bg: "bg-green-500/10" },
+            ].map(({ label, value, icon: Icon, color, bg }) => (
+              <div key={label} className="admin-card p-5 flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${bg}`}>
+                  <Icon size={18} className={color} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1">{label}</p>
+                  <p className={`text-lg font-black tabular-nums ${color}`}>{value}</p>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Device info */}
-          <div className="glass-card p-5">
-            <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-              <Monitor size={14} className="text-blue-400" /> Device Information
+          {/* Device Info */}
+          <div className="admin-card p-6">
+            <h2 className="text-sm font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+              <Monitor size={16} className="text-blue-400" /> Device Information
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {[
-                { label: "IP", value: result.ip },
+                { label: "IP Address", value: result.ip },
                 { label: "Country", value: result.country ?? "—" },
                 { label: "City", value: result.city ?? "—" },
                 { label: "Browser", value: result.browser ?? "—" },
                 { label: "OS", value: result.os ?? "—" },
                 { label: "Device", value: result.device ?? "—" },
               ].map(({ label, value }) => (
-                <div key={label}>
-                  <p className="text-xs text-gray-500">{label}</p>
-                  <p className="text-gray-300 font-mono text-xs mt-0.5">{value}</p>
+                <div key={label} className="p-4 rounded-xl bg-white/[0.03] border border-white/5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">{label}</p>
+                  <p className="text-sm text-white font-mono font-bold truncate">{value}</p>
                 </div>
               ))}
             </div>
             {result.userAgent && (
-              <div className="mt-3 pt-3 border-t border-white/5">
-                <p className="text-xs text-gray-500 mb-1">User Agent</p>
-                <p className="text-gray-500 text-xs break-all">{result.userAgent}</p>
+              <div className="mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Full User Agent</p>
+                <p className="text-xs text-zinc-500 break-all font-mono leading-relaxed">{result.userAgent}</p>
               </div>
             )}
           </div>
 
-          {/* Matched users */}
+          {/* Linked Accounts */}
           {result.matchedUsers.length > 0 && (
-            <div className="glass-card p-5">
-              <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                <Globe size={14} className="text-green-400" /> Linked Accounts ({result.matchedUsers.length})
+            <div className="admin-card p-6">
+              <h2 className="text-sm font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+                <Users size={16} className="text-green-400" /> Linked Accounts
+                <span className="ml-1 px-2 py-0.5 rounded bg-green-500/10 text-green-400 text-[10px] font-black">{result.matchedUsers.length}</span>
               </h2>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {result.matchedUsers.map((u) => (
-                  <div key={u.id} className="flex items-center justify-between text-sm">
-                    <div>
-                      <span className="text-white">{u.email}</span>
-                      {u.name && <span className="text-gray-500 ml-2 text-xs">{u.name}</span>}
+                  <div key={u.id} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-sm font-black text-white uppercase">
+                        {u.email[0]}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-white">{u.email}</p>
+                        {u.name && <p className="text-xs text-zinc-500">{u.name}</p>}
+                      </div>
                     </div>
                     <a href={`/admin/customers/${u.id}`}
-                      className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
-                      View Customer →
+                      className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-orange-400 transition-colors">
+                      View <ArrowRight size={14} />
                     </a>
                   </div>
                 ))}
@@ -174,77 +207,89 @@ export default function IpLookupPage() {
             </div>
           )}
 
-          {/* Orders from this IP */}
+          {/* Orders */}
           {result.orders.length > 0 && (
-            <div className="glass-card overflow-hidden">
-              <div className="px-5 py-4 border-b border-white/5">
-                <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                  <ShoppingCart size={14} className="text-purple-400" /> Orders ({result.orders.length})
+            <div className="admin-card overflow-hidden">
+              <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3 bg-white/[0.02]">
+                <ShoppingCart size={16} className="text-orange-400" />
+                <h2 className="text-sm font-black text-white uppercase tracking-widest">
+                  Orders <span className="ml-1 px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 text-[10px]">{result.orders.length}</span>
                 </h2>
               </div>
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-white/5 text-gray-500 uppercase">
-                    <th className="text-left px-5 py-3">Invoice</th>
-                    <th className="text-left px-5 py-3">Product</th>
-                    <th className="text-left px-5 py-3">Email</th>
-                    <th className="text-right px-5 py-3">Amount</th>
-                    <th className="text-left px-5 py-3">Status</th>
-                    <th className="text-left px-5 py-3">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.orders.map((o) => (
-                    <tr key={o.id} className="border-b border-white/5 hover:bg-white/2">
-                      <td className="px-5 py-2.5 font-mono text-amber-400">MMT-{o.id.slice(-6).toUpperCase()}</td>
-                      <td className="px-5 py-2.5 text-white truncate max-w-[140px]">{o.productTitle}</td>
-                      <td className="px-5 py-2.5 text-gray-400">{o.email}</td>
-                      <td className="px-5 py-2.5 text-right text-white">${o.amount.toFixed(2)}</td>
-                      <td className={`px-5 py-2.5 font-medium ${STATUS_COLOR[o.status] ?? "text-gray-400"}`}>{o.status}</td>
-                      <td className="px-5 py-2.5 text-gray-500">{new Date(o.createdAt).toLocaleDateString()}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-white/5 text-[10px] text-zinc-500 uppercase tracking-widest font-black">
+                      <th className="text-left px-6 py-3">Invoice</th>
+                      <th className="text-left px-6 py-3">Product</th>
+                      <th className="text-left px-6 py-3">Email</th>
+                      <th className="text-right px-6 py-3">Amount</th>
+                      <th className="text-left px-6 py-3">Status</th>
+                      <th className="text-left px-6 py-3">Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {result.orders.map((o) => {
+                      const s = STATUS_STYLES[o.status] ?? { text: "text-zinc-400", bg: "bg-white/5" };
+                      return (
+                        <tr key={o.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                          <td className="px-6 py-3 font-mono text-orange-400 font-bold">PYX-{o.id.slice(-6).toUpperCase()}</td>
+                          <td className="px-6 py-3 text-white font-bold truncate max-w-[140px]">{o.productTitle}</td>
+                          <td className="px-6 py-3 text-zinc-400">{o.email}</td>
+                          <td className="px-6 py-3 text-right text-white font-bold">${o.amount.toFixed(2)}</td>
+                          <td className="px-6 py-3">
+                            <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${s.text} ${s.bg}`}>{o.status}</span>
+                          </td>
+                          <td className="px-6 py-3 text-zinc-500">{new Date(o.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
-          {/* Visit history */}
-          <div className="glass-card overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Clock size={14} className="text-accent" /> Visit History ({result.views.length})
+          {/* Visit History */}
+          <div className="admin-card overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3 bg-white/[0.02]">
+              <Clock size={16} className="text-orange-400" />
+              <h2 className="text-sm font-black text-white uppercase tracking-widest">
+                Visit History <span className="ml-1 px-2 py-0.5 rounded bg-white/5 text-zinc-400 text-[10px]">{result.views.length}</span>
               </h2>
             </div>
-            <table className="w-full text-xs min-w-[600px] overflow-x-auto">
-              <thead>
-                <tr className="border-b border-white/5 text-gray-500 uppercase">
-                  <th className="text-left px-5 py-3">Path</th>
-                  <th className="text-left px-5 py-3">Source</th>
-                  <th className="text-left px-5 py-3">Session</th>
-                  <th className="text-left px-5 py-3">When</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.views.map((v, i) => {
-                  const referrerHost = v.referrer
-                    ? (() => { try { return new URL(v.referrer).hostname.replace("www.", ""); } catch { return v.referrer.slice(0, 30); } })()
-                    : "direct";
-                  return (
-                    <tr key={i} className="border-b border-white/5 hover:bg-white/2">
-                      <td className="px-5 py-2.5 font-mono text-accent">{v.path}</td>
-                      <td className={`px-5 py-2.5 ${referrerHost === "direct" ? "text-gray-600" : "text-blue-400"}`}>{referrerHost}</td>
-                      <td className="px-5 py-2.5 font-mono text-gray-700">{v.sessionId?.slice(0, 8) ?? "—"}</td>
-                      <td className="px-5 py-2.5 text-gray-500" title={new Date(v.createdAt).toLocaleString()}>
-                        {timeAgo(v.createdAt)}
-                      </td>
+            {result.views.length === 0 ? (
+              <p className="text-center text-zinc-600 py-12 text-sm font-medium">No page views recorded for this IP.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-white/5 text-[10px] text-zinc-500 uppercase tracking-widest font-black">
+                      <th className="text-left px-6 py-3">Path</th>
+                      <th className="text-left px-6 py-3">Source</th>
+                      <th className="text-left px-6 py-3">Session</th>
+                      <th className="text-left px-6 py-3">When</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            {result.views.length === 0 && (
-              <p className="text-center text-gray-600 py-8">No page views recorded for this IP.</p>
+                  </thead>
+                  <tbody>
+                    {result.views.map((v, i) => {
+                      const referrerHost = v.referrer
+                        ? (() => { try { return new URL(v.referrer).hostname.replace("www.", ""); } catch { return v.referrer.slice(0, 30); } })()
+                        : "direct";
+                      return (
+                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                          <td className="px-6 py-3 font-mono text-orange-400 font-bold">{v.path}</td>
+                          <td className={`px-6 py-3 font-medium ${referrerHost === "direct" ? "text-zinc-600" : "text-blue-400"}`}>{referrerHost}</td>
+                          <td className="px-6 py-3 font-mono text-zinc-600">{v.sessionId?.slice(0, 8) ?? "—"}</td>
+                          <td className="px-6 py-3 text-zinc-500" title={new Date(v.createdAt).toLocaleString()}>
+                            {timeAgo(v.createdAt)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>

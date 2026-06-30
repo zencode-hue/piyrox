@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2, Save, Send } from "lucide-react";
 
 const CATEGORIES = ["Streaming", "AI Tools", "Software", "Gaming", "Tips", "News", "General"];
 const EMOJIS = ["📺", "🤖", "💻", "🎮", "💡", "📰", "📝", "🔒", "💰", "⚡"];
@@ -50,7 +50,6 @@ export default function NewBlogPostPage() {
         setErr(data.error ?? "AI generation failed");
       } else if (data.reply) {
         const text = data.reply;
-        // Simple heuristic to split excerpt and content
         const paragraphs = text.split("\n\n");
         if (paragraphs.length > 1) {
           set("excerpt", paragraphs[0]);
@@ -82,77 +81,94 @@ export default function NewBlogPostPage() {
   }
 
   return (
-    <div className="max-w-3xl">
-      <div className="flex items-center gap-3 mb-8">
-        <Link href="/admin/blog" className="text-gray-500 hover:text-white transition-colors"><ArrowLeft size={18} /></Link>
-        <h1 className="text-2xl font-bold text-white">New Blog Post</h1>
+    <div className="max-w-4xl pb-8">
+      <div className="flex items-start gap-4 mb-8">
+        <Link href="/admin/blog" className="mt-1 flex items-center justify-center w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors">
+          <ArrowLeft size={16} />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight">New Blog Post</h1>
+          <p className="text-zinc-500 text-sm mt-0.5">Create a new article for your audience</p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="glass-card p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <label className="block text-sm text-gray-400 mb-1.5">Title</label>
-              <input value={form.title} onChange={(e) => set("title", e.target.value)} required className="input-field" placeholder="Post title..." />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="admin-card p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Title</label>
+              <input value={form.title} onChange={(e) => set("title", e.target.value)} required className="input-field w-full text-lg font-bold" placeholder="E.g. 5 Reasons to Upgrade Your Setup..." />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Slug (URL)</label>
-              <input value={form.slug} onChange={(e) => set("slug", e.target.value)} required className="input-field text-sm" placeholder="post-url-slug" />
+              <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Slug (URL)</label>
+              <input value={form.slug} onChange={(e) => set("slug", e.target.value)} required className="input-field w-full font-mono text-sm" placeholder="post-url-slug" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Category</label>
-              <select value={form.category} onChange={(e) => set("category", e.target.value)} className="input-field">
+              <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Category</label>
+              <select value={form.category} onChange={(e) => set("category", e.target.value)} className="input-field w-full">
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Emoji</label>
+          <div className="mt-6">
+            <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Emoji Icon</label>
             <div className="flex flex-wrap gap-2">
               {EMOJIS.map((em) => (
                 <button key={em} type="button" onClick={() => set("emoji", em)}
-                  className={`w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all ${form.emoji === em ? "bg-purple-600/30 border border-purple-600/50" : "bg-white/5 hover:bg-white/10"}`}>
+                  className={`w-12 h-12 rounded-xl text-2xl flex items-center justify-center transition-all ${form.emoji === em ? "bg-orange-500/20 border border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.15)] scale-110" : "bg-white/5 border border-transparent hover:bg-white/10 hover:border-white/10"}`}>
                   {em}
                 </button>
               ))}
             </div>
           </div>
-
-          <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Excerpt (short description)</label>
-            <textarea value={form.excerpt} onChange={(e) => set("excerpt", e.target.value)} required rows={2} className="input-field resize-none" placeholder="Brief description shown in blog list..." />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-sm text-gray-400">Content (supports **bold** markdown)</label>
-              <button
-                type="button"
-                onClick={generatePost}
-                disabled={aiLoading || !form.title}
-                className="flex items-center gap-1.5 text-[10px] px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-500 hover:bg-amber-500/20 transition-all disabled:opacity-50"
-              >
-                {aiLoading ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-                AI Generate
-              </button>
-            </div>
-            <textarea value={form.content} onChange={(e) => set("content", e.target.value)} required rows={16} className="input-field resize-y font-mono text-sm" placeholder="Write your blog post content here...&#10;&#10;Use **bold** for emphasis.&#10;&#10;Separate paragraphs with blank lines." />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <input type="checkbox" id="published" checked={form.published} onChange={(e) => set("published", e.target.checked)} className="w-4 h-4 accent-purple-500" />
-            <label htmlFor="published" className="text-sm text-gray-400">Publish immediately (visible on blog)</label>
-          </div>
         </div>
 
-        {err && <p className="text-red-400 text-sm">{err}</p>}
+        <div className="admin-card p-6">
+          <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Excerpt (Short Description)</label>
+          <textarea value={form.excerpt} onChange={(e) => set("excerpt", e.target.value)} required rows={3} className="input-field w-full resize-none text-sm leading-relaxed" placeholder="Brief summary shown on the blog list page..." />
+        </div>
 
-        <div className="flex gap-3">
-          <Link href="/admin/blog" className="btn-secondary flex-1 py-2.5 text-sm text-center">Cancel</Link>
-          <button type="submit" disabled={loading} className="btn-primary flex-1 py-2.5 text-sm">
-            {loading ? "Saving…" : form.published ? "Publish Post" : "Save Draft"}
-          </button>
+        <div className="admin-card p-6">
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Content (Markdown Supported)</label>
+            <button
+              type="button"
+              onClick={generatePost}
+              disabled={aiLoading || !form.title}
+              className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-lg text-orange-400 hover:bg-orange-500/20 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+            >
+              {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} className="group-hover:text-white transition-colors" />}
+              AI Generate
+            </button>
+          </div>
+          <textarea value={form.content} onChange={(e) => set("content", e.target.value)} required rows={18} className="input-field w-full resize-y font-mono text-sm leading-relaxed" placeholder="Write your blog post content here...&#10;&#10;Use **bold** for emphasis.&#10;&#10;Separate paragraphs with blank lines." />
+        </div>
+
+        <div className="admin-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <div className="relative flex items-center justify-center">
+              <input type="checkbox" checked={form.published} onChange={(e) => set("published", e.target.checked)} className="peer sr-only" />
+              <div className="w-5 h-5 border-2 border-zinc-600 rounded bg-transparent peer-checked:bg-orange-500 peer-checked:border-orange-500 transition-colors" />
+              <div className="absolute opacity-0 peer-checked:opacity-100 transition-opacity text-black">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+            </div>
+            <div>
+              <span className="text-sm font-bold text-white block">Publish immediately</span>
+              <span className="text-xs text-zinc-500 block">Make this post visible to everyone</span>
+            </div>
+          </label>
+
+          {err && <div className="text-red-400 text-sm font-medium bg-red-500/10 px-3 py-1.5 rounded">{err}</div>}
+
+          <div className="flex gap-3">
+            <Link href="/admin/blog" className="px-6 py-2.5 rounded-xl font-bold text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center">Cancel</Link>
+            <button type="submit" disabled={loading} className="bg-orange-500 hover:bg-orange-600 text-black px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50">
+              {loading ? <Loader2 size={18} className="animate-spin" /> : form.published ? <Send size={18} /> : <Save size={18} />}
+              {loading ? "Saving…" : form.published ? "Publish Post" : "Save Draft"}
+            </button>
+          </div>
         </div>
       </form>
     </div>

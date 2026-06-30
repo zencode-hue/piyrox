@@ -9,7 +9,7 @@ const AUDIENCE_OPTIONS: { key: Audience; label: string; desc: string; icon: type
   {
     key: "all",
     label: "Everyone",
-    desc: "Registered users + guest order emails + restock subscribers",
+    desc: "Registered users + guests + subscribers",
     icon: Users,
     color: "text-purple-400",
   },
@@ -23,7 +23,7 @@ const AUDIENCE_OPTIONS: { key: Audience; label: string; desc: string; icon: type
   {
     key: "guests",
     label: "Guests & Subscribers",
-    desc: "Guest order emails + restock notification subscribers",
+    desc: "Guest order emails + restock subscribers",
     icon: Mail,
     color: "text-green-400",
   },
@@ -171,110 +171,134 @@ export default function AdminEmailPage() {
   const canSend = isBulk ? confirmed : true;
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-        <Mail size={22} className="text-purple-400" /> Email Center
-      </h1>
-      <p className="text-gray-500 text-sm mb-8">Send emails to your customers, guests, and subscribers.</p>
+    <div className="max-w-3xl pb-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          <Mail size={24} className="text-orange-400" /> 
+          Email Campaigns
+        </h1>
+        <p className="text-zinc-500 text-sm mt-0.5">Send targeted emails to your audience</p>
+      </div>
 
       {/* Audience selector */}
-      <div className="glass-card p-5 mb-5">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Send To</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="admin-card p-6 mb-6">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-4">Select Audience</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {AUDIENCE_OPTIONS.map(({ key, label, desc, icon: Icon, color }) => (
             <button key={key} onClick={() => setAudience(key)}
-              className="flex items-start gap-3 p-3 rounded-xl text-left transition-all"
+              className="flex items-start gap-3 p-4 rounded-xl text-left transition-all border text-white"
               style={{
-                background: audience === key ? "rgba(167,139,250,0.1)" : "rgba(255,255,255,0.03)",
-                border: audience === key ? "1px solid rgba(167,139,250,0.35)" : "1px solid rgba(255,255,255,0.07)",
+                background: audience === key ? "rgba(249,115,22,0.1)" : "rgba(255,255,255,0.03)",
+                borderColor: audience === key ? "rgba(249,115,22,0.4)" : "rgba(255,255,255,0.05)",
               }}>
-              <Icon size={16} className={`${color} shrink-0 mt-0.5`} />
+              <Icon size={18} className={`${audience === key ? 'text-orange-400' : color} shrink-0 mt-0.5`} />
               <div>
-                <p className="text-sm font-medium text-white">{label}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                <p className="text-sm font-bold">{label}</p>
+                <p className="text-[10px] text-zinc-500 mt-1 leading-snug">{desc}</p>
               </div>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="glass-card p-6 space-y-4">
+      <div className="admin-card p-6 space-y-6">
         {/* Audience-specific inputs */}
         {audience === "custom" && (
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Recipient Email</label>
+            <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Recipient Email</label>
             <input value={customEmail} onChange={(e) => setCustomEmail(e.target.value)}
-              placeholder="customer@example.com" type="email" className="input-field text-sm py-2.5 w-full" />
+              placeholder="customer@example.com" type="email" className="input-field w-full font-mono text-sm" />
           </div>
         )}
 
         {audience === "order" && (
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Order ID (full ID or MMT-XXXXXX)</label>
+            <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Order ID (full ID or MMT-XXXXXX)</label>
             <input value={orderId} onChange={(e) => setOrderId(e.target.value)}
-              placeholder="Paste the full order ID..." className="input-field text-sm py-2.5 w-full font-mono" />
-            <p className="text-xs text-gray-600 mt-1">Email will be sent to the customer who placed this order.</p>
+              placeholder="Paste the full order ID..." className="input-field w-full font-mono text-sm" />
+            <p className="text-[10px] text-zinc-500 mt-1.5 uppercase tracking-wider">Email will be sent to the customer who placed this order.</p>
           </div>
         )}
 
         {/* Subject */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Subject</label>
+          <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Email Subject</label>
           <input value={subject} onChange={(e) => setSubject(e.target.value)}
-            placeholder="e.g. New products just dropped at PIYROX!" className="input-field text-sm py-2.5 w-full" />
+            placeholder="e.g. New products just dropped at PIYROX!" className="input-field w-full font-bold text-lg" />
         </div>
 
         {/* Message */}
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-xs text-gray-500">Message</label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Message Content</label>
             <button
               type="button"
               onClick={generateEmail}
               disabled={aiLoading || !subject.trim()}
-              className="flex items-center gap-1.5 text-[10px] px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-400 hover:bg-purple-500/20 transition-all disabled:opacity-50"
+              className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-lg text-orange-400 hover:bg-orange-500/20 hover:text-white transition-all disabled:opacity-50 group"
             >
-              {aiLoading ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+              {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} className="group-hover:text-white transition-colors" />}
               AI Write Content
             </button>
           </div>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)}
             placeholder="Write your message here. Supports plain text with line breaks."
-            rows={10} className="input-field text-sm resize-none w-full" />
-          <p className="text-xs text-gray-600 mt-1">{message.length}/5000 characters</p>
+            rows={12} className="input-field w-full resize-none text-sm leading-relaxed" />
+          <div className="flex justify-end mt-1.5">
+            <span className="text-[10px] font-medium text-zinc-600 tabular-nums">{message.length}/5000 chars</span>
+          </div>
         </div>
 
         {/* Bulk preview + confirmation */}
         {isBulk && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
+          <div className="space-y-4 p-5 rounded-xl border border-white/5 bg-white/[0.02]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-bold text-white">Audience Verification</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Check how many users will receive this email before sending.</p>
+              </div>
               <button onClick={fetchPreview} disabled={previewing}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}>
-                {previewing ? <Loader2 size={13} className="animate-spin" /> : <Eye size={13} />}
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all border border-white/10 bg-white/5 hover:bg-white/10 text-white disabled:opacity-50">
+                {previewing ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
                 {previewing ? "Counting..." : "Preview Audience"}
               </button>
-              {previewCount !== null && (
-                <span className="text-sm text-purple-300 font-medium">
-                  {previewCount.toLocaleString()} recipient{previewCount !== 1 ? "s" : ""}
-                </span>
-              )}
             </div>
 
-            {previewCount !== null && previewCount > 0 && (
-              <div className="p-3 rounded-xl flex items-start gap-3"
-                style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.2)" }}>
-                <AlertTriangle size={15} className="text-yellow-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs text-yellow-300 font-medium">
-                    You are about to send to {previewCount.toLocaleString()} people. This cannot be undone.
-                  </p>
-                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                    <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)}
-                      className="w-3.5 h-3.5 accent-yellow-400" />
-                    <span className="text-xs text-yellow-400">I confirm I want to send this bulk email</span>
-                  </label>
+            {previewCount !== null && (
+              <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                    <Users size={16} />
+                  </div>
+                  <div>
+                    <span className="text-lg font-black text-white tabular-nums">{previewCount.toLocaleString()}</span>
+                    <span className="text-xs font-medium text-zinc-500 ml-2">Total Recipients Found</span>
+                  </div>
                 </div>
+
+                {previewCount > 0 && (
+                  <div className="p-4 rounded-xl border border-orange-500/20 bg-orange-500/5">
+                    <div className="flex gap-3">
+                      <AlertTriangle size={20} className="text-orange-400 shrink-0" />
+                      <div>
+                        <p className="text-sm font-bold text-orange-400">Warning: Bulk Action</p>
+                        <p className="text-xs text-orange-400/80 mt-1 mb-3">
+                          You are about to send an email to {previewCount.toLocaleString()} people. This action cannot be undone.
+                        </p>
+                        <label className="flex items-center gap-3 cursor-pointer group w-fit">
+                          <div className="relative flex items-center justify-center">
+                            <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="peer sr-only" />
+                            <div className="w-5 h-5 border-2 border-orange-500/50 rounded bg-transparent peer-checked:bg-orange-500 peer-checked:border-orange-500 transition-colors" />
+                            <div className="absolute opacity-0 peer-checked:opacity-100 transition-opacity text-black">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                          </div>
+                          <span className="text-xs font-bold text-orange-400 group-hover:text-orange-300 transition-colors">I confirm I want to send this bulk email</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -282,30 +306,33 @@ export default function AdminEmailPage() {
 
         {/* Result */}
         {result && (
-          <div className="p-3 rounded-xl text-sm"
+          <div className="p-4 rounded-xl text-sm font-bold flex items-center gap-3"
             style={{
-              background: result.type === "success" ? "rgba(52,211,153,0.08)" : "rgba(248,113,113,0.08)",
-              border: `1px solid ${result.type === "success" ? "rgba(52,211,153,0.2)" : "rgba(248,113,113,0.2)"}`,
-              color: result.type === "success" ? "#34d399" : "#f87171",
+              background: result.type === "success" ? "rgba(74,222,128,0.1)" : "rgba(248,113,113,0.1)",
+              border: `1px solid ${result.type === "success" ? "rgba(74,222,128,0.2)" : "rgba(248,113,113,0.2)"}`,
+              color: result.type === "success" ? "#4ade80" : "#f87171",
             }}>
+            {result.type === "success" ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}
             {result.text}
           </div>
         )}
 
         {/* Send button */}
-        <button onClick={send} disabled={sending || !canSend || (isBulk && previewCount === 0)}
-          className="btn-primary w-full py-3 flex items-center justify-center gap-2 disabled:opacity-40">
-          {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-          {sending
-            ? "Sending..."
-            : isBulk && previewCount !== null
-              ? `Send to ${previewCount.toLocaleString()} recipients`
-              : "Send Email"}
-        </button>
-
-        {isBulk && !confirmed && previewCount !== null && previewCount > 0 && (
-          <p className="text-xs text-center text-gray-600">Check the confirmation box above to enable sending.</p>
-        )}
+        <div>
+          <button onClick={send} disabled={sending || !canSend || (isBulk && previewCount === 0)}
+            className="w-full bg-orange-500 hover:bg-orange-600 text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+            {sending
+              ? "Sending..."
+              : isBulk && previewCount !== null
+                ? `Send to ${previewCount.toLocaleString()} Recipients`
+                : "Send Email"}
+          </button>
+          
+          {isBulk && !confirmed && previewCount !== null && previewCount > 0 && (
+            <p className="text-xs text-center font-bold text-red-400 mt-3">↑ Check the confirmation box above to enable sending.</p>
+          )}
+        </div>
       </div>
     </div>
   );

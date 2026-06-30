@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Download, RefreshCw, Trash2, Mail, Zap, CheckCircle, Loader2, AlertTriangle, Package, Users, DollarSign } from "lucide-react";
+import { 
+  Download, RefreshCw, Trash2, Mail, Zap, CheckCircle, 
+  Loader2, AlertTriangle, Package, Users, DollarSign,
+  FileText, Database, Settings, Send, Calendar, BarChart3
+} from "lucide-react";
 
 export default function AdminToolsPage() {
   const [exporting, setExporting] = useState(false);
@@ -11,6 +15,7 @@ export default function AdminToolsPage() {
   const [result, setResult] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const [bulkEmail, setBulkEmail] = useState({ subject: "", message: "", audience: "all" });
   const [sendingBulk, setSendingBulk] = useState(false);
+  const [runningAction, setRunningAction] = useState<string | null>(null);
 
   async function exportOrders() {
     setExporting(true);
@@ -60,52 +65,74 @@ export default function AdminToolsPage() {
   }
 
   async function runAction(action: string) {
+    setRunningAction(action);
     const res = await fetch(`/api/auth/${action}`, { method: "GET" });
     const data = await res.json();
     setResult(res.ok
       ? { type: "success", msg: data.message ?? "Done!" }
       : { type: "error", msg: data.error ?? "Failed" }
     );
+    setRunningAction(null);
     setTimeout(() => setResult(null), 4000);
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-        <Zap size={22} style={{ color: "#f59e0b" }} /> Admin Tools
-      </h1>
+    <div className="space-y-8 pb-10">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20 shrink-0">
+          <Zap size={28} className="text-black" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight">Admin Tools</h1>
+          <p className="text-zinc-500 text-sm mt-0.5">Data export, bulk actions & system utilities</p>
+        </div>
+      </div>
 
+      {/* Notification Banner */}
       {result && (
-        <div className={`flex items-center gap-2 p-3 rounded-xl text-sm ${result.type === "success" ? "text-green-400" : "text-red-400"}`}
-          style={{ background: result.type === "success" ? "rgba(74,222,128,0.08)" : "rgba(248,113,113,0.08)", border: `1px solid ${result.type === "success" ? "rgba(74,222,128,0.2)" : "rgba(248,113,113,0.2)"}` }}>
-          {result.type === "success" ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
+        <div className={`flex items-center gap-3 p-4 rounded-2xl text-sm font-bold border animate-in fade-in slide-in-from-top-4 ${
+          result.type === "success" 
+            ? "bg-green-500/10 border-green-500/20 text-green-400" 
+            : "bg-red-500/10 border-red-500/20 text-red-400"
+        }`}>
+          {result.type === "success" 
+            ? <CheckCircle size={18} className="shrink-0" /> 
+            : <AlertTriangle size={18} className="shrink-0" />}
           {result.msg}
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Export Orders */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Download size={14} style={{ color: "#f59e0b" }} /> Export Orders (CSV)
-          </h2>
-          <div className="space-y-3">
+        <div className="admin-card p-6 border-t-2 border-t-orange-500">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
+              <Download size={18} className="text-orange-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-white">Export Orders</h2>
+              <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-widest mt-0.5">CSV Download</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">From Date</label>
+                <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">From Date</label>
                 <input type="date" value={exportFrom} onChange={(e) => setExportFrom(e.target.value)}
-                  className="input-field text-sm py-2" />
+                  className="input-field text-sm w-full" />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">To Date</label>
+                <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">To Date</label>
                 <input type="date" value={exportTo} onChange={(e) => setExportTo(e.target.value)}
-                  className="input-field text-sm py-2" />
+                  className="input-field text-sm w-full" />
               </div>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Status Filter</label>
+              <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Status Filter</label>
               <select value={exportStatus} onChange={(e) => setExportStatus(e.target.value)}
-                className="input-field text-sm py-2">
+                className="input-field text-sm w-full">
                 <option value="all">All Orders</option>
                 <option value="PAID">Paid Only</option>
                 <option value="PENDING">Pending</option>
@@ -115,102 +142,121 @@ export default function AdminToolsPage() {
               </select>
             </div>
             <button onClick={exportOrders} disabled={exporting}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-black disabled:opacity-50"
-              style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
-              {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-black font-black text-sm transition-all disabled:opacity-50">
+              {exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
               {exporting ? "Exporting..." : "Export to CSV"}
             </button>
           </div>
         </div>
 
         {/* Bulk Email */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Mail size={14} style={{ color: "#f59e0b" }} /> Bulk Email Campaign
-          </h2>
-          <div className="space-y-3">
+        <div className="admin-card p-6 border-t-2 border-t-blue-500">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+              <Mail size={18} className="text-blue-400" />
+            </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Audience</label>
+              <h2 className="text-base font-black text-white">Bulk Email Campaign</h2>
+              <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-widest mt-0.5">Mass Notifications</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Audience</label>
               <select value={bulkEmail.audience} onChange={(e) => setBulkEmail((p) => ({ ...p, audience: e.target.value }))}
-                className="input-field text-sm py-2">
+                className="input-field text-sm w-full">
                 <option value="all">All Users</option>
                 <option value="customers">Customers with Orders</option>
                 <option value="no_orders">Users without Orders</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Subject</label>
+              <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Subject</label>
               <input value={bulkEmail.subject} onChange={(e) => setBulkEmail((p) => ({ ...p, subject: e.target.value }))}
-                placeholder="New products just dropped!" className="input-field text-sm py-2" />
+                placeholder="New products just dropped!" className="input-field text-sm w-full" />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Message</label>
+              <label className="block text-[11px] font-black uppercase tracking-widest text-zinc-500 mb-2">Message Body</label>
               <textarea value={bulkEmail.message} onChange={(e) => setBulkEmail((p) => ({ ...p, message: e.target.value }))}
-                placeholder="Write your email content here..." rows={3}
-                className="input-field text-sm py-2 resize-none w-full" />
+                placeholder="Write your email content here..." rows={4}
+                className="input-field text-sm w-full resize-none" />
             </div>
             <button onClick={sendBulkEmail} disabled={sendingBulk || !bulkEmail.subject.trim() || !bulkEmail.message.trim()}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-black disabled:opacity-50"
-              style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
-              {sendingBulk ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm transition-all disabled:opacity-50">
+              {sendingBulk ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
               {sendingBulk ? "Sending..." : "Send Campaign"}
             </button>
           </div>
         </div>
 
-        {/* Quick Stats Refresh */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <RefreshCw size={14} style={{ color: "#4ade80" }} /> Database Utilities
-          </h2>
-          <div className="space-y-2">
+        {/* Database Utilities */}
+        <div className="admin-card p-6 border-t-2 border-t-purple-500">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+              <Database size={18} className="text-purple-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-white">Database Utilities</h2>
+              <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-widest mt-0.5">Maintenance Tasks</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
             {[
-              { label: "Recalculate Product Ratings", desc: "Recompute avgRating for all products from reviews", action: "fix-products", icon: Package, color: "#f59e0b" },
-              { label: "Clean Seed Users", desc: "Remove fake review/seed users from database", action: "cleanup-seed-users", icon: Trash2, color: "#f87171" },
+              { label: "Recalculate Product Ratings", desc: "Recompute avgRating for all products from reviews", action: "fix-products", icon: BarChart3, color: "text-orange-400", bg: "bg-orange-500/10" },
+              { label: "Clean Seed Users", desc: "Remove fake review/seed users from database", action: "cleanup-seed-users", icon: Trash2, color: "text-red-400", bg: "bg-red-500/10" },
             ].map((item) => (
-              <div key={item.action} className="flex items-center justify-between p-3 rounded-xl"
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div key={item.action} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] transition-colors group">
                 <div className="flex items-center gap-3">
-                  <item.icon size={14} style={{ color: item.color }} />
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${item.bg}`}>
+                    <item.icon size={16} className={item.color} />
+                  </div>
                   <div>
-                    <p className="text-sm text-white">{item.label}</p>
-                    <p className="text-xs text-gray-500">{item.desc}</p>
+                    <p className="text-sm font-bold text-white group-hover:text-orange-400 transition-colors">{item.label}</p>
+                    <p className="text-[11px] text-zinc-600 mt-0.5">{item.desc}</p>
                   </div>
                 </div>
-                <button onClick={() => runAction(item.action)}
-                  className="text-xs px-3 py-1.5 rounded-lg transition-all hover:opacity-80"
-                  style={{ background: "rgba(245,158,11,0.1)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.2)" }}>
-                  Run
+                <button onClick={() => runAction(item.action)} disabled={runningAction === item.action}
+                  className="text-[11px] px-3 py-1.5 rounded-lg font-black uppercase tracking-widest bg-white/5 border border-white/10 text-zinc-400 hover:bg-orange-500/10 hover:text-orange-400 hover:border-orange-500/20 transition-all disabled:opacity-50 shrink-0 ml-4">
+                  {runningAction === item.action ? <Loader2 size={12} className="animate-spin" /> : "Run"}
                 </button>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Seed Tools */}
-        <div className="glass-card p-5">
-          <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <Zap size={14} style={{ color: "#f59e0b" }} /> Seed & Setup Tools
-          </h2>
-          <div className="space-y-2">
+        {/* Seed & Setup Tools */}
+        <div className="admin-card p-6 border-t-2 border-t-green-500">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20">
+              <RefreshCw size={18} className="text-green-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-black text-white">Seed & Setup Tools</h2>
+              <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-widest mt-0.5">Demo Data Management</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
             {[
-              { label: "Seed Demo Products", desc: "Add sample products to the catalog", action: "seed-products", icon: Package, color: "#f59e0b" },
-              { label: "Seed Blog Posts", desc: "Add SEO blog posts", action: "seed-seo-blogs", icon: Users, color: "#4ade80" },
-              { label: "Seed Reviews", desc: "Add sample customer reviews", action: "seed-reviews", icon: DollarSign, color: "#a78bfa" },
+              { label: "Seed Demo Products", desc: "Add sample products to the catalog", action: "seed-products", icon: Package, color: "text-orange-400", bg: "bg-orange-500/10" },
+              { label: "Seed Blog Posts", desc: "Add SEO-optimized blog posts", action: "seed-seo-blogs", icon: FileText, color: "text-green-400", bg: "bg-green-500/10" },
+              { label: "Seed Reviews", desc: "Add sample customer reviews", action: "seed-reviews", icon: DollarSign, color: "text-purple-400", bg: "bg-purple-500/10" },
             ].map((item) => (
-              <div key={item.action} className="flex items-center justify-between p-3 rounded-xl"
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div key={item.action} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] transition-colors group">
                 <div className="flex items-center gap-3">
-                  <item.icon size={14} style={{ color: item.color }} />
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${item.bg}`}>
+                    <item.icon size={16} className={item.color} />
+                  </div>
                   <div>
-                    <p className="text-sm text-white">{item.label}</p>
-                    <p className="text-xs text-gray-500">{item.desc}</p>
+                    <p className="text-sm font-bold text-white group-hover:text-orange-400 transition-colors">{item.label}</p>
+                    <p className="text-[11px] text-zinc-600 mt-0.5">{item.desc}</p>
                   </div>
                 </div>
-                <button onClick={() => runAction(item.action)}
-                  className="text-xs px-3 py-1.5 rounded-lg transition-all hover:opacity-80"
-                  style={{ background: "rgba(245,158,11,0.1)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.2)" }}>
-                  Run
+                <button onClick={() => runAction(item.action)} disabled={runningAction === item.action}
+                  className="text-[11px] px-3 py-1.5 rounded-lg font-black uppercase tracking-widest bg-white/5 border border-white/10 text-zinc-400 hover:bg-orange-500/10 hover:text-orange-400 hover:border-orange-500/20 transition-all disabled:opacity-50 shrink-0 ml-4">
+                  {runningAction === item.action ? <Loader2 size={12} className="animate-spin" /> : "Run"}
                 </button>
               </div>
             ))}
