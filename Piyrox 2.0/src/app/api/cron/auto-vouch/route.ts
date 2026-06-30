@@ -170,7 +170,7 @@ function buildPurchaseEmbed(
       { name: "Purchased", value: timeLabel, inline: true },
     ],
     footer: {
-      text: "PIYROX • Real customer purchase • piyrox.xyz",
+      text: "PIYROX • Real customer purchase • piyrox.sbs",
     },
     timestamp: new Date().toISOString(),
     url: `${appUrl}/products`,
@@ -207,7 +207,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 
     // Fetch a random active product
     const products = await db.product.findMany({

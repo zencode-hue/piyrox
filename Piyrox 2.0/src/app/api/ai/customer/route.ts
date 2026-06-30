@@ -47,7 +47,7 @@ CURRENT PRODUCT CONTEXT:
 
     const systemPrompt = `You are the PIYROX AI Support Assistant.
 
-NAME: PIYROX | URL: https://piyrox.xyz
+NAME: PIYROX | URL: https://piyrox.sbs
 LIVE CATALOG:
 ${liveCatalog}
 ${productContext}
@@ -86,7 +86,7 @@ MANDATORY: You are Piyrox AI, the official support for PIYROX.`;
           headers: {
             Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://piyrox.xyz",
+            "HTTP-Referer": "https://piyrox.sbs",
             "X-Title": "PIYROX Customer AI",
           },
           body: JSON.stringify({

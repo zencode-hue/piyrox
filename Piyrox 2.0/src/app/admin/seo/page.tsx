@@ -28,7 +28,7 @@ export default function AdminSEOPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   
   // Global States
-  const [appUrl, setAppUrl] = useState("https://piyrox.xyz");
+  const [appUrl, setAppUrl] = useState("https://piyrox.sbs");
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 

@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { amount, paymentProvider } = parsed.data;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
   const topupRef = `TOPUP-${session.user.id}-${Date.now()}`;
 
   if (paymentProvider === "paymento") {

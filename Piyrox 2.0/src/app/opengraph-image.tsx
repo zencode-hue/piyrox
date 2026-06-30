@@ -114,7 +114,7 @@ export default function OGImage() {
 
         {/* URL */}
         <p style={{ position: "absolute", bottom: 32, color: "rgba(255,255,255,0.25)", fontSize: 16 }}>
-          piyrox.xyz
+          piyrox.sbs
         </p>
       </div>
     ),

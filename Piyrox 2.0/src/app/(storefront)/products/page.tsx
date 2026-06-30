@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "All Products — PIYROX",
   description: "Browse 500+ digital products on PIYROX — Netflix, Spotify, ChatGPT Plus, gaming keys, AI tools and software licenses. Instant delivery.",
   alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz"}/products`,
+    canonical: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs"}/products`,
   },
   openGraph: {
     title: "All Products — PIYROX",

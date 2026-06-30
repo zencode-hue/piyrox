@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     const pinToken = map["pinterest_access_token"];
     const pinBoardId = map["pinterest_board_id"];
     
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 
     // Create a SocialBlast entry
     const blast = await db.socialBlast.create({
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
                 headers: {
                   Authorization: `Bearer ${apiKey}`,
                   "Content-Type": "application/json",
-                  "HTTP-Referer": "https://piyrox.xyz",
+                  "HTTP-Referer": "https://piyrox.sbs",
                   "X-Title": "PIYROX Admin",
                 },
                 body: JSON.stringify({
@@ -246,7 +246,7 @@ export async function POST(req: NextRequest) {
             link: `${origin}/api/social/click/${blast.id}/pinterest`,
             media_source: {
               source_type: "image_url",
-              url: product.imageUrl || "https://piyrox.xyz/logo.png",
+              url: product.imageUrl || "https://piyrox.sbs/logo.png",
             },
           }),
         });

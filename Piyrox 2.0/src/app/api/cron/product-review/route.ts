@@ -338,11 +338,11 @@ function buildReviewEmbed(
       { name: "Review Time", value: reviewTimeLabel, inline: true },
       {
         name: "Actions",
-        value: "[View Product](https://piyrox.xyz) • [Contact Support](https://piyrox.xyz/support)",
+        value: "[View Product](https://piyrox.sbs) • [Contact Support](https://piyrox.sbs/support)",
       }
     ],
     footer: {
-      text: `PIYROX • Customer Reviews • piyrox.xyz • Reviewed ${reviewTimeLabel}`,
+      text: `PIYROX • Customer Reviews • piyrox.sbs • Reviewed ${reviewTimeLabel}`,
     },
     timestamp: reviewTime.toISOString(), // Use actual review time
   };
@@ -376,7 +376,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 
     // Generate purchase scenario
     const purchase = await generatePurchaseScenario();

@@ -45,9 +45,7 @@ function header(accentColor = "#f59e0b", label = "PIYROX"): string {
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="padding:28px 36px 24px;">
-              <span style="font-size:20px;font-weight:900;color:#000;letter-spacing:-0.5px;font-family:system-ui,sans-serif;">
-                ${label}
-              </span>
+              <img src="${APP_URL}/logo.png" alt="${label}" width="180" style="display:block;max-width:100%;height:auto;border:0;outline:none;" />
             </td>
           </tr>
         </table>

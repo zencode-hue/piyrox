@@ -97,7 +97,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
   if (!product) return { title: "Product Not Found - PIYROX" };
 
-  const appUrl = "https://piyrox.xyz";
+  const appUrl = "https://piyrox.sbs";
   const slugUrl = `${appUrl}${productPath(realId, product.title)}`;
   const catLabel = CATEGORY_LABELS[product.category] ?? "Digital";
   const price = Number(product.price).toFixed(2);
@@ -140,7 +140,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const catColor = CATEGORY_COLORS[product.category] ?? "text-zinc-400 bg-white/5 border-white/10";
   const reviewCount = product.reviews.length;
   const avgRating = product.avgRating;
-  const appUrl = "https://piyrox.xyz";
+  const appUrl = "https://piyrox.sbs";
 
   const productJsonLd = {
     "@context": "https://schema.org",

@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "No webhook configured" }, { status: 503 });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 
     // Fetch products directly from DB to avoid self-fetch issues in some environments
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

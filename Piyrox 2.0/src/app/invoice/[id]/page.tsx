@@ -61,7 +61,7 @@ export default async function InvoicePage({ params }: { params: { id: string } }
   const status = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.PENDING;
   const StatusIcon = status.icon;
   const invoiceNum = `MMT-${order.id.slice(-6).toUpperCase()}`;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 
   const steps = [
     { label: "Order Placed", done: true, time: new Date(order.createdAt).toLocaleString() },

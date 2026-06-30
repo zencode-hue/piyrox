@@ -79,11 +79,11 @@ export async function deployTicketPanel(channelId: string) {
           { name: "⏱️  Response Time", value: "> Our team typically responds within **15–30 minutes**.", inline: false },
           {
             name: "📌  Before Opening a Ticket",
-            value: "> • Check our [FAQ at piyrox.xyz](https://piyrox.xyz/support)\n> • Have your Order ID ready if applicable\n> • One ticket per issue please",
+            value: "> • Check our [FAQ at piyrox.sbs](https://piyrox.sbs/support)\n> • Have your Order ID ready if applicable\n> • One ticket per issue please",
             inline: false,
           },
         ],
-        footer: { text: "PIYROX • piyrox.xyz | Replacing Velxo Shop", icon_url: "https://piyrox.xyz/favicon.ico" },
+        footer: { text: "PIYROX • piyrox.sbs | Replacing Velxo Shop", icon_url: "https://piyrox.sbs/favicon.ico" },
       },
     ],
     components: [
@@ -105,9 +105,9 @@ export async function deployTicketPanel(channelId: string) {
       {
         type: 1, // ActionRow
         components: [
-          { type: 2, style: 5, label: "PIYROX", url: "https://piyrox.xyz", emoji: { name: "🛒" } },
-          { type: 2, style: 5, label: "Browse Deals", url: "https://piyrox.xyz/deals", emoji: { name: "🔥" } },
-          { type: 2, style: 5, label: "Support", url: "https://piyrox.xyz/support", emoji: { name: "🎫" } },
+          { type: 2, style: 5, label: "PIYROX", url: "https://piyrox.sbs", emoji: { name: "🛒" } },
+          { type: 2, style: 5, label: "Browse Deals", url: "https://piyrox.sbs/deals", emoji: { name: "🔥" } },
+          { type: 2, style: 5, label: "Support", url: "https://piyrox.sbs/support", emoji: { name: "🎫" } },
         ],
       },
     ],
@@ -159,7 +159,7 @@ export async function sendAnnouncement(channelId: string, data: {
             inline: false,
           },
         ],
-        footer: { text: "PIYROX • piyrox.xyz", icon_url: "https://piyrox.xyz/favicon.ico" },
+        footer: { text: "PIYROX • piyrox.sbs", icon_url: "https://piyrox.sbs/favicon.ico" },
         timestamp: new Date().toISOString(),
       },
     ],

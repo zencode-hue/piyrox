@@ -344,7 +344,7 @@ async function callOpenRouter(
   const headers = {
     Authorization: `Bearer ${apiKey}`,
     "Content-Type": "application/json",
-    "HTTP-Referer": "https://piyrox.xyz",
+    "HTTP-Referer": "https://piyrox.sbs",
     "X-Title": "PIYROX Admin AI",
   };
 

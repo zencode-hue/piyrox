@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     const settingsMap: Record<string, string> = {};
     for (const s of settings) settingsMap[s.key] = s.value;
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 
     // Push today's deals
     if (type === "deals") {

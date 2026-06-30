@@ -22,7 +22,7 @@ export async function GET() {
 
   if (!partner) return NextResponse.json({ data: null, error: null });
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 
   return NextResponse.json({
     data: {

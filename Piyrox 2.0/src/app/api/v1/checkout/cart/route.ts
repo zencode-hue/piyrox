@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     }
 
     const finalAmount = Math.max(0, totalAmount - discountAmount);
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
 
     // ── Balance payment — deduct and deliver all items immediately ────────────
     if (paymentProvider === "balance") {

@@ -45,7 +45,7 @@ export default function AffiliateSection({ affiliate }: { affiliate: AffiliateDa
               <Users size={18} className="text-amber-400" /> Affiliate Program
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Earn {process.env.NEXT_PUBLIC_AFFILIATE_PCT ?? "10"}% commission on every sale you refer. Get your unique piyrox.xyz link instantly.
+              Earn {process.env.NEXT_PUBLIC_AFFILIATE_PCT ?? "10"}% commission on every sale you refer. Get your unique piyrox.sbs link instantly.
             </p>
           </div>
           <button onClick={joinAffiliate} disabled={joining} className="btn-primary text-sm px-6 py-2.5">

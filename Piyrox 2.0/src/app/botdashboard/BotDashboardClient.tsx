@@ -331,7 +331,7 @@ export default function BotDashboardClient({ initialSettings, stats }: BotDashbo
                   rows={3}
                   value={announceMessageContent}
                   onChange={e => setAnnounceMessageContent(e.target.value)}
-                  placeholder="Netflix Premium Ultra-HD accounts have been fully restocked! Visit piyrox.xyz to secure yours."
+                  placeholder="Netflix Premium Ultra-HD accounts have been fully restocked! Visit piyrox.sbs to secure yours."
                   className="bg-zinc-950 border border-zinc-800 focus:border-amber-500/40 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none transition w-full resize-none"
                 />
               </div>

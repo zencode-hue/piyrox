@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     select: { title: true, excerpt: true, emoji: true },
   }) as { title: string; excerpt: string; emoji: string } | null;
   if (!post) return { title: "Post Not Found — PIYROX" };
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.xyz";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://piyrox.sbs";
   const ogImage = `${appUrl}/opengraph-image`;
   return {
     title: `${post.title} — PIYROX Blog`,
