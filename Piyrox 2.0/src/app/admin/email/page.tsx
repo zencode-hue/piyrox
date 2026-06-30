@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mail, Send, Loader2, Users, User, ShoppingCart, Eye, AlertTriangle, Sparkles } from "lucide-react";
+import { Mail, Send, Loader2, Users, User, ShoppingCart, Eye, AlertTriangle, Sparkles, CheckCircle } from "lucide-react";
 
 type Audience = "all" | "customers" | "guests" | "custom" | "order";
 
