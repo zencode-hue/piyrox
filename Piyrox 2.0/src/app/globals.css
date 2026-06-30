@@ -308,3 +308,30 @@
 }
 
 .animate-fade-up { animation: fade-up 0.4s ease forwards; }
+
+/* ─── Admin Panel Overrides ──────────────────────────────────────────────────── */
+.admin-panel {
+  --admin-bg: #080810;
+  --admin-surface: rgba(255,255,255,0.025);
+  --admin-border: rgba(255,255,255,0.07);
+  --admin-accent: #f97316;
+}
+
+/* Admin glass card — slightly more opaque for readability on dark bg */
+.admin-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+}
+
+.admin-card:hover {
+  background: rgba(255,255,255,0.035);
+  border-color: rgba(255,255,255,0.09);
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Tabular nums for stats */
+.tabular-nums { font-variant-numeric: tabular-nums; }
