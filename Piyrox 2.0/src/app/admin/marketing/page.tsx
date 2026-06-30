@@ -4,7 +4,8 @@ import { useState } from "react";
 import { 
   Megaphone, Sparkles, Send, Calendar, TrendingUp, 
   MessageSquare, Layout, Target, Zap, Loader2, 
-  Check, Copy, Facebook, Instagram, Twitter, Mail
+  Check, Copy, Facebook, Instagram, Twitter, Mail,
+  AlertCircle
 } from "lucide-react";
 
 export default function MarketingPage() {
