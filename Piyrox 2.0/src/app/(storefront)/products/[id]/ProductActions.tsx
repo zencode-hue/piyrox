@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -61,8 +61,17 @@ export default function ProductActions({
 
   function handleAddToCart() {
     if (!effectiveInStock) return;
-    const label = selectedVariant ? `${productTitle} — ${selectedVariant.name}` : productTitle;
-    addItem({ id: cartKey, title: label, price: effectivePrice, category: category ?? "", imageUrl, variantId: selectedVariant?.id, productId });
+    const label = productTitle;
+    addItem({ 
+      id: cartKey, 
+      title: label, 
+      price: effectivePrice, 
+      category: category ?? "", 
+      imageUrl, 
+      variantId: selectedVariant?.id, 
+      variantName: selectedVariant?.name,
+      productId 
+    });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   }
@@ -175,12 +184,14 @@ export default function ProductActions({
       {effectiveInStock ? (
         <div className="flex gap-3">
           <button onClick={handleAddToCart}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-white text-sm transition-all hover:-translate-y-0.5 active:translate-y-0"
+            disabled={inCart}
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-white text-sm transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-80 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             style={{
               background: inCart || addedToCart ? "rgba(52,211,153,0.15)" : "rgba(255,255,255,0.07)",
               border: inCart || addedToCart ? "1px solid rgba(52,211,153,0.3)" : "1px solid rgba(255,255,255,0.12)",
+              color: inCart || addedToCart ? "#34d399" : "#ffffff",
             }}>
-            {inCart || addedToCart ? <><Check size={16} /> Added to Cart</> : <><ShoppingCart size={16} /> Add to Cart</>}
+            {inCart || addedToCart ? <><Check size={16} /> In Cart</> : <><ShoppingCart size={16} /> Add to Cart</>}
           </button>
           <button onClick={handleBuyNow}
             className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-white text-sm transition-all hover:-translate-y-0.5 active:translate-y-0"

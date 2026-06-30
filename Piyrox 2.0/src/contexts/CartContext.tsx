@@ -6,6 +6,7 @@ export interface CartItem {
   id: string;        // unique key — productId or productId__variantId
   productId: string;
   variantId?: string;
+  variantName?: string;
   title: string;
   price: number;
   category: string;
@@ -25,7 +26,14 @@ type CartAction =
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "ADD":
-      if (state.items.find((i) => i.id === action.item.id)) return state;
+      // If item already exists, replace it (update price / variant name if changed)
+      if (state.items.find((i) => i.id === action.item.id)) {
+        return {
+          items: state.items.map((i) =>
+            i.id === action.item.id ? action.item : i
+          ),
+        };
+      }
       return { items: [...state.items, action.item] };
     case "REMOVE":
       return { items: state.items.filter((i) => i.id !== action.id) };
@@ -45,11 +53,12 @@ interface CartContextValue {
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
+  isInCart: (id: string) => boolean;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-const STORAGE_KEY = "vlx_cart_v1";
+const STORAGE_KEY = "vlx_cart_v2";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
@@ -88,6 +97,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     addItem: (item) => dispatch({ type: "ADD", item }),
     removeItem: (id) => dispatch({ type: "REMOVE", id }),
     clearCart: () => dispatch({ type: "CLEAR" }),
+    isInCart: (id) => state.items.some((i) => i.id === id),
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

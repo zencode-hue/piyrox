@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ShoppingBag, Trash2, Zap, Bitcoin, Wallet, Loader2,
-  CheckCircle, ArrowRight, Tag, CreditCard, ChevronRight, ExternalLink, X,
+  CheckCircle, ArrowRight, Tag, CreditCard, ChevronRight, ExternalLink, X, Package
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/contexts/CartContext";
@@ -65,33 +65,35 @@ function GiftCardModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/85 backdrop-blur-md">
-      <div className="w-full max-w-md rounded-2xl bg-[#09090b] border border-white/10">
+      <div className="w-full max-w-md rounded-3xl bg-[#0a0a0a] border border-white/10 shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between p-5 border-b border-white/5">
           <div>
-            <h3 className="font-bold text-white">Pay with Binance Gift Card</h3>
+            <h3 className="font-bold text-white text-lg">Binance Gift Card</h3>
             <p className="text-xs text-zinc-400 mt-0.5">${denomination} USD card required for your cart</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 transition-all">
+          <button onClick={onClose} className="p-2 rounded-xl bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-all border border-white/5">
             <X size={16} />
           </button>
         </div>
 
         {submitted ? (
-          <div className="p-6 text-center">
-            <CheckCircle size={40} className="text-white mx-auto mb-3" />
-            <p className="font-bold text-white mb-1">Code Submitted!</p>
-            <p className="text-sm text-zinc-400">Our team is verifying your gift card. You&apos;ll receive all products via email once approved.</p>
+          <div className="p-8 text-center">
+            <div className="w-20 h-20 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-5">
+              <CheckCircle size={32} className="text-green-500" />
+            </div>
+            <p className="text-xl font-bold text-white mb-2">Code Submitted!</p>
+            <p className="text-sm text-zinc-400 leading-relaxed">Our team is verifying your gift card. You&apos;ll receive all products via email once approved.</p>
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-2 px-5 pt-4 pb-2 text-xs">
+            <div className="flex items-center gap-2 px-5 pt-5 pb-2 text-xs">
               <button onClick={() => setStep("instructions")}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-all ${step === "instructions" ? "bg-white/10 text-white border-white/10" : "bg-white/5 text-zinc-400 border-transparent"} border`}>
+                className={`flex-1 py-2 rounded-xl font-bold transition-all ${step === "instructions" ? "bg-amber-500/15 text-amber-500 border-amber-500/30" : "bg-white/5 text-zinc-500 border-transparent hover:text-white"} border`}>
                 1. How to buy
               </button>
-              <ChevronRight size={12} className="text-white/20" />
+              <ChevronRight size={14} className="text-zinc-700 shrink-0" />
               <button onClick={() => setStep("code")}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-all ${step === "code" ? "bg-white/10 text-white border-white/10" : "bg-white/5 text-zinc-400 border-transparent"} border`}>
+                className={`flex-1 py-2 rounded-xl font-bold transition-all ${step === "code" ? "bg-amber-500/15 text-amber-500 border-amber-500/30" : "bg-white/5 text-zinc-500 border-transparent hover:text-white"} border`}>
                 2. Submit code
               </button>
             </div>
@@ -102,27 +104,27 @@ function GiftCardModal({
                   <ol className="space-y-3">
                     {[
                       `Click the button below to buy a $${denomination} USD Binance Gift Card on Eneba.`,
-                      "Complete the purchase. You'll receive a gift card code (e.g. XXXX-XXXX-XXXX-XXXX).",
+                      "Complete the purchase. You'll receive a gift card code.",
                       "Come back here and click \"I have my code\" to enter it.",
-                      "Our staff will verify the code and deliver all your products within minutes.",
+                      "Our staff will verify the code and deliver your products.",
                     ].map((text, n) => (
-                      <li key={n} className="flex gap-3 text-sm text-zinc-400">
-                        <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 bg-white/10 text-white">
+                      <li key={n} className="flex gap-3 text-sm text-zinc-300 font-medium">
+                        <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 bg-white/10 text-white shadow-sm border border-white/5">
                           {n + 1}
                         </span>
-                        {text}
+                        <span className="mt-0.5 leading-relaxed">{text}</span>
                       </li>
                     ))}
                   </ol>
-                  <div className="p-3 rounded-xl text-xs bg-white/5 border border-white/10 text-zinc-300">
-                    ⚠️ Purchase exactly a <strong>${denomination} USD</strong> Binance Gift Card. Other amounts won&apos;t be accepted.
+                  <div className="p-4 rounded-xl text-xs bg-amber-500/10 border border-amber-500/20 text-amber-200/80 font-medium">
+                    ⚠️ Purchase exactly a <strong className="text-amber-400">${denomination} USD</strong> Binance Gift Card. Other amounts won&apos;t be accepted.
                   </div>
                   <a href={enebaUrl} target="_blank" rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold bg-white text-black hover:bg-zinc-200 transition-all">
-                    <ExternalLink size={15} /> Buy ${denomination} USD Gift Card on Eneba
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold bg-white text-black hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)]">
+                    <ExternalLink size={16} /> Buy ${denomination} Gift Card on Eneba
                   </a>
                   <button onClick={() => setStep("code")}
-                    className="w-full py-2.5 rounded-xl text-sm transition-all bg-white/[0.02] border border-white/5 text-zinc-400 hover:bg-white/5 hover:text-white">
+                    className="w-full py-3 rounded-xl text-sm font-bold transition-all bg-white/[0.03] border border-white/5 text-zinc-400 hover:bg-white/10 hover:text-white">
                     I already have my code →
                   </button>
                 </div>
@@ -131,19 +133,19 @@ function GiftCardModal({
               {step === "code" && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs mb-2 text-zinc-400">
-                      Paste your Binance Gift Card code
+                    <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-zinc-500">
+                      Paste Binance Gift Card code
                     </label>
                     <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())}
                       placeholder="XXXX-XXXX-XXXX-XXXX"
-                      className="w-full bg-white/[0.02] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-white/20 font-mono tracking-widest text-sm" autoFocus />
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-zinc-700 focus:outline-none focus:border-amber-500/50 focus:bg-amber-500/5 font-mono tracking-widest text-sm transition-all shadow-inner" autoFocus />
                   </div>
-                  {error && <p className="text-xs text-white">{error}</p>}
+                  {error && <p className="text-xs font-medium text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl">{error}</p>}
                   <button onClick={submitCode} disabled={submitting || !code.trim()}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold disabled:opacity-50 bg-white text-black hover:bg-zinc-200 transition-all">
-                    {submitting ? <Loader2 size={15} className="animate-spin" /> : "Submit Gift Card Code"}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold disabled:opacity-50 bg-amber-500 text-black hover:bg-amber-400 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                    {submitting ? <Loader2 size={16} className="animate-spin" /> : "Submit Gift Card Code"}
                   </button>
-                  <button onClick={() => setStep("instructions")} className="text-xs text-zinc-500 hover:text-white transition-colors">
+                  <button onClick={() => setStep("instructions")} className="text-xs font-medium text-zinc-500 hover:text-white transition-colors w-full text-center mt-2">
                     ← Back to instructions
                   </button>
                 </div>
@@ -231,6 +233,13 @@ export default function CartPage() {
       return;
     }
 
+    // For crypto: redirect to invoice page so user has a record before paying
+    if (selectedPayment === "paymento" && data.data?.orderIds?.[0]) {
+      clearCart();
+      window.location.href = `/invoice/${data.data.orderIds[0]}`;
+      return;
+    }
+
     clearCart();
     if (data.data?.redirectUrl) {
       window.location.href = data.data.redirectUrl;
@@ -239,14 +248,15 @@ export default function CartPage() {
 
   if (items.length === 0 && !giftCardModal) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center px-4 text-center">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 bg-white/5 border border-white/10">
-          <ShoppingBag size={36} className="text-white" />
+      <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 text-center">
+        <div className="w-24 h-24 rounded-[32px] flex items-center justify-center mb-8 bg-white/[0.02] border border-white/5 shadow-2xl relative">
+          <div className="absolute inset-0 bg-amber-500/10 rounded-[32px] blur-xl" />
+          <ShoppingBag size={40} className="text-zinc-500 relative z-10" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">Your cart is empty</h1>
-        <p className="text-zinc-500 mb-6">Add some products to get started.</p>
-        <Link href="/products" className="bg-white text-black hover:bg-zinc-200 transition-all text-sm font-semibold rounded-xl px-6 py-3">
-          Browse Products
+        <h1 className="text-3xl font-black text-white mb-3 tracking-tight">Your cart is empty</h1>
+        <p className="text-zinc-400 mb-8 max-w-sm text-sm leading-relaxed">Ready to get started? Explore our digital products and subscriptions.</p>
+        <Link href="/products" className="bg-white text-black hover:bg-zinc-200 transition-all text-sm font-bold rounded-xl px-8 py-3.5 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+          Start Shopping
         </Link>
       </div>
     );
@@ -254,7 +264,7 @@ export default function CartPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen py-12 lg:py-16">
         {giftCardModal && (
           <GiftCardModal
             amount={giftCardModal.amount}
@@ -267,181 +277,199 @@ export default function CartPage() {
           />
         )}
 
-        <div className="max-w-2xl mx-auto px-4 py-12">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <ShoppingBag size={22} className="text-white" />
-              Cart
-              <span className="text-sm font-normal text-zinc-500">({items.length} item{items.length !== 1 ? "s" : ""})</span>
-            </h1>
-            <button onClick={clearCart} className="text-xs text-zinc-600 hover:text-white transition-colors">
-              Clear all
-            </button>
+        <div className="max-w-6xl mx-auto px-4 lg:px-8">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+              <ShoppingBag size={20} className="text-white" />
+            </div>
+            <h1 className="text-3xl font-black text-white tracking-tight">Checkout</h1>
+            <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold border border-white/5">
+              {items.length} item{items.length !== 1 ? "s" : ""}
+            </span>
           </div>
 
-          {/* Items */}
-          <div className="space-y-2 mb-6">
-            {items.map((item) => (
-              <div key={item.id} className="bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-2xl p-4 flex items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-white text-sm truncate">{item.title}</p>
-                  <p className="text-xs text-zinc-500">{CAT[item.category] ?? item.category}</p>
-                </div>
-                <p className="font-bold text-white shrink-0">${item.price.toFixed(2)}</p>
-                <button onClick={() => removeItem(item.id)}
-                  className="p-2 rounded-lg text-zinc-600 hover:text-white hover:bg-white/10 transition-all">
-                  <Trash2 size={15} />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            
+            {/* Left Column — Cart Items */}
+            <div className="lg:col-span-7 space-y-6">
+              
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <h2 className="text-lg font-bold text-white">Review your order</h2>
+                <button onClick={clearCart} className="text-xs font-semibold text-zinc-500 hover:text-red-400 transition-colors bg-white/5 px-3 py-1.5 rounded-lg">
+                  Remove all
                 </button>
               </div>
-            ))}
-          </div>
 
-          {/* Discount code */}
-          <div className="bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-2xl p-5 mb-4">
-            <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-1.5">
-              <Tag size={14} /> Discount Code <span className="text-zinc-600 text-xs">(optional)</span>
-            </label>
-            <div className="flex gap-2">
-              <input value={discountCode}
-                onChange={(e) => { setDiscountCode(e.target.value.toUpperCase()); setDiscountInfo(null); setDiscountErr(null); }}
-                placeholder="SAVE20" className="flex-1 bg-white/[0.02] border border-white/10 rounded-lg px-4 py-2 text-white placeholder-zinc-600 focus:outline-none focus:border-white/20 text-sm" />
-              <button onClick={applyDiscount} disabled={checkingDiscount || !discountCode.trim()} 
-                className="bg-white/[0.02] border border-white/10 text-white hover:bg-white/10 transition-all text-sm rounded-lg px-4 py-2 font-medium">
-                {checkingDiscount ? "…" : "Apply"}
-              </button>
-            </div>
-            {discountErr && <p className="text-white text-xs mt-2">{discountErr}</p>}
-            {discountInfo && (
-              <p className="text-zinc-300 text-xs mt-2">
-                ✅ {discountInfo.type === "PERCENTAGE" ? `${discountInfo.value}% off` : `$${discountInfo.value} off`} — saving ${discountInfo.discountAmount.toFixed(2)}
-              </p>
-            )}
-          </div>
+              <div className="space-y-4">
+                {items.map((item) => (
+                  <div key={item.id} className="group relative bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex gap-4 transition-all hover:bg-white/[0.04]">
+                    {/* Item Image */}
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-xl bg-black/40 border border-white/10 overflow-hidden relative">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center opacity-50">
+                          <Package size={24} className="text-zinc-600" />
+                        </div>
+                      )}
+                    </div>
 
-          {/* Order summary */}
-          <div className="bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-2xl p-5 mb-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wider mb-3">Order Summary</p>
-            <div className="space-y-2 text-sm">
-              {items.map((item) => (
-                <div key={item.id} className="flex justify-between text-zinc-400">
-                  <span className="truncate mr-4">{item.title}</span>
-                  <span className="shrink-0">${item.price.toFixed(2)}</span>
-                </div>
-              ))}
-              {discount > 0 && (
-                <div className="flex justify-between text-white border-t border-white/5 pt-2">
-                  <span>Discount</span><span>-${discount.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-bold text-white border-t border-white/5 pt-2 text-base">
-                <span>Total</span><span>${finalTotal.toFixed(2)}</span>
+                    {/* Item Info */}
+                    <div className="flex-1 min-w-0 py-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-start gap-4">
+                          <h3 className="font-bold text-white text-base sm:text-lg truncate group-hover:text-amber-400 transition-colors">{item.title}</h3>
+                          <button onClick={() => removeItem(item.id)}
+                            className="p-2 rounded-lg text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-all shrink-0 -mt-1 -mr-1">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] uppercase tracking-widest font-bold text-zinc-400 border border-white/5">
+                            {CAT[item.category] ?? item.category}
+                          </span>
+                          {item.variantName && (
+                            <span className="text-xs font-medium text-zinc-500 truncate">{item.variantName}</span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="font-black text-white text-lg mt-2">${item.price.toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Guest Email Input */}
-          {status !== "loading" && !session?.user && (
-            <div className="bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-2xl p-5 mb-4">
-              <label className="block text-sm text-zinc-400 mb-2">
-                Email Address for Delivery <span className="text-white">*</span>
-              </label>
-              <input
-                type="email"
-                value={guestEmail}
-                onChange={(e) => setGuestEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-                className="w-full bg-white/[0.02] border border-white/10 rounded-lg px-4 py-2 text-white placeholder-zinc-600 focus:outline-none focus:border-white/20 text-sm"
-              />
-              <p className="text-xs text-zinc-500 mt-2">
-                We will send your order details to this email. Sign in to save your purchase history.
-              </p>
-            </div>
-          )}
+            {/* Right Column — Summary & Payment */}
+            <div className="lg:col-span-5">
+              <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-6 lg:p-8 sticky top-24 shadow-2xl backdrop-blur-xl">
+                
+                {/* Guest Email Input */}
+                {status !== "loading" && !session?.user && (
+                  <div className="mb-6">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
+                      Delivery Email <span className="text-amber-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-zinc-700 focus:outline-none focus:border-amber-500/50 text-sm transition-all shadow-inner"
+                    />
+                  </div>
+                )}
 
-          {/* Payment method */}
-          <div className="bg-white/[0.02] border border-white/5 backdrop-blur-md rounded-2xl p-5 mb-5">
-            <p className="text-sm font-medium text-white mb-3">Payment Method</p>
-            <div className="space-y-2">
-              {/* Crypto */}
-              <button onClick={() => setSelectedPayment("paymento")}
-                className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
-                  selectedPayment === "paymento" ? "bg-white/10 border-white/20" : "bg-white/[0.02] border-white/5 hover:border-white/10"
-                }`}>
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-                  <Bitcoin size={18} className="text-white" />
+                <h3 className="text-lg font-bold text-white mb-4">Payment Method</h3>
+                <div className="space-y-3 mb-8">
+                  {/* Crypto */}
+                  <button onClick={() => setSelectedPayment("paymento")}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all ${
+                      selectedPayment === "paymento" ? "bg-amber-500/10 border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.05)]" : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                    }`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${selectedPayment === "paymento" ? "bg-amber-500/20 border-amber-500/20" : "bg-white/5 border-white/5"}`}>
+                      <Bitcoin size={20} className={selectedPayment === "paymento" ? "text-amber-500" : "text-zinc-500"} />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="text-sm font-bold text-white">Crypto Payment</p>
+                      <p className="text-xs text-zinc-500 font-medium mt-0.5">Pay with BTC, ETH, USDT & more</p>
+                    </div>
+                    {selectedPayment === "paymento" && <div className="w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center shrink-0"><CheckCircle size={12} className="stroke-[4]" /></div>}
+                  </button>
+
+                  {/* Gift Card */}
+                  {!isNorthAmerica && (
+                    <button onClick={() => setSelectedPayment("binance_gift_card")}
+                      className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all ${
+                        selectedPayment === "binance_gift_card" ? "bg-amber-500/10 border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.05)]" : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                      }`}>
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${selectedPayment === "binance_gift_card" ? "bg-amber-500/20 border-amber-500/20" : "bg-white/5 border-white/5"}`}>
+                        <CreditCard size={20} className={selectedPayment === "binance_gift_card" ? "text-amber-500" : "text-zinc-500"} />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-bold text-white">Card Payment</p>
+                        <p className="text-xs text-zinc-500 font-medium mt-0.5">Redeem a Binance Gift Card</p>
+                      </div>
+                      {selectedPayment === "binance_gift_card" && <div className="w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center shrink-0"><CheckCircle size={12} className="stroke-[4]" /></div>}
+                    </button>
+                  )}
+
+                  {/* Balance */}
+                  {balance !== null && (
+                    <button onClick={() => canPayWithBalance && setSelectedPayment("balance")}
+                      disabled={!canPayWithBalance}
+                      className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all ${
+                        selectedPayment === "balance" ? "bg-amber-500/10 border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.05)]" : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                      } ${!canPayWithBalance ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}>
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${selectedPayment === "balance" ? "bg-amber-500/20 border-amber-500/20" : "bg-white/5 border-white/5"}`}>
+                        <Wallet size={20} className={selectedPayment === "balance" ? "text-amber-500" : "text-zinc-500"} />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="text-sm font-bold text-white">Wallet Balance</p>
+                        <p className="text-xs text-zinc-500 font-medium mt-0.5">
+                          ${balance.toFixed(2)} {!canPayWithBalance && "— insufficient"}
+                        </p>
+                      </div>
+                      {selectedPayment === "balance" && <div className="w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center shrink-0"><CheckCircle size={12} className="stroke-[4]" /></div>}
+                    </button>
+                  )}
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-white">Crypto Payment</p>
-                  <p className="text-xs text-zinc-500">BTC, ETH, USDT, 100+ coins — one payment for everything</p>
-                </div>
-                {selectedPayment === "paymento" && <CheckCircle size={16} className="text-white shrink-0" />}
-              </button>
 
-              {/* Gift Card — hidden for North America */}
-              {!isNorthAmerica && (
-                <button onClick={() => setSelectedPayment("binance_gift_card")}
-                  className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
-                    selectedPayment === "binance_gift_card" ? "bg-white/10 border-white/20" : "bg-white/[0.02] border-white/5 hover:border-white/10"
-                  }`}>
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-                    <CreditCard size={18} className="text-white" />
+                {/* Discount Code */}
+                <div className="mb-6">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 flex items-center gap-1.5">
+                    <Tag size={14} /> Discount Code
+                  </label>
+                  <div className="flex gap-2">
+                    <input value={discountCode}
+                      onChange={(e) => { setDiscountCode(e.target.value.toUpperCase()); setDiscountInfo(null); setDiscountErr(null); }}
+                      placeholder="Enter promo code" className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-700 focus:outline-none focus:border-amber-500/50 text-sm transition-all shadow-inner" />
+                    <button onClick={applyDiscount} disabled={checkingDiscount || !discountCode.trim()} 
+                      className="bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm font-bold rounded-xl px-5 py-3">
+                      {checkingDiscount ? "…" : "Apply"}
+                    </button>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Card Payment (Key)</p>
-                    <p className="text-xs text-zinc-500">Buy one Binance USDT Gift Card for the total on Eneba</p>
-                  </div>
-                  {selectedPayment === "binance_gift_card" && <CheckCircle size={16} className="text-white shrink-0" />}
-                </button>
-              )}
-
-              {/* Balance */}
-              {balance !== null && (
-                <button onClick={() => canPayWithBalance && setSelectedPayment("balance")}
-                  disabled={!canPayWithBalance}
-                  className={`w-full flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
-                    selectedPayment === "balance" ? "bg-white/10 border-white/20" : "bg-white/[0.02] border-white/5 hover:border-white/10"
-                  } ${!canPayWithBalance ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}>
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-                    <Wallet size={18} className="text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Wallet Balance</p>
-                    <p className="text-xs text-zinc-500">
-                      Available: ${balance.toFixed(2)}{!canPayWithBalance ? " — insufficient" : " — instant delivery"}
+                  {discountErr && <p className="text-red-400 text-xs font-medium mt-2 ml-1">{discountErr}</p>}
+                  {discountInfo && (
+                    <p className="text-green-400 text-xs font-bold mt-2 ml-1 flex items-center gap-1">
+                      <CheckCircle size={12} /> {discountInfo.type === "PERCENTAGE" ? `${discountInfo.value}% off` : `$${discountInfo.value} off`} applied
                     </p>
+                  )}
+                </div>
+
+                {/* Order Summary */}
+                <div className="pt-6 border-t border-white/10 space-y-3 mb-6">
+                  <div className="flex justify-between text-zinc-400 text-sm font-medium">
+                    <span>Subtotal</span>
+                    <span className="text-white">${total.toFixed(2)}</span>
                   </div>
-                  {selectedPayment === "balance" && <CheckCircle size={16} className="text-white shrink-0" />}
+                  {discount > 0 && (
+                    <div className="flex justify-between text-green-400 text-sm font-bold">
+                      <span>Discount</span>
+                      <span>-${discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-end pt-3 border-t border-white/5">
+                    <span className="text-white font-bold text-base">Total Due</span>
+                    <span className="text-3xl font-black text-white">${finalTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {payErr && <p className="text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl text-sm font-medium text-center mb-4">{payErr}</p>}
+
+                <button onClick={handleCheckout} disabled={paying}
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-black text-black text-base transition-all bg-amber-500 hover:bg-amber-400 disabled:opacity-50 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)]">
+                  {paying ? <Loader2 size={20} className="animate-spin" /> : <Zap size={20} className="fill-black" />}
+                  {paying ? "Processing Order…" : "Pay Now"}
                 </button>
-              )}
-            </div>
-          </div>
-
-          {/* Trust badges */}
-          <div className="flex items-center justify-center gap-6 flex-wrap mb-5">
-            {[{ icon: "🔒", text: "Secure" }, { icon: "⚡", text: "Instant Delivery" }, { icon: "🔄", text: "Replacement Guarantee" }].map((b) => (
-              <div key={b.text} className="flex items-center gap-1.5 text-xs text-zinc-500">
-                <span className="text-white">{b.icon}</span><span>{b.text}</span>
+                <div className="flex items-center justify-center gap-6 mt-5 text-zinc-500">
+                  <span className="flex items-center gap-1.5 text-xs font-medium"><span className="text-base">🔒</span> Secure</span>
+                  <span className="flex items-center gap-1.5 text-xs font-medium"><span className="text-base">⚡</span> Instant</span>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
 
-          {payErr && <p className="text-white text-sm text-center mb-4">{payErr}</p>}
-
-          <button onClick={handleCheckout} disabled={paying}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-black text-base transition-all bg-white hover:bg-zinc-200 disabled:opacity-50">
-            {paying ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
-            {paying ? "Processing…" : `Pay $${finalTotal.toFixed(2)} — ${items.length} Item${items.length !== 1 ? "s" : ""}`}
-          </button>
-
-          <p className="text-center text-xs text-zinc-600 mt-3">
-            One payment for all items. All products delivered to your email.
-          </p>
-
-          <div className="flex justify-center mt-6">
-            <Link href="/products" className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">
-              Continue shopping <ArrowRight size={13} />
-            </Link>
           </div>
         </div>
       </div>

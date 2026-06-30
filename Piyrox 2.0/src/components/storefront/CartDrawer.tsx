@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { X, ShoppingCart, Trash2, ArrowRight, Zap } from "lucide-react";
+import { X, ShoppingCart, Trash2, ArrowRight, Zap, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
 interface CartDrawerProps {
@@ -37,86 +37,44 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   return (
     <>
       {/* Backdrop */}
-      {open && (
-        <div
-          onClick={onClose}
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 998,
-            background: "rgba(0,0,0,0.65)",
-            backdropFilter: "blur(4px)",
-          }}
-        />
-      )}
+      <div
+        onClick={onClose}
+        className={`fixed inset-0 z-[998] bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      />
 
       {/* Drawer panel */}
       <div
-        style={{
-          position: "fixed",
-          top: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 999,
-          width: "100%",
-          maxWidth: 360,
-          background: "rgba(8,8,8,0.98)",
-          borderLeft: "1px solid rgba(255,255,255,0.08)",
-          backdropFilter: "blur(40px)",
-          display: "flex",
-          flexDirection: "column",
-          transform: open ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
-        }}
+        className={`fixed top-0 right-0 bottom-0 w-full max-w-sm z-[999] bg-[#0a0a0a]/95 backdrop-blur-2xl border-l border-white/10 flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
       >
         {/* Header */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "16px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
-          flexShrink: 0,
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <ShoppingCart size={18} color="#f59e0b" />
-            <span style={{ fontWeight: 700, color: "#fff", fontSize: 15 }}>Cart</span>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+              <ShoppingCart size={16} className="text-amber-500" />
+            </div>
+            <span className="font-bold text-white text-base">Your Cart</span>
             {items.length > 0 && (
-              <span style={{
-                background: "rgba(245,158,11,0.15)",
-                border: "1px solid rgba(245,158,11,0.3)",
-                color: "#fbbf24",
-                borderRadius: 100,
-                padding: "1px 8px",
-                fontSize: 12,
-                fontWeight: 600,
-              }}>
+              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">
                 {items.length}
               </span>
             )}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="flex items-center gap-3">
             {items.length > 0 && (
               <button
                 onClick={clearCart}
-                style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
+                className="text-xs font-medium text-zinc-500 hover:text-white transition-colors"
               >
                 Clear all
               </button>
             )}
             <button
               onClick={onClose}
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 8,
-                padding: 6,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "rgba(255,255,255,0.6)",
-              }}
+              className="p-1.5 rounded-lg bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5 transition-all"
             >
               <X size={16} />
             </button>
@@ -124,75 +82,67 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
         </div>
 
         {/* Items */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
+        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
           {items.length === 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", textAlign: "center", padding: "40px 0" }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: 16,
-                background: "rgba(245,158,11,0.08)",
-                border: "1px solid rgba(245,158,11,0.15)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                marginBottom: 16,
-              }}>
-                <ShoppingCart size={24} color="rgba(245,158,11,0.5)" />
+            <div className="flex flex-col items-center justify-center h-full text-center py-10 opacity-70">
+              <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-5">
+                <ShoppingCart size={28} className="text-zinc-600" />
               </div>
-              <p style={{ color: "#fff", fontWeight: 600, marginBottom: 6 }}>Your cart is empty</p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, marginBottom: 20 }}>Add products to get started</p>
+              <p className="text-white font-bold text-lg mb-1">Your cart is empty</p>
+              <p className="text-zinc-500 text-sm mb-6 max-w-[200px]">Looks like you haven't added anything yet.</p>
               <Link
                 href="/products"
                 onClick={onClose}
-                style={{
-                  fontSize: 13,
-                  color: "#fbbf24",
-                  textDecoration: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
+                className="group flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-200 transition-colors"
               >
-                Browse products <ArrowRight size={13} />
+                Start Shopping <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="flex flex-col gap-3">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "12px",
-                    borderRadius: 12,
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                  }}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors relative group"
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ color: "#fff", fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div className="w-14 h-14 shrink-0 rounded-lg bg-black/40 border border-white/10 overflow-hidden relative">
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center opacity-50">
+                        <Package size={20} className="text-zinc-500" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0 py-1">
+                    <p className="text-white text-sm font-bold truncate group-hover:text-amber-400 transition-colors">
                       {item.title}
                     </p>
-                    <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, marginTop: 2 }}>
-                      {CAT[item.category] ?? item.category}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
+                        {CAT[item.category] ?? item.category}
+                      </span>
+                      {item.variantName && (
+                        <>
+                          <span className="text-zinc-700 text-[10px]">•</span>
+                          <span className="text-[10px] font-medium text-zinc-400 truncate max-w-[80px]">{item.variantName}</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <span style={{ color: "#fff", fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
-                    ${item.price.toFixed(2)}
-                  </span>
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 4,
-                      borderRadius: 6,
-                      color: "rgba(255,255,255,0.3)",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                    <span className="text-white font-black text-sm">
+                      ${item.price.toFixed(2)}
+                    </span>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="text-zinc-600 hover:text-red-400 transition-colors"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -201,40 +151,23 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div style={{
-            padding: "16px",
-            borderTop: "1px solid rgba(255,255,255,0.07)",
-            flexShrink: 0,
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>Total</span>
-              <span style={{ color: "#fff", fontWeight: 700, fontSize: 18 }}>${total.toFixed(2)}</span>
+          <div className="p-5 border-t border-white/10 bg-black/40 shrink-0">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-zinc-400 text-sm font-medium">Subtotal</span>
+              <span className="text-white font-black text-xl">${total.toFixed(2)}</span>
             </div>
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 11, textAlign: "center", marginBottom: 12 }}>
-              Digital products are purchased individually
-            </p>
+            
             <Link
               href="/cart"
               onClick={onClose}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                padding: "12px 16px",
-                borderRadius: 12,
-                background: "rgba(245,158,11,0.15)",
-                border: "1px solid rgba(245,158,11,0.35)",
-                textDecoration: "none",
-                color: "#fff",
-                fontSize: 14,
-                fontWeight: 700,
-                boxShadow: "0 4px 20px rgba(245,158,11,0.2)",
-              }}
+              className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-amber-500 text-black font-black text-sm hover:bg-amber-400 transition-colors shadow-[0_0_20px_rgba(245,158,11,0.2)]"
             >
-              <Zap size={15} color="#fbbf24" />
-              Checkout — ${total.toFixed(2)}
+              <Zap size={16} />
+              Proceed to Checkout
             </Link>
+            <p className="text-zinc-600 text-[10px] uppercase tracking-widest font-semibold text-center mt-4">
+              Secure checkout • Instant delivery
+            </p>
           </div>
         )}
       </div>

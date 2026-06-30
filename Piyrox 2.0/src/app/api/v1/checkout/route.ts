@@ -238,7 +238,7 @@ export async function POST(req: NextRequest) {
       const token = paymentoJson.body;
       const redirectUrl = `https://app.paymento.io/gateway?token=${token}`;
       await db.order.update({ where: { id: order.id }, data: { paymentRef: token } });
-      return NextResponse.json({ data: { redirectUrl }, error: null, meta: {} });
+      return NextResponse.json({ data: { redirectUrl, orderId: order.id }, error: null, meta: {} });
     }
 
     if (paymentProvider === "discord") {

@@ -247,6 +247,12 @@ function CheckoutPageInner() {
       setGiftCardModal({ orderId: data.data.orderId, amount: data.data.denomination ?? finalPrice });
       return;
     }
+    // For crypto (paymento): redirect to invoice page so user has a record.
+    // The invoice page shows a "Continue to Payment" button linking to Paymento.
+    if (provider === "paymento" && data.data?.orderId) {
+      window.location.href = `/invoice/${data.data.orderId}`;
+      return;
+    }
     if (data.data?.redirectUrl) window.location.href = data.data.redirectUrl;
   }
 
