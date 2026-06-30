@@ -12,7 +12,10 @@ interface Message {
 }
 
 const AI_MODELS = [
+  { id: "google/gemini-2.5-pro:free", name: "Gemini 2.5 Pro", tag: "FREE" },
+  { id: "google/gemini-2.5-flash:free", name: "Gemini 2.5 Flash", tag: "FREE" },
   { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", tag: "FREE" },
+  { id: "qwen/qwen-2.5-72b-instruct:free", name: "Qwen 2.5 72B", tag: "FREE" },
 ];
 
 const QUICK_PROMPTS = [
@@ -69,7 +72,7 @@ export default function AdminAIPage() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("z-ai/glm-4.5-air:free");
+  const [model, setModel] = useState("google/gemini-2.5-pro:free");
   const [showConfig, setShowConfig] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,11 +96,11 @@ export default function AdminAIPage() {
           if (savedModel && VALID.has(savedModel)) {
             setModel(savedModel);
           } else {
-            setModel("z-ai/glm-4.5-air:free");
+            setModel("google/gemini-2.5-pro:free");
             await fetch("/api/admin/settings", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ai_model: "z-ai/glm-4.5-air:free" })
+              body: JSON.stringify({ ai_model: "google/gemini-2.5-pro:free" })
             });
           }
         }

@@ -235,36 +235,49 @@ function parseToolCalls(reply: string): ToolCall[] {
   const seen = new Set<string>();
 
   // 1. JSON format: {"action": "...", "params": {...}}
-  // We look for the pattern and then find the matching closing brace for the whole object
-  const startRegex = /\{\s*"action"\s*:\s*"([^"]+)"/g;
-  let match;
-  while ((match = startRegex.exec(reply)) !== null) {
-    const startIndex = match.index;
-    let braceCount = 0;
-    let foundEnd = false;
-    let endIndex = startIndex;
+  // We look for {"action" anywhere, but also handle markdown blocks ```json ... ```
+  // First, extract all ```json ... ``` blocks
+  const jsonBlocks = [];
+  const mdRegex = /```(?:json)?\s*([\s\S]*?)```/g;
+  let mdMatch;
+  while ((mdMatch = mdRegex.exec(reply)) !== null) {
+    jsonBlocks.push(mdMatch[1]);
+  }
+  
+  // Also just search the whole text for standalone JSON
+  jsonBlocks.push(reply);
 
-    for (let i = startIndex; i < reply.length; i++) {
-      if (reply[i] === "{") braceCount++;
-      else if (reply[i] === "}") braceCount--;
+  for (const block of jsonBlocks) {
+    const startRegex = /\{\s*"action"\s*:\s*"([^"]+)"/g;
+    let match;
+    while ((match = startRegex.exec(block)) !== null) {
+      const startIndex = match.index;
+      let braceCount = 0;
+      let foundEnd = false;
+      let endIndex = startIndex;
 
-      if (braceCount === 0 && i > startIndex) {
-        endIndex = i + 1;
-        foundEnd = true;
-        break;
-      }
-    }
+      for (let i = startIndex; i < block.length; i++) {
+        if (block[i] === "{") braceCount++;
+        else if (block[i] === "}") braceCount--;
 
-    if (foundEnd) {
-      const raw = reply.substring(startIndex, endIndex);
-      if (seen.has(raw)) continue;
-      try {
-        const parsed = JSON.parse(raw) as { action: string; params: Record<string, unknown> };
-        if (parsed.action && parsed.params !== undefined) {
-          toolCalls.push({ action: parsed.action, params: parsed.params, raw });
-          seen.add(raw);
+        if (braceCount === 0 && i > startIndex) {
+          endIndex = i + 1;
+          foundEnd = true;
+          break;
         }
-      } catch (_) {}
+      }
+
+      if (foundEnd) {
+        const raw = block.substring(startIndex, endIndex);
+        if (seen.has(raw)) continue;
+        try {
+          const parsed = JSON.parse(raw) as { action: string; params: Record<string, unknown> };
+          if (parsed.action && parsed.params !== undefined) {
+            toolCalls.push({ action: parsed.action, params: parsed.params, raw });
+            seen.add(raw);
+          }
+        } catch (_) {}
+      }
     }
   }
 
@@ -314,15 +327,11 @@ function parseToolCalls(reply: string): ToolCall[] {
 // openrouter/free is FIRST — strictly routes to free-tier models only.
 // Never uses paid models regardless of availability.
 const FALLBACK_MODELS = [
-  "openrouter/free",
-  "google/gemma-4-31b-it:free",
-  "google/gemma-4-26b-a4b-it:free",
-  "google/gemma-4-31b:free",
-  "google/gemma-2-9b-it:free",
+  "google/gemini-2.5-pro:free",
+  "google/gemini-2.5-flash:free",
   "qwen/qwen-2.5-72b-instruct:free",
   "meta-llama/llama-3.3-70b-instruct:free",
-  "mistralai/mistral-7b-instruct:free",
-  "deepseek/deepseek-chat:free",
+  "z-ai/glm-4.5-air:free",
   "openrouter/free",
 ];
 
@@ -423,7 +432,12 @@ async function callOpenRouter(
 
 // ─── Tool Definitions (for system prompt) ─────────────────────────────────────
 const TOOL_DEFINITIONS = `
-AVAILABLE TOOLS — use JSON tool call format:
+AVAILABLE TOOLS — To use a tool, you MUST output a JSON object EXACTLY matching this format. You can output it inside a markdown code block if you want:
+\`\`\`json
+{ "action": "create_blog_post", "params": { "title": "str", "excerpt": "str", "content": "html", "category": "str", "emoji": "str", "published": true } }
+\`\`\`
+
+Here are the actions you can call:
 { "action": "create_blog_post", "params": { "title": "str", "excerpt": "str", "content": "html", "category": "str", "emoji": "str", "published": true } }
 { "action": "push_discord_deals", "params": {} }
 { "action": "send_discord_message", "params": { "message": "str" } }
@@ -445,10 +459,10 @@ affiliate: id, userId, code, commissionPct (Decimal), totalEarned (Decimal), pen
 
 ━━━ DB QUERY RULES ━━━
 - FIELD NAMES: Use "title" NOT "name" for products. Use "amount" NOT "total" for orders.
-- To update a product by name: use { "model": "product", "action": "updateMany", "args": { "where": { "title": { "contains": "Directv", "mode": "insensitive" } }, "data": { "price": 64.99 } } }
+- To update a product by name: use { "action": "run_db_query", "params": { "model": "product", "action": "updateMany", "args": { "where": { "title": { "contains": "Directv", "mode": "insensitive" } }, "data": { "price": 64.99 } } } }
 - To find product ID: use findMany with title contains filter, then use the id in subsequent calls.
 - For price updates: pass price as a number (64.99), NOT a string.
-- Use EXACTLY ONE tool call per action.
+- ALWAYS use tools to accomplish tasks. Do not just talk about it.
 - After triggering a tool, narrate what happened in plain English.
 - For DB dates: "TODAY_START", "TODAY_END", "YESTERDAY_START", "NOW".
 `;
@@ -511,11 +525,11 @@ export async function POST(req: NextRequest) {
 
     // ── Mode Detection ─────────────────────────────────────────────────────────
     const CONTEXT_MODELS: Record<string, string> = {
-      seo:       "z-ai/glm-4.5-air:free",
-      marketing: "z-ai/glm-4.5-air:free",
-      strategy:  "z-ai/glm-4.5-air:free",
-      task:      "z-ai/glm-4.5-air:free",
-      general:   "z-ai/glm-4.5-air:free",
+      seo:       "google/gemini-2.5-pro:free",
+      marketing: "google/gemini-2.5-pro:free",
+      strategy:  "google/gemini-2.5-pro:free",
+      task:      "google/gemini-2.5-pro:free",
+      general:   "google/gemini-2.5-pro:free",
     };
 
     let orchestrationMode = context || "auto";
@@ -529,10 +543,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Model Selection ────────────────────────────────────────────────────────
-    let selectedModel = "z-ai/glm-4.5-air:free"; // Enforced Global Model
-    if (orchestrationMode !== "auto") {
-      selectedModel = "z-ai/glm-4.5-air:free";
-    }
+    let selectedModel = selectedModelName || "google/gemini-2.5-pro:free";
     console.log(`[AI Router] Mode: ${orchestrationMode}, Model: ${selectedModel}, Name: ${selectedModelName}`);
 
     // ── Persona ────────────────────────────────────────────────────────────────
