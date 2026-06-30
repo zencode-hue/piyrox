@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import HeroSection from '@/components/storefront/HeroSection';
 import ProductCard from '@/components/storefront/ProductCard';
+import TabbedCategories from '@/components/storefront/TabbedCategories';
 import FeaturedCategories from '@/components/storefront/FeaturedCategories';
 import TrustBadges from '@/components/storefront/TrustBadges';
 import NewsletterSection from '@/components/storefront/NewsletterSection';
@@ -107,70 +108,52 @@ export default async function HomePage() {
 
 
 
-      {/* ── 4. How It Works ── */}
+      {/* ── 4. Unified Features / Why Us ── */}
       <section className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-14">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70 mb-3">
-              Simple Process
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-400 mb-3">
+              The PiyRox Advantage
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold text-white">
-              How It Works
+              Why Choose Us?
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                step: '01',
-                icon: Gem,
-                title: 'Browse & Select',
-                desc: 'Explore our curated catalog of premium digital subscriptions. Find Netflix, Spotify, ChatGPT Plus and more at unbeatable prices.',
-              },
-              {
-                step: '02',
-                icon: Shield,
-                title: 'Secure Payment',
-                desc: 'Pay safely with crypto, Binance gift cards, or wallet balance. All transactions are encrypted and processed instantly.',
-              },
-              {
-                step: '03',
                 icon: Zap,
                 title: 'Instant Delivery',
-                desc: 'Receive your product credentials in your inbox within seconds. Fully automated — no waiting, no manual steps.',
+                desc: 'Credentials in your inbox instantly after payment. Fully automated.',
               },
-            ].map((item, i) => (
+              {
+                icon: Shield,
+                title: 'Secure & Encrypted',
+                desc: 'AES-256-GCM encryption. Zero data exposure.',
+              },
+              {
+                icon: Gem,
+                title: 'Unbeatable Prices',
+                desc: 'Netflix, Spotify, AI tools and more at massive discounts.',
+              },
+              {
+                icon: CheckCircle,
+                title: 'Replacement Guarantee',
+                desc: 'Verified products with guaranteed replacements if things go wrong.',
+              },
+            ].map((item) => (
               <div
-                key={item.step}
-                className="relative group rounded-2xl p-8 text-center transition-all duration-300 hover:-translate-y-1 glass-card"
+                key={item.title}
+                className="rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04]"
               >
-                {/* Step number */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white"
-                    style={{
-                      background: 'rgba(255,255,255,0.1)',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                    }}
-                  >
-                    {item.step}
-                  </span>
-                </div>
-
-                <div className="flex justify-center mb-5 mt-2">
-                  <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center glass-card"
-                  >
-                    <item.icon size={24} className="text-white" />
+                <div className="flex justify-center mb-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-orange-500/10 border border-orange-500/20">
+                    <item.icon size={22} className="text-orange-400" />
                   </div>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
-                <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
-
-                {/* Connector line (hidden on last + mobile) */}
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 border-t border-dashed border-white/10" />
-                )}
+                <h3 className="font-semibold text-white mb-2">{item.title}</h3>
+                <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -202,104 +185,11 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── 6. Tabbed Categories ── */}
+      <TabbedCategories categories={categorySections} />
 
-
-      {/* ── 7. Category Sections ── */}
-      {categorySections.map((section) => (
-        <section
-          key={section.id}
-          className="border-t border-white/10"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">
-                Top {section.label} Products
-              </h2>
-              <Link
-                href={`/products?category=${section.id}`}
-                className="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors"
-              >
-                See all <ArrowRight size={14} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {section.products.map((p) => (
-                <ProductCard key={p.id} {...p} />
-              ))}
-            </div>
-          </div>
-        </section>
-      ))}
-
-      {/* ── 8. Featured Categories ── */}
+      {/* ── 7. Featured Categories Grid ── */}
       <FeaturedCategories />
-
-      {/* ── 9. Why Choose PIYROX ── */}
-      <section className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70 mb-3">
-              Why Us
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">
-              Why Choose PIYROX?
-            </h2>
-            <p className="text-white/60 mt-3 max-w-lg mx-auto">
-              Trusted by thousands of customers in 50+ countries
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Zap,
-                title: 'Instant Delivery',
-                desc: 'Credentials hit your inbox the moment payment confirms. Fully automated — no waiting, no manual steps, ever.',
-              },
-              {
-                icon: Lock,
-                title: 'Secure & Encrypted',
-                desc: 'All inventory encrypted with AES-256-GCM. Payments processed through trusted providers with zero data exposure.',
-              },
-              {
-                icon: Gem,
-                title: 'Unbeatable Prices',
-                desc: 'Get Netflix, Spotify, IPTV and more at prices far below official plans. Bulk sourcing, savings passed to you.',
-              },
-              {
-                icon: Clock,
-                title: '24/7 Live Support',
-                desc: 'Real humans on Discord around the clock. Open a ticket and get a response within minutes — not hours.',
-              },
-              {
-                icon: Star,
-                title: '4.7★ Customer Rating',
-                desc: 'Thousands of verified reviews from happy customers across 50+ countries. We deliver on every promise.',
-              },
-              {
-                icon: CheckCircle,
-                title: 'Replacement Guarantee',
-                desc: 'Every product is verified before listing. If anything goes wrong, we replace it — no questions asked.',
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="rounded-2xl p-6 text-center transition-all duration-300 hover:-translate-y-1 glass-card"
-              >
-                <div className="flex justify-center mb-4">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center glass-card"
-                  >
-                    <item.icon size={22} className="text-white" />
-                  </div>
-                </div>
-                <h3 className="font-semibold text-white mb-2">{item.title}</h3>
-                <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── 10. Community Section ── */}
       <CommunitySection

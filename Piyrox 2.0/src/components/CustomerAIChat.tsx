@@ -29,31 +29,46 @@ export default function CustomerAIChat({ productId }: { productId?: string }) {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: Message = { role: "user", content: input };
+  const submitMessage = async (text: string, currentMessages: Message[]) => {
+    if (!text.trim() || isLoading) return;
+    const userMessage: Message = { role: "user", content: text };
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
-
     try {
       const res = await fetch("/api/ai/customer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-          productId
-        })
+        body: JSON.stringify({ messages: [...currentMessages, userMessage], productId })
       });
       const data = await res.json();
       setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
-    } catch (error) {
-      setMessages(prev => [...prev, { role: "assistant", content: "Sorry, I'm having trouble responding right now. Please try again later!" }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "assistant", content: "Sorry, I'm having trouble right now." }]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const handleOpenChat = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const initialPrompt = customEvent.detail;
+      setIsOpen(true);
+      if (initialPrompt && typeof initialPrompt === 'string') {
+        // Use a functional state update to ensure we have the latest messages
+        setMessages(currentMsgs => {
+          // Fire the async submit with the latest messages
+          submitMessage(initialPrompt, currentMsgs);
+          return currentMsgs; // submitMessage will handle the state update itself
+        });
+      }
+    };
+    window.addEventListener("open-ai-chat", handleOpenChat);
+    return () => window.removeEventListener("open-ai-chat", handleOpenChat);
+  }, [isLoading, productId]);
+
+  const handleSend = () => submitMessage(input, messages);
 
   // Do not render for admins
   if (isAdmin) return null;
