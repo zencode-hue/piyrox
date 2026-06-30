@@ -5,7 +5,7 @@ import {
   Globe, Search, TrendingUp, FileText, CheckCircle, AlertTriangle, 
   Send, RefreshCw, Loader2, Copy, Check, Code, Bot, BarChart, 
   ExternalLink, Link2, Zap, Shield, Target, BookOpen, Layers, 
-  ArrowUpRight, PieChart, Activity, Cpu, Briefcase, X
+  ArrowUpRight, PieChart, Activity, Cpu, Briefcase, X, Sparkles
 } from "lucide-react";
 
 type Tab = "dashboard" | "meta" | "keywords" | "competitors" | "backlinks" | "audit" | "strategy" | "optimizer";
