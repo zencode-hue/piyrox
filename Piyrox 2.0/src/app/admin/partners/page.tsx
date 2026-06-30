@@ -1,15 +1,15 @@
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
-import { Handshake } from "lucide-react";
+import { Handshake, Link as LinkIcon, Wallet } from "lucide-react";
 import PartnerActions from "./PartnerActions";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-const STATUS_BADGE: Record<string, string> = {
-  ACTIVE: "badge-green",
-  PENDING: "badge-yellow",
-  SUSPENDED: "badge-red",
+const STATUS_BADGE: Record<string, { label: string; bg: string; text: string }> = {
+  ACTIVE: { label: "Active", bg: "bg-green-500/10", text: "text-green-400" },
+  PENDING: { label: "Pending", bg: "bg-yellow-500/10", text: "text-yellow-400" },
+  SUSPENDED: { label: "Suspended", bg: "bg-red-500/10", text: "text-red-400" },
 };
 
 export default async function AdminPartnersPage() {
@@ -27,75 +27,107 @@ export default async function AdminPartnersPage() {
   const pendingPayouts = partners.reduce((acc, p) => acc + p.payoutRequests.length, 0);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Handshake size={22} className="text-green-400" /> Partner Affiliates
-          <span className="text-sm font-normal text-gray-500 ml-2">({partners.length})</span>
-        </h1>
+    <div className="space-y-6 pb-8">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <Handshake size={24} className="text-orange-400" />
+            Partner Affiliates
+          </h1>
+          <p className="text-zinc-500 text-sm mt-0.5">
+            Manage {partners.length} exclusive partners and payouts
+          </p>
+        </div>
         {pendingPayouts > 0 && (
           <Link href="/admin/partners/payouts"
-            className="text-sm text-yellow-400 border border-yellow-400/30 bg-yellow-400/10 px-4 py-2 rounded-lg hover:bg-yellow-400/20 transition-colors">
-            {pendingPayouts} pending payout{pendingPayouts > 1 ? "s" : ""}
+            className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-4 py-2 rounded-xl hover:bg-yellow-500/20 transition-all">
+            <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+            <span className="text-[11px] font-bold text-yellow-400 uppercase tracking-widest">{pendingPayouts} Pending Payout{pendingPayouts > 1 ? "s" : ""}</span>
           </Link>
         )}
       </div>
 
-      {partners.length === 0 ? (
-        <div className="glass-card p-12 text-center text-gray-500">
-          <Handshake size={40} className="mx-auto mb-4 opacity-20" />
-          <p>No partner applications yet.</p>
-        </div>
-      ) : (
-        <div className="glass-card overflow-x-auto">
-          <table className="w-full text-sm min-w-[900px]">
-            <thead>
-              <tr className="border-b border-white/5 text-gray-500 text-xs uppercase">
-                <th className="text-left px-4 py-3">Partner</th>
-                <th className="text-left px-4 py-3">Code</th>
-                <th className="text-right px-4 py-3">Referrals</th>
-                <th className="text-right px-4 py-3">Balance</th>
-                <th className="text-right px-4 py-3">Total Earned</th>
-                <th className="text-right px-4 py-3">Paid Out</th>
-                <th className="text-right px-4 py-3">Commission</th>
-                <th className="text-left px-4 py-3">Wallet</th>
-                <th className="text-center px-4 py-3">Status</th>
-                <th className="text-right px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {partners.map((p) => (
-                <tr key={p.id} className="border-b border-white/5 hover:bg-white/2">
-                  <td className="px-4 py-3">
-                    <p className="text-white text-sm">{p.user.name ?? p.user.email}</p>
-                    <p className="text-gray-500 text-xs">{p.user.email}</p>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs text-green-400">{p.referralCode}</td>
-                  <td className="px-4 py-3 text-right text-white">{p._count.referrals}</td>
-                  <td className="px-4 py-3 text-right text-yellow-400 font-medium">${Number(p.balance).toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-green-400">${Number(p.totalEarned).toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-gray-400">${Number(p.totalPaidOut).toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-white">{Number(p.commissionPct)}%</td>
-                  <td className="px-4 py-3">
-                    {p.cryptoWallet ? (
-                      <div>
-                        <span className="text-xs text-purple-400">{p.walletType}</span>
-                        <p className="text-xs text-gray-600 font-mono truncate max-w-[100px]">{p.cryptoWallet}</p>
-                      </div>
-                    ) : <span className="text-gray-600 text-xs">Not set</span>}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={STATUS_BADGE[p.status] ?? "badge-purple"}>{p.status}</span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <PartnerActions partnerId={p.id} currentStatus={p.status} commissionPct={Number(p.commissionPct)} />
-                  </td>
+      <div className="admin-card overflow-hidden mt-8">
+        {partners.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <Handshake size={48} className="text-zinc-700 mb-4" />
+            <p className="text-zinc-400 font-medium text-lg">No partner applications yet</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[1000px]">
+              <thead>
+                <tr className="text-zinc-500 text-xs uppercase tracking-wider" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <th className="text-left px-5 py-4 font-semibold">Partner</th>
+                  <th className="text-left px-5 py-4 font-semibold">Code</th>
+                  <th className="text-center px-5 py-4 font-semibold">Status</th>
+                  <th className="text-right px-5 py-4 font-semibold">Referrals</th>
+                  <th className="text-right px-5 py-4 font-semibold">Commission</th>
+                  <th className="text-right px-5 py-4 font-semibold">Balance</th>
+                  <th className="text-right px-5 py-4 font-semibold">Total Earned</th>
+                  <th className="text-left px-5 py-4 font-semibold">Payout Wallet</th>
+                  <th className="text-right px-5 py-4 font-semibold">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                {partners.map((p) => {
+                  const badge = STATUS_BADGE[p.status] ?? { label: p.status, bg: "bg-zinc-500/10", text: "text-zinc-400" };
+                  return (
+                    <tr key={p.id} className="hover:bg-white/[0.02] transition-colors group">
+                      <td className="px-5 py-4">
+                        <span className="block font-medium text-white">{p.user.name ?? p.user.email}</span>
+                        {p.user.name && <span className="text-zinc-500 text-[11px] block mt-0.5">{p.user.email}</span>}
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-orange-500/10 border border-orange-500/20">
+                          <LinkIcon size={12} className="text-orange-400" />
+                          <span className="font-mono text-xs font-bold text-orange-400">{p.referralCode}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 text-center">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${badge.bg} ${badge.text}`}>
+                          {badge.label}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-right text-zinc-300 font-bold tabular-nums">
+                        {p._count.referrals}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <span className="text-[11px] font-bold text-zinc-400 bg-white/5 px-2 py-1 rounded">{Number(p.commissionPct)}%</span>
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <span className="text-yellow-400 font-bold tabular-nums">${Number(p.balance).toFixed(2)}</span>
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <span className="text-green-400 font-bold tabular-nums">${Number(p.totalEarned).toFixed(2)}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        {p.cryptoWallet ? (
+                          <div className="flex items-start gap-2">
+                            <Wallet size={14} className="text-zinc-500 mt-0.5 shrink-0" />
+                            <div>
+                              <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 block">{p.walletType}</span>
+                              <span className="font-mono text-xs text-zinc-500 truncate max-w-[120px] block">{p.cryptoWallet}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-600 bg-white/5 px-2 py-1 rounded">Not Set</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                          <PartnerActions partnerId={p.id} currentStatus={p.status} commissionPct={Number(p.commissionPct)} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

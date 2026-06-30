@@ -1,14 +1,14 @@
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
-import { Users } from "lucide-react";
+import { Users, UserPlus } from "lucide-react";
 import StaffActions from "./StaffActions";
 
 export const dynamic = "force-dynamic";
 
-const STATUS_BADGE: Record<string, string> = {
-  ACTIVE: "badge-green",
-  PENDING: "badge-yellow",
-  SUSPENDED: "badge-red",
+const STATUS_BADGE: Record<string, { label: string; bg: string; text: string }> = {
+  ACTIVE: { label: "Active", bg: "bg-green-500/10", text: "text-green-400" },
+  PENDING: { label: "Pending", bg: "bg-yellow-500/10", text: "text-yellow-400" },
+  SUSPENDED: { label: "Suspended", bg: "bg-red-500/10", text: "text-red-400" },
 };
 
 export default async function AdminStaffPage() {
@@ -22,58 +22,82 @@ export default async function AdminStaffPage() {
   const pending = staff.filter((s) => s.status === "PENDING").length;
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Users size={22} className="text-blue-400" /> Staff Members
-          <span className="text-sm font-normal text-gray-500 ml-2">({staff.length})</span>
-          {pending > 0 && (
-            <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-full">
-              {pending} pending
-            </span>
-          )}
-        </h1>
+    <div className="space-y-6 pb-8">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <Users size={24} className="text-orange-400" />
+            Staff Members
+          </h1>
+          <p className="text-zinc-500 text-sm mt-0.5">
+            Manage {staff.length} staff accounts and permissions
+          </p>
+        </div>
+        {pending > 0 && (
+          <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-4 py-2 rounded-xl">
+            <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+            <span className="text-[11px] font-bold text-yellow-400 uppercase tracking-widest">{pending} Pending</span>
+          </div>
+        )}
       </div>
 
-      {staff.length === 0 ? (
-        <div className="glass-card p-12 text-center text-gray-500">
-          <Users size={40} className="mx-auto mb-4 opacity-20" />
-          <p>No staff accounts yet. Staff can register at <span className="text-orange-400">/staff-register</span></p>
-        </div>
-      ) : (
-        <div className="glass-card overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/5 text-gray-500 text-xs uppercase">
-                <th className="text-left px-5 py-3">Name</th>
-                <th className="text-left px-5 py-3">Email</th>
-                <th className="text-left px-5 py-3">Position</th>
-                <th className="text-center px-5 py-3">Status</th>
-                <th className="text-left px-5 py-3">Joined</th>
-                <th className="text-right px-5 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {staff.map((s) => (
-                <tr key={s.id} className="border-b border-white/5 hover:bg-white/2">
-                  <td className="px-5 py-3 text-white font-medium">{s.name}</td>
-                  <td className="px-5 py-3 text-gray-400 text-xs">{s.email}</td>
-                  <td className="px-5 py-3 text-gray-400 text-xs">{s.position ?? <span className="text-gray-600 italic">Not set</span>}</td>
-                  <td className="px-5 py-3 text-center">
-                    <span className={STATUS_BADGE[s.status] ?? "badge-purple"}>{s.status}</span>
-                  </td>
-                  <td className="px-5 py-3 text-gray-500 text-xs">
-                    {new Date(s.joinedAt ?? s.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <StaffActions staffId={s.id} currentStatus={s.status} currentPosition={s.position} />
-                  </td>
+      <div className="admin-card overflow-hidden mt-8">
+        {staff.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <Users size={48} className="text-zinc-700 mb-4" />
+            <p className="text-zinc-400 font-medium text-lg">No staff accounts yet</p>
+            <p className="text-zinc-500 text-sm mt-1">Staff can register at <span className="font-mono text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded">/staff-register</span></p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[800px]">
+              <thead>
+                <tr className="text-zinc-500 text-xs uppercase tracking-wider" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <th className="text-left px-5 py-4 font-semibold">Staff Member</th>
+                  <th className="text-left px-5 py-4 font-semibold">Position</th>
+                  <th className="text-center px-5 py-4 font-semibold">Status</th>
+                  <th className="text-left px-5 py-4 font-semibold">Joined</th>
+                  <th className="text-right px-5 py-4 font-semibold">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                {staff.map((s) => {
+                  const badge = STATUS_BADGE[s.status] ?? { label: s.status, bg: "bg-zinc-500/10", text: "text-zinc-400" };
+                  return (
+                    <tr key={s.id} className="hover:bg-white/[0.02] transition-colors group">
+                      <td className="px-5 py-4">
+                        <span className="block font-medium text-white">{s.name}</span>
+                        <span className="text-zinc-500 text-[11px] block mt-0.5">{s.email}</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        {s.position ? (
+                          <span className="text-zinc-300 font-medium">{s.position}</span>
+                        ) : (
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-600 bg-white/5 px-2 py-1 rounded">Not Set</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-center">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${badge.bg} ${badge.text}`}>
+                          {badge.label}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-zinc-500 text-xs font-medium">
+                        {new Date(s.joinedAt ?? s.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                          <StaffActions staffId={s.id} currentStatus={s.status} currentPosition={s.position} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

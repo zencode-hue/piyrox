@@ -15,17 +15,28 @@ export default async function AdminSettingsPage() {
   for (const s of settings) map[s.key] = s.value;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">
-        <Settings size={22} style={{ color: "#f59e0b" }} /> Settings
-      </h1>
+    <div className="space-y-6 pb-8">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <Settings size={24} className="text-orange-400" />
+            Platform Settings
+          </h1>
+          <p className="text-zinc-500 text-sm mt-0.5">
+            Configure global site behavior, integrations, and announcements
+          </p>
+        </div>
+      </div>
 
-      <div className="space-y-6 max-w-2xl">
+      <div className="space-y-8 max-w-3xl mt-8">
         <AnnouncementEditor
           initialText={map["announcement_text"] ?? "🎉 New products added daily — Browse now · Instant delivery on all orders"}
           initialEnabled={map["announcement_enabled"] !== "false"}
           initialLink={map["announcement_link"] ?? "/products"}
         />
+
+        <div className="h-px w-full bg-white/5" />
 
         <SiteSettingsEditor
           initialValues={{
