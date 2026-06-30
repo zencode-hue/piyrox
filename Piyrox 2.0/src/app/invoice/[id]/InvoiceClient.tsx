@@ -102,9 +102,9 @@ function CryptoSection({ orderId: _orderId, paymentRef }: { orderId: string; pay
         </div>
       </div>
       {paymentRef ? (
-        <a href={`https://paymento.io/payment/?iid=${paymentRef}`} target="_blank" rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white"
-          style={{ background: "rgba(251,146,60,0.12)", border: "1px solid rgba(251,146,60,0.25)" }}>
+        <a href={`https://app.paymento.io/gateway?token=${paymentRef}`} target="_blank" rel="noopener noreferrer"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+          style={{ background: "rgba(251,146,60,0.15)", border: "1px solid rgba(251,146,60,0.3)" }}>
           <ExternalLink size={14} /> Continue to Payment
         </a>
       ) : (
